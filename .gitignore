@@ -1,0 +1,10 @@
+.DS_Store
+__pycache__/
+*.pyc
+gornitsa_deploy
+gornitsa_deploy.pub
+
+# Собираются автоматически: страницы — build.py, шрифты — deploy/fetch-fonts.sh
+/site/*.html
+/site/assets/fonts/
+/site/og.png
