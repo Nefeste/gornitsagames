@@ -262,22 +262,47 @@ p { margin: 0; }
 
 .games { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
 .game {
-  display: grid; grid-template-rows: auto auto 1fr auto; gap: 12px;
+  display: flex; flex-direction: column; gap: 12px;
   background: var(--paper);
   border: 1px solid var(--line);
   border-radius: 10px;
   padding: 22px;
+  overflow: hidden;
+}
+.game > p { flex: 1 0 auto; }
+.game-shot {
+  display: grid; place-items: center;
+  margin: -22px -22px 4px;
+  aspect-ratio: 1024 / 500;
+  border-bottom: 1px solid var(--line);
+  background: var(--linen);
+}
+.game-shot img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.game-shot-soon {
+  background-color: var(--linen);
+  background-image: radial-gradient(circle at 50% 50%, var(--cell) 0 18%, transparent 22%);
+  background-size: 14px 14px;
+  padding: 16px;
+}
+.game-shot-soon span {
+  background: var(--paper); border: 1px solid var(--line); border-radius: 999px;
+  padding: 6px 14px; font-size: var(--step--1); color: var(--ink-soft); text-align: center;
 }
 .game-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
 .game-kind { font-size: var(--step--1); color: var(--ink-soft); }
 .status { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; padding: 4px 9px; border-radius: 999px; white-space: nowrap; }
 .status-dev { background: color-mix(in srgb, var(--kumach) 14%, transparent); color: var(--kumach); }
 .status-plan { background: color-mix(in srgb, var(--flax) 20%, transparent); color: var(--ink-soft); }
-.game h3 { font-size: var(--step-2); }
+.status-live { background: color-mix(in srgb, var(--spruce) 16%, transparent); color: var(--spruce); }
+.game h3 { font-size: var(--step-2); display: flex; align-items: center; gap: 12px; }
+.game h3 a { color: inherit; text-decoration: none; }
+.game h3 a:hover { color: var(--kumach); }
 .game p { color: var(--ink-soft); }
 .game ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; font-size: var(--step--1); }
 .game li { display: flex; gap: 10px; }
 .game li::before { content: "×"; color: var(--kumach); font-weight: 600; }
+.game-icon { width: 40px; height: 40px; flex: none; border-radius: 9px; }
+.game-links { display: flex; flex-wrap: wrap; gap: 8px 16px; padding-top: 4px; font-size: var(--step--1); font-weight: 500; }
 
 .principles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(20px, 3vw, 36px) clamp(24px, 5vw, 64px); }
 .principle { display: grid; align-content: start; gap: 6px; padding-top: 16px; border-top: 1px solid var(--line); }
@@ -313,10 +338,26 @@ p { margin: 0; }
 .doc-body ul, .doc-body ol { margin: 0; padding-left: 1.3em; display: grid; gap: 6px; }
 .doc-body li::marker { color: var(--kumach); }
 .meta { font-size: var(--step--1); color: var(--ink-soft); }
+.crumbs { font-size: var(--step--1); font-weight: 500; }
+.game-hero { display: flex; align-items: center; gap: clamp(16px, 3vw, 24px); max-width: 48rem; }
+.game-hero .game-icon { width: clamp(64px, 12vw, 96px); height: clamp(64px, 12vw, 96px); border-radius: 18px; }
+.game-hero > div { display: grid; gap: 8px; }
+.shots {
+  display: grid; grid-auto-flow: column; grid-auto-columns: minmax(150px, 42vw);
+  gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 6px;
+}
+.shots figure { margin: 0; display: grid; gap: 8px; scroll-snap-align: start; }
+.shots img { display: block; width: 100%; height: auto; border-radius: 12px; border: 1px solid var(--line); background: var(--paper); }
+.shots figcaption { font-size: var(--step--1); color: var(--ink-soft); }
+@media (min-width: 900px) {
+  .shots { grid-auto-flow: row; grid-template-columns: repeat(6, minmax(0, 1fr)); overflow: visible; }
+}
 .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); }
 table { border-collapse: collapse; width: 100%; min-width: 520px; font-size: var(--step--1); }
 th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--line); }
 th { background: var(--paper); font-weight: 600; }
+table.compact { min-width: 0; }
+table.compact th, table.compact td { padding: 10px; }
 tr:last-child td { border-bottom: 0; }
 
 details.faq { border-top: 1px solid var(--line); padding-block: 14px; }

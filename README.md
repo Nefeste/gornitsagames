@@ -10,11 +10,13 @@ src/                  шаблоны страниц (редактировать 
   support.html
   privacy.html
   404.html
+  votchina/           страницы «Вотчины»: об игре, турниры, политика, удаление профиля
   partials.py         общая шапка, подвал и <head>
   brandmark.svg       знак «Горницы» для шапки
 site/                 сайт, который выкладывается на сервер (страницы *.html собирает build.py)
   assets/site.css     стили
   assets/site.js      узор-раскраска на главной, орнамент, кнопка «Скопировать»
+  assets/games/       баннеры, значки и снимки экрана игр (WebP)
   assets/fonts/       шрифты woff2 (скачивает deploy/fetch-fonts.sh)
   favicon.svg, robots.txt, sitemap.xml
 build.py              собирает site/*.html из src/
@@ -98,5 +100,9 @@ curl -fsSL https://raw.githubusercontent.com/Nefeste/gornitsagames/main/deploy/b
 ## Перед публикацией игр в RuStore
 
 - Проверьте политику конфиденциальности (`src/privacy.html`) с юристом и добавьте реквизиты оператора (ИП или ООО) после регистрации. Перечень сервисов (реклама, аналитика) должен совпадать с тем, что реально встроено в игры.
-- В консоли RuStore укажите ссылки: политика — https://gornitsa.games/privacy.html, поддержка — https://gornitsa.games/support.html.
-- Названия игр на главной («Узоры», «Посиделки», «Сказы») рабочие — поменяйте в `src/index.html`, когда определитесь.
+- В консоли RuStore укажите ссылки: политика — https://gornitsa.games/privacy.html (для «Вотчины» — https://gornitsa.games/votchina/privacy.html), поддержка — https://gornitsa.games/support.html.
+- Карточки игр — в `src/index.html`, раздел «Наши игры». У «Длинных нард» и «Анамнеза» пока нет снимков экрана: когда появятся, положите баннер 1024×500 в `site/assets/games/` и замените заглушку `game-shot-soon` картинкой, как у «Вотчины».
+
+## Страницы «Вотчины»
+
+Страницы игры перенесены с votchina.michail-manylov.workers.dev в `src/votchina/` и открываются по адресу https://gornitsa.games/votchina/. Онлайн-сервер, веб-версия (`/play/`), ссылки на ход (`/g/`) и английские версии страниц по-прежнему работают на Cloudflare Worker из репозитория votchina — ссылки на них ведут туда. Если текст страниц поменяется в `server/src/pages.ts`, перенесите правку и сюда.

@@ -69,7 +69,7 @@
     function update() {
       if (left) left.textContent = String(remaining);
       if (note && remaining === 0) {
-        note.textContent = "Узор готов. Так устроена наша раскраска «Узоры».";
+        note.textContent = "Узор готов. Спасибо, что заглянули в нашу горницу!";
       }
     }
     update();
