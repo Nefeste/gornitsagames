@@ -28,7 +28,23 @@
     return function () { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; };
   }
 
-  var names = { 1: "красная", 2: "еловая", 3: "льняная" };
+  // Надписи на языке страницы (<html lang="ru"> или lang="en")
+  var EN = (document.documentElement.lang || "").slice(0, 2) === "en";
+  var T = EN ? {
+    names: { 1: "red", 2: "spruce", 3: "flax" },
+    cell: function (r, c, v) { return "Cell " + r + "-" + c + ", thread " + v + " (" + T.names[v] + ")"; },
+    pick: "Pick a thread and fill in the numbered cells.",
+    wrong: function (v) { return "This cell takes thread " + v + " (" + T.names[v] + "). Pick it below."; },
+    done: "Pattern complete. That’s how our color-by-number game Uzory will work.",
+    copy: "Copy", copied: "Copied", selected: "Selected — press Ctrl+C"
+  } : {
+    names: { 1: "красная", 2: "еловая", 3: "льняная" },
+    cell: function (r, c, v) { return "Клетка " + r + "-" + c + ", нить " + v + " (" + T.names[v] + ")"; },
+    pick: "Выберите нить и закрасьте клетки с номерами.",
+    wrong: function (v) { return "Эта клетка под нить " + v + " (" + T.names[v] + "). Выберите её ниже."; },
+    done: "Узор готов. Так будет устроена наша раскраска «Узоры».",
+    copy: "Скопировать", copied: "Скопировано", selected: "Выделено, нажмите Ctrl+C"
+  };
 
   function buildCanvas(root) {
     var grid = root.querySelector(".canvas");
@@ -52,7 +68,7 @@
             cell.dataset.num = String(v);
             cell.textContent = String(v);
             cell.tabIndex = 0;
-            cell.setAttribute("aria-label", "Клетка " + (r + 1) + "-" + (c + 1) + ", нить " + v + " (" + names[v] + ")");
+            cell.setAttribute("aria-label", T.cell(r + 1, c + 1, v));
             remaining++;
           } else {
             cell.className += " st c" + v;
@@ -69,7 +85,7 @@
     function update() {
       if (left) left.textContent = String(remaining);
       if (note && remaining === 0) {
-        note.textContent = "Узор готов. Спасибо, что заглянули в нашу горницу!";
+        note.textContent = T.done;
       }
     }
     update();
@@ -91,7 +107,7 @@
         cell.classList.remove("miss");
         void cell.offsetWidth;
         cell.classList.add("miss");
-        if (note) note.textContent = "Эта клетка под нить " + v + " (" + names[v] + "). Выберите её ниже.";
+        if (note) note.textContent = T.wrong(v);
         return;
       }
       delete cell.dataset.num;
@@ -100,7 +116,7 @@
       cell.setAttribute("aria-hidden", "true");
       cell.className = "cell st pop c" + v;
       remaining--;
-      if (note && remaining > 0) note.textContent = "Выберите нить и закрасьте клетки с номерами.";
+      if (note && remaining > 0) note.textContent = T.pick;
       update();
     });
   }
@@ -153,8 +169,8 @@
       if (!target) return;
       var text = target.textContent.trim();
       var done = function () {
-        btn.textContent = "Скопировано";
-        setTimeout(function () { btn.textContent = "Скопировать"; }, 1800);
+        btn.textContent = T.copied;
+        setTimeout(function () { btn.textContent = T.copy; }, 1800);
       };
       var fallback = function () {
         var range = document.createRange();
@@ -162,7 +178,7 @@
         var sel = window.getSelection();
         sel.removeAllRanges();
         sel.addRange(range);
-        btn.textContent = "Выделено, нажмите Ctrl+C";
+        btn.textContent = T.selected;
       };
       try {
         if (navigator.clipboard && navigator.clipboard.writeText) {

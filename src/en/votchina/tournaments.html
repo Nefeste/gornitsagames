@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>How to run a tournament — Votchina</title>
+<meta name="description" content="Votchina tournaments: a round robin for 3–8 players with clocks and ratings. What players, organizers and club referees should know.">
+<link rel="canonical" href="https://gornitsa.games/en/votchina/tournaments.html">
+<meta name="theme-color" content="#ecede6">
+{{HEAD}}
+</head>
+<body>
+{{HEADER}}
+<main id="main" class="doc">
+  <div class="wrap">
+    <nav class="crumbs" aria-label="Breadcrumbs"><a href="/en/votchina/">← Votchina — home page</a></nav>
+    <header class="doc-head">
+      <p class="eyebrow">Votchina</p>
+      <h1>How to run a tournament</h1>
+      <p>A Votchina tournament runs itself: the server builds the schedule, starts the rounds, keeps the clocks and counts the standings. People need to do very little — gather by code and sit down to their games on time. Below is what everyone, players, organizers and club referees should know.</p>
+      <div class="actions">
+        <a class="btn btn-primary" href="https://votchina.michail-manylov.workers.dev/play/">Play in your browser</a>
+      </div>
+    </header>
+
+    <article class="doc-body">
+      <h2>Formats</h2>
+      <p><strong>Round robin.</strong> Everyone plays everyone once, 3–8 players. Ranking is by points; ties are broken by Sonneborn–Berger, then by wins, then by game scores.</p>
+
+      <h2 id="all">For everyone</h2>
+      <ul>
+        <li>You join with the six-character tournament code: Play online → the Tourney code field → Enter. You can join only before the start.</li>
+        <li>Tournament games are two-player, base deck (plus the river if the organizer turned it on), 30 minutes each for the whole game. A clock runs only on its owner’s turn, as in chess. Run out of time and you lose, whatever the score.</li>
+        <li>Game clocks start the moment the round starts, even if you haven’t opened the game yet. Miss your game and you lose on time.</li>
+        <li>The server keeps the clocks, so they run even when you’re offline. If your connection drops, get back to the game as soon as it returns; a move that didn’t get through can be sent again.</li>
+        <li>Played games are rated, including those lost on time or by resignation. A win by forfeit (the opponent withdrew before the game), a bye and a pairing where both withdrew don’t change ratings.</li>
+        <li>Only the tournament’s players can watch its games — the Watch button next to the current round’s games.</li>
+        <li>Your phone checks for “your turn” notifications at most once every 15 minutes — too late for a game on the clock. Keep the game open during your round.</li>
+      </ul>
+
+      <h2 id="player">For players</h2>
+      <ul>
+        <li>Install Votchina from the app store or open it in a browser: <a href="https://votchina.michail-manylov.workers.dev/play/">votchina.michail-manylov.workers.dev/play/</a></li>
+        <li>Set a name: without one you can’t enter a tournament — opponents need to see who they are playing.</li>
+        <li>Play online → tournament code → Enter. The tournament appears in the list on the same screen.</li>
+        <li>Wait for the start: the organizer starts the tournament. Once it starts, the tournament screen shows your opponent for the round and a Go to game button.</li>
+        <li>Finished your game? Go back to the tournament screen. The next round starts as soon as the last game of the current one ends, and your clock starts right away.</li>
+        <li>With an odd number of players, one player has a bye each round — everyone once. A bye scores nothing; it doesn’t affect the ranking, since everyone gets one.</li>
+        <li>To leave, use Leave tournament at the bottom of the tournament screen. Before the start it costs nothing. After the start your current game is resigned (a rated loss), and your remaining opponents get wins by forfeit.</li>
+      </ul>
+
+      <h2 id="organizer">For organizers</h2>
+      <ul>
+        <li>Play online → Create tournament → name and river → Create tournament.</li>
+        <li>Send out the code: Share on the tournament screen sends the code and a link to this guide — it opens without the app.</li>
+        <li>Wait for 3–8 players and tap Start tournament. Seeding is by rating and the schedule for every round is set up front; no one can join after the start.</li>
+        <li>From then on the rounds start by themselves — there is nothing to press.</li>
+        <li>The organizer either plays — with their own games and a place in the standings — or only referees: the “I’m the referee — I don’t play” switch when creating. The referee can watch every game, remove a player and end the tournament early.</li>
+        <li>A tournament can be closed only before the start: Close tournament closes it for everyone who has joined. The organizer can’t leave a tournament that is signing up without closing it.</li>
+      </ul>
+
+      <h2 id="judge">For a club referee</h2>
+      <ul>
+        <li>There are no breaks. The next round starts as soon as the last game of the current one ends, and the new games’ clocks are already running. Announce it in advance: nobody wanders off between rounds.</li>
+        <li>A no-show is scored automatically as a loss on time, no later than 30 minutes after the round starts plus the opponent’s first move. The server notices while any player has the tournament or a game open. If both players miss the game, the one who moves first loses: their clock runs from the start of the round.</li>
+        <li>The organizer removes a no-show — Remove on the tournament screen. If they haven’t made a single move in their current game, the opponent wins by forfeit, unrated; if they have moved, it counts as their rated resignation. Their later pairings close as forfeits, and rounds no longer wait for their clock. The organizer can’t remove their own opponent — the clock scores a no-show.</li>
+        <li>If the evening falls apart — End the tournament early. Games in progress stop without rating, future pairings aren’t played, the standings use the games played. Better wait for the round to end: finished games stay in the standings.</li>
+      </ul>
+
+      <h2 id="duration">How long the evening takes</h2>
+      <p>A round lasts at most 60 minutes: each player has 30 minutes for the game. A two-player game is usually much shorter.</p>
+      <div class="table-wrap">
+        <table class="compact">
+          <thead>
+            <tr><th scope="col">Players</th><th scope="col">Rounds</th><th scope="col">Games each</th><th scope="col">At most</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>3</td><td>3</td><td>2</td><td>3 h</td></tr>
+            <tr><td>4</td><td>3</td><td>3</td><td>3 h</td></tr>
+            <tr><td>5</td><td>5</td><td>4</td><td>5 h</td></tr>
+            <tr><td>6</td><td>5</td><td>5</td><td>5 h</td></tr>
+            <tr><td>7</td><td>7</td><td>6</td><td>7 h</td></tr>
+            <tr><td>8</td><td>7</td><td>7</td><td>7 h</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="disputes">Disputed cases</h2>
+      <ul>
+        <li>Connection lost — the clock keeps running. Time isn’t given back, just like arriving late at an over-the-board event.</li>
+        <li>Resignation — a rated loss; the standings show an ordinary game result.</li>
+        <li>Opponent withdrew before your pairing — a win by forfeit “+ : −”, unrated.</li>
+        <li>Both withdrew — “− : −”, no points for either.</li>
+      </ul>
+
+      <h2 id="results">Results</h2>
+      <p>The standings on the tournament screen count themselves. Ranking: points → SB → wins → game scores. SB (Sonneborn–Berger) is the points of everyone you beat plus half the points of those you drew.</p>
+      <p>Example: Boris and Anna have 2 points each. Boris beat Anna (2 points) and Sergey (1) — his SB is 3. Anna beat Sergey (1) and Dina (1) — her SB is 2. Boris ranks higher.</p>
+
+      <p class="meta"><a href="/votchina/tournaments.html" hreflang="ru" lang="ru">Русский</a></p>
+    </article>
+  </div>
+</main>
+{{FOOTER}}
+<script src="/assets/site.js" defer></script>
+</body>
+</html>

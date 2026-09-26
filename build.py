@@ -5,28 +5,58 @@ root = pathlib.Path(__file__).parent
 sys.path.insert(0, str(root / "src"))
 import partials
 
-# страница: (раздел в шапке, основа ссылок). Страницы во вложенных папках и 404
-# ссылаются на общие файлы от корня сайта ("/"), остальные — относительно ("").
+SITE = "https://gornitsa.games"
+
+# страница: (раздел в шапке, основа ссылок, язык, та же страница на другом языке).
+# Страницы во вложенных папках, английские и 404 ссылаются на общие файлы от корня
+# сайта ("/"), русские в корне — относительно ("").
 pages = {
-    "index.html": ("home", ""),
-    "support.html": ("support", ""),
-    "privacy.html": ("privacy", ""),
-    "404.html": ("404", "/"),
-    "votchina/index.html": ("games", "/"),
-    "votchina/tournaments.html": ("games", "/"),
-    "votchina/privacy.html": ("games", "/"),
-    "votchina/delete.html": ("games", "/"),
+    "index.html": ("home", "", "ru", "en/index.html"),
+    "support.html": ("support", "", "ru", "en/support.html"),
+    "privacy.html": ("privacy", "", "ru", "en/privacy.html"),
+    "404.html": ("404", "/", "ru", "en/index.html"),
+    "votchina/index.html": ("games", "/", "ru", "en/votchina/index.html"),
+    "votchina/tournaments.html": ("games", "/", "ru", "en/votchina/tournaments.html"),
+    "votchina/delete.html": ("games", "/", "ru", "en/votchina/delete.html"),
+    "en/index.html": ("home", "/", "en", "index.html"),
+    "en/support.html": ("support", "/", "en", "support.html"),
+    "en/privacy.html": ("privacy", "/", "en", "privacy.html"),
+    "en/votchina/index.html": ("games", "/", "en", "votchina/index.html"),
+    "en/votchina/tournaments.html": ("games", "/", "en", "votchina/tournaments.html"),
+    "en/votchina/delete.html": ("games", "/", "en", "votchina/delete.html"),
 }
+
+# Старые адреса: страница копируется как есть и сразу переадресует на новый адрес.
+raw = ["votchina/privacy.html"]
+
+
+def url(name):
+    return "/" + (name[: -len("index.html")] if name.endswith("index.html") else name)
+
 
 # Браузеры кэшируют стили и скрипты на неделю (см. nginx), поэтому к ссылкам на них
 # добавляется отпечаток содержимого: после правки site.css адрес меняется сам.
 ver = {ext: hashlib.sha256((root / "site" / "assets" / f"site.{ext}").read_bytes()).hexdigest()[:8] for ext in ("css", "js")}
 
-for name, (key, base) in pages.items():
-    html = (root / "src" / name).read_text(encoding="utf-8")
-    html = html.replace("{{HEAD}}", partials.head(base)).replace("{{HEADER}}", partials.header(key, base)).replace("{{FOOTER}}", partials.footer(base))
+
+def write(name, html):
     html = re.sub(r'(assets/site\.(css|js))"', lambda m: f'{m.group(1)}?v={ver[m.group(2)]}"', html)
     out = root / "site" / name
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(html, encoding="utf-8")
     print("site/" + name)
+
+
+for name, (key, base, lang, pair) in pages.items():
+    html = (root / "src" / name).read_text(encoding="utf-8")
+    alternates = ""
+    if key != "404":
+        ru, en = (name, pair) if lang == "ru" else (pair, name)
+        alternates = f'\n<link rel="alternate" hreflang="ru" href="{SITE}{url(ru)}">\n<link rel="alternate" hreflang="en" href="{SITE}{url(en)}">'
+    html = (html.replace("{{HEAD}}", partials.head(base, lang, alternates))
+                .replace("{{HEADER}}", partials.header(key, base, lang, url(pair)))
+                .replace("{{FOOTER}}", partials.footer(base, lang)))
+    write(name, html)
+
+for name in raw:
+    write(name, (root / "src" / name).read_text(encoding="utf-8"))
