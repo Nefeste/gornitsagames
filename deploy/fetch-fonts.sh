@@ -5,6 +5,17 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+# Переход (сентябрь 2026). На сервере этот скрипт запускает автообновление сайта из свежей копии
+# репозитория, а сам скрипт автообновления (/usr/local/bin/gornitsa-update) раньше не обновлялся.
+# Здесь один раз ставится свежий deploy/update-site.sh — дальше он обновляет себя сам и доводит
+# настройку сервера «Вотчины». Стоит до скачивания шрифтов, чтобы сбой сети ему не мешал.
+# На своём компьютере (нет /usr/local/bin/gornitsa-update) ничего не делает.
+if [[ $EUID -eq 0 && -x /usr/local/bin/gornitsa-update ]] && ! cmp -s "${ROOT_DIR}/deploy/update-site.sh" /usr/local/bin/gornitsa-update; then
+  install -m 755 "${ROOT_DIR}/deploy/update-site.sh" /usr/local/bin/gornitsa-update
+  echo "   скрипт автообновления сайта обновлён"
+fi
+
 DEST="${ROOT_DIR}/site/assets/fonts"
 CDN="https://cdn.jsdelivr.net/npm"
 mkdir -p "${DEST}"

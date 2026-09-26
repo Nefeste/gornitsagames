@@ -2,6 +2,8 @@
 # Автообновление сайта: забирает свежий main из GitHub и выкладывает site/ в папку nginx.
 # Запускается systemd-таймером gornitsa-update.timer (см. deploy/bootstrap.sh).
 # Если HTTPS ещё не включён, а DNS уже указывает на сервер, выпускает сертификат Let's Encrypt.
+# Когда в репозитории меняется deploy/votchina/, доводит настройку сервера игры «Вотчина»
+# (deploy/votchina/setup.sh). Сам этот скрипт тоже обновляется из репозитория.
 
 set -euo pipefail
 
@@ -11,6 +13,8 @@ DOMAIN="${DOMAIN:-gornitsa.games}"
 EMAIL="${EMAIL:-gornitsa.games@gmail.com}"
 WEBROOT="/var/www/${DOMAIN}"
 STAMP="/var/lib/gornitsa-deployed-commit"
+VOTCHINA_STAMP="/var/lib/gornitsa-votchina-setup"
+SELF="/usr/local/bin/gornitsa-update"
 
 git -C "${DIR}" fetch -q origin "${BRANCH}"
 REMOTE="$(git -C "${DIR}" rev-parse "origin/${BRANCH}")"
@@ -26,6 +30,16 @@ if [[ "${REMOTE}" != "${DEPLOYED}" ]]; then
   echo "Выложена версия ${REMOTE:0:7}"
 fi
 
+# Сервер «Вотчины»: настройка машины — при каждом изменении deploy/votchina/ в репозитории.
+VOTCHINA_TREE="$(git -C "${DIR}" rev-parse -q --verify "HEAD:deploy/votchina" 2>/dev/null || true)"
+if [[ -n "${VOTCHINA_TREE}" && "${VOTCHINA_TREE}" != "$(cat "${VOTCHINA_STAMP}" 2>/dev/null || true)" ]]; then
+  if bash "${DIR}/deploy/votchina/setup.sh"; then
+    echo "${VOTCHINA_TREE}" > "${VOTCHINA_STAMP}"
+  else
+    echo "Настройка сервера «Вотчины» не удалась — повторю через 5 минут" >&2
+  fi
+fi
+
 if [[ ! -d "/etc/letsencrypt/live/${DOMAIN}" ]]; then
   SERVER_IP="$(curl -4 -fsS --max-time 10 https://ifconfig.me 2>/dev/null || hostname -I | awk '{print $1}')"
   APEX_IP="$(getent ahostsv4 "${DOMAIN}" | awk 'NR==1{print $1}' || true)"
@@ -35,4 +49,10 @@ if [[ ! -d "/etc/letsencrypt/live/${DOMAIN}" ]]; then
     systemctl reload nginx
     echo "HTTPS включён для ${DOMAIN}"
   fi
+fi
+
+# Установленная копия этого скрипта — из репозитория (следующий запуск возьмёт свежую).
+if [[ -f "${SELF}" ]] && ! cmp -s "${DIR}/deploy/update-site.sh" "${SELF}"; then
+  install -m 755 "${DIR}/deploy/update-site.sh" "${SELF}"
+  echo "Скрипт автообновления обновлён"
 fi

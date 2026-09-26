@@ -29,6 +29,11 @@ deploy/
   bootstrap.sh        настройка сервера одной командой и автообновление из GitHub
   update-site.sh      автообновление (запускается таймером раз в 5 минут)
   nginx/gornitsa.games.conf
+  votchina/           сервер игры «Вотчина» на этой же машине (см. ниже)
+    setup.sh          настройка: Node, служба, ключи, таймеры
+    pull.sh           сборка из ветки vps и выгрузка базы (каждые 2 минуты)
+    nginx.sh          сайт votchina.gornitsa.games в nginx и его сертификат
+    backup.sh         копия базы раз в сутки
 ```
 
 ## Как посмотреть локально
@@ -97,7 +102,7 @@ curl -fsSL https://raw.githubusercontent.com/Nefeste/gornitsagames/main/deploy/b
 
 ### 6. Обновления сайта
 
-Просто делайте `git push` в ветку `main`: сервер проверяет GitHub каждые 5 минут и выкладывает новую версию сам. Журнал: `journalctl -u gornitsa-update -n 50`.
+Просто делайте `git push` в ветку `main`: сервер проверяет GitHub каждые 5 минут и выкладывает новую версию сам. Журнал: `journalctl -u gornitsa-update -n 50`. Скрипт автообновления тоже берётся из репозитория (`deploy/update-site.sh`), а при изменении `deploy/votchina/` он доводит настройку сервера «Вотчины».
 
 Если репозиторий нужен закрытым, сайт можно выкладывать со своего компьютера: `./deploy/deploy.sh IP_СЕРВЕРА` (нужен SSH-доступ пользователем deploy, его создаёт `deploy/setup-server.sh`).
 
@@ -109,4 +114,20 @@ curl -fsSL https://raw.githubusercontent.com/Nefeste/gornitsagames/main/deploy/b
 
 ## Страницы «Вотчины»
 
-Страницы игры перенесены с votchina.michail-manylov.workers.dev в `src/votchina/` и `src/en/votchina/` и открываются по адресам https://gornitsa.games/votchina/ и https://gornitsa.games/en/votchina/. Её политика вошла в общую, раздел «Вотчина». Онлайн-сервер, веб-версия (`/play/`) и ссылки на ход (`/g/`) по-прежнему работают на Cloudflare Worker из репозитория votchina — ссылки на них ведут туда. Если текст страниц поменяется в `server/src/pages.ts`, перенесите правку и сюда.
+Страницы игры перенесены с votchina.michail-manylov.workers.dev в `src/votchina/` и `src/en/votchina/` и открываются по адресам https://gornitsa.games/votchina/ и https://gornitsa.games/en/votchina/. Её политика вошла в общую, раздел «Вотчина». Онлайн-сервер, веб-версия (`/play/`) и ссылки на ход (`/g/`) пока работают на Cloudflare Worker из репозитория votchina — ссылки на них ведут туда; после переезда (ниже) — на https://votchina.gornitsa.games. Если текст страниц поменяется в `server/src/pages.ts`, перенесите правку и сюда.
+
+## Сервер игры «Вотчина»
+
+Cloudflare у части российских провайдеров работает с перебоями, поэтому онлайн «Вотчины» переезжает на эту же машину: https://votchina.gornitsa.games (решение — ADR 0019 и спецификация `docs/specs/2026-09-server-ru.md` в репозитории Nefeste/votchina). Код сервера — тот же воркер, запущенный под Node; база — файл SQLite `/var/lib/votchina/votchina.db`.
+
+Как устроено на машине (всё ставит `deploy/votchina/setup.sh`, его запускает автообновление сайта):
+
+- служба `votchina` — `node serve.mjs` на 127.0.0.1:8787 от пользователя `votchina`; nginx отдаёт её наружу по HTTPS;
+- `votchina-pull` каждые 2 минуты: забирает из закрытого репозитория ветку `vps` (сборку, прошедшую сквозной тест в CI) ключом только для чтения `/etc/votchina/deploy_key`; новая сборка — перезапуск, не ответила — возвращается прежняя. Ветка `vps-import` — выгрузка базы D1 при переезде, зашифрованная ключом машины (`/etc/votchina/age.key`);
+- сертификат Let's Encrypt выпускается сам, как только A-запись `votchina` указывает на сервер;
+- копия базы — раз в сутки в `/var/backups/votchina/`, хранится семь дней; журнал запросов nginx — три дня;
+- открытые ключи машины: https://votchina.gornitsa.games/.well-known/votchina-deploy.pub (его добавляют в Nefeste/votchina → Settings → Deploy keys, без права записи) и `votchina-age.pub` (им задание переезда шифрует выгрузку).
+
+Настройки службы — `/etc/votchina/env` (там же секрет `ADMIN_TOKEN` для `server/tools/delete-by-tag.sh`). Журналы: `journalctl -u votchina -u votchina-pull -n 50`.
+
+Порядок переезда: A-запись `votchina` → 194.67.113.220 у Рег.ру; ключ из `votchina-deploy.pub` — в Deploy keys репозитория; слияние PR с сервером на Node в main (появится ветка `vps`, сервер поднимется на пустой базе); затем в Actions репозитория votchina — задание «Переезд на свой сервер» в тихое время, не во время турнира. Последний шаг — версия приложения 2.10.2 с новым адресом.
