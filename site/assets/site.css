@@ -355,6 +355,11 @@ p { margin: 0; }
 @media (min-width: 900px) {
   .shots { grid-auto-flow: row; grid-template-columns: repeat(6, minmax(0, 1fr)); overflow: visible; }
 }
+/* альбомные снимки (Длинные нарды): шире в ленте, на широком экране — по три в ряд */
+.shots-wide { grid-auto-columns: minmax(240px, 80vw); }
+@media (min-width: 900px) {
+  .shots-wide { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
 .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); }
 table { border-collapse: collapse; width: 100%; min-width: 520px; font-size: var(--step--1); }
 th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--line); }

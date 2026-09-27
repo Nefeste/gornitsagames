@@ -18,12 +18,14 @@ pages = {
     "votchina/index.html": ("games", "/", "ru", "en/votchina/index.html"),
     "votchina/tournaments.html": ("games", "/", "ru", "en/votchina/tournaments.html"),
     "votchina/delete.html": ("games", "/", "ru", "en/votchina/delete.html"),
+    "nardy/index.html": ("games", "/", "ru", "en/nardy/index.html"),
     "en/index.html": ("home", "/", "en", "index.html"),
     "en/support.html": ("support", "/", "en", "support.html"),
     "en/privacy.html": ("privacy", "/", "en", "privacy.html"),
     "en/votchina/index.html": ("games", "/", "en", "votchina/index.html"),
     "en/votchina/tournaments.html": ("games", "/", "en", "votchina/tournaments.html"),
     "en/votchina/delete.html": ("games", "/", "en", "votchina/delete.html"),
+    "en/nardy/index.html": ("games", "/", "en", "nardy/index.html"),
 }
 
 # Старые адреса: страница копируется как есть и сразу переадресует на новый адрес.
