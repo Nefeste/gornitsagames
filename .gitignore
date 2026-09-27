@@ -8,6 +8,7 @@ gornitsa_deploy.pub
 /site/*.html
 /site/votchina/
 /site/nardy/
+/site/skazy/
 /site/en/
 /site/assets/fonts/
 /site/og.png
