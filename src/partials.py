@@ -60,7 +60,7 @@ def footer(b, lang="ru"):
     <nav aria-label="{t['docs']}">
       <a href="{p}support.html">{t['support']}</a>
       <a href="{p}privacy.html">{t['privacy']}</a>
-      <span>gornitsa.games@gmail.com</span>
+      <span>hello@gornitsa.games</span>
     </nav>
   </div>
 </footer>"""
