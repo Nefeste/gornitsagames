@@ -17,7 +17,7 @@
       <p class="eyebrow">Document</p>
       <h1>Privacy policy</h1>
       <p>How Gornitsa’s games and website handle your data. We collect only what a game can’t work without, and we don’t sell data to third parties.</p>
-      <p class="meta">Version of September 26, 2026. The Russian version is the authoritative one.</p>
+      <p class="meta">Version of September 27, 2026. The Russian version is the authoritative one.</p>
     </header>
 
     <article class="doc-body">
@@ -54,7 +54,7 @@
       <p>Games against bots and pass-and-play games send nothing anywhere. A game by link goes only where you send the link yourself — it never passes through our server. Settings, saved games and history stay on your phone.</p>
 
       <h3>Playing in a browser</h3>
-      <p>The web version (<a href="https://votchina.michail-manylov.workers.dev/play/">/play/</a>) works the same way: whatever the phone keeps in its own storage, the browser keeps in its storage (localStorage), and none of it goes to the server. There are no cookies. A game-by-link address carries the move after the “#” sign — the browser never sends that part of an address to the server. If you clear the site data in your browser, the key of your online profile goes with it; you can move your profile beforehand under Profile → Manage profile.</p>
+      <p>The web version (<a href="https://votchina.gornitsa.games/play/">/play/</a>) works the same way: whatever the phone keeps in its own storage, the browser keeps in its storage (localStorage), and none of it goes to the server. There are no cookies. A game-by-link address carries the move after the “#” sign — the browser never sends that part of an address to the server. If you clear the site data in your browser, the key of your online profile goes with it; you can move your profile beforehand under Profile → Manage profile.</p>
 
       <h3>Playing online: what the server keeps</h3>
       <ul>
@@ -74,7 +74,7 @@
       <p>Settings → Report a problem builds a report: the game version, your phone model and Android version, a log of recent crashes (kept only on your phone) and, if you leave the box checked, a link to the open game (it contains player names) or the online game’s number. You see the whole text before sending. The report is sent only when you tap Send (Copy in a browser) — with your email app or a messenger of your choice; the game itself never sends it anywhere.</p>
 
       <h3>Who can see it</h3>
-      <p>Your nickname, tag and rating are visible to your opponents and friends; a game is visible to the players at the table and to members of the same tournament. Data is not shared with or sold to anyone else. The game server runs on Cloudflare, which stores the data; request logs (including IP addresses) are kept for a few days.</p>
+      <p>Your nickname, tag and rating are visible to your opponents and friends; a game is visible to the players at the table and to members of the same tournament. Data is not shared with or sold to anyone else. The game server runs in Russia and stores the data there; request logs (including IP addresses) are kept for three days. Game versions before 2.10.2 reach it through Cloudflare, which only forwards the requests.</p>
 
       <h3>How long it is kept and how to delete it</h3>
       <p>For as long as your profile exists. Results of finished games remain after you delete your profile — for your opponents these are their games too — but without your name. You can delete your profile in the game: Profile → Manage profile → Delete online profile (before version 2.3: Play online → Delete profile). If you no longer have the phone, see <a href="/en/votchina/delete.html">how to delete your profile</a>.</p>
@@ -91,20 +91,21 @@
       <h2>6. Who we share data with</h2>
       <ul>
         <li><strong>RuStore</strong> — distributing our games and handling payments and subscriptions.</li>
-        <li><strong>Cloudflare</strong> — Votchina’s online mode runs on its servers.</li>
-        <li><strong>A hosting provider in Russia</strong> — the gornitsa.games website runs on its server.</li>
+        <li><strong>Cloudflare</strong> — Votchina versions before 2.10.2 reach our server through its network; requests are only forwarded.</li>
+        <li><strong>A hosting provider in Russia</strong> — the gornitsa.games website and Votchina’s online mode run on its server.</li>
         <li><strong>Ad networks</strong> such as VK Ads or Yandex Advertising Network — only in games with ads, and only the advertising ID and technical details of the device.</li>
         <li><strong>Analytics and crash-reporting services</strong> such as AppMetrica — only in games where they are enabled, and only anonymous statistics.</li>
       </ul>
       <p>We don’t sell or rent out data.</p>
 
       <h2>7. Where and how long we keep data</h2>
-      <p>The gornitsa.games website runs on a server in Russia. Data of Votchina’s online mode is stored on Cloudflare’s servers.</p>
+      <p>The gornitsa.games website and Votchina’s online mode run on a server in Russia, and the data is stored there. A copy of Votchina’s data made during the move on September 27, 2026 still sits on Cloudflare’s servers and is no longer updated; we will delete it once game versions before 2.10.2 are no longer in use.</p>
       <ul>
         <li>A Votchina online profile — for as long as it exists (see section 3).</li>
         <li>In other games, your account, progress and purchases — while you play and for 3 more years after your last sign-in.</li>
         <li>Support correspondence — 1 year after the last email.</li>
         <li>Website server logs — no longer than 30 days.</li>
+        <li>Votchina server request logs — 3 days; backups of its database — 7 days.</li>
       </ul>
       <p>After these periods, data is deleted or anonymized.</p>
 

@@ -137,7 +137,7 @@ curl -fsSL https://raw.githubusercontent.com/Nefeste/gornitsagames/main/deploy/b
 
 ## Страницы «Вотчины»
 
-Страницы игры перенесены с votchina.michail-manylov.workers.dev в `src/votchina/` и `src/en/votchina/` и открываются по адресам https://gornitsa.games/votchina/ и https://gornitsa.games/en/votchina/. Её политика вошла в общую, раздел «Вотчина». Онлайн-сервер, веб-версия (`/play/`) и ссылки на ход (`/g/`) пока работают на Cloudflare Worker из репозитория votchina — ссылки на них ведут туда; после переезда (ниже) — на https://votchina.gornitsa.games. Если текст страниц поменяется в `server/src/pages.ts`, перенесите правку и сюда.
+Страницы игры перенесены с votchina.michail-manylov.workers.dev в `src/votchina/` и `src/en/votchina/` и открываются по адресам https://gornitsa.games/votchina/ и https://gornitsa.games/en/votchina/. Её политика вошла в общую, раздел «Вотчина». Онлайн-сервер, веб-версия (`/play/`) и ссылки на ход (`/g/`) с 27 сентября 2026 года работают на https://votchina.gornitsa.games (эта же машина, раздел ниже); старый адрес на Cloudflare пересылает туда запросы версий приложения до 2.10.2. Если текст страниц поменяется в `server/src/pages.ts`, перенесите правку и сюда.
 
 ## Сервер игры «Вотчина»
 
@@ -153,4 +153,4 @@ Cloudflare у части российских провайдеров работ�
 
 Настройки службы — `/etc/votchina/env` (там же секрет `ADMIN_TOKEN` для `server/tools/delete-by-tag.sh`). Журналы: `journalctl -u votchina -u votchina-pull -n 50`.
 
-Порядок переезда: A-запись `votchina` → 194.67.113.220 у Рег.ру; ключ из `votchina-deploy.pub` — в Deploy keys репозитория; слияние PR с сервером на Node в main (появится ветка `vps`, сервер поднимется на пустой базе); затем в Actions репозитория votchina — задание «Переезд на свой сервер» в тихое время, не во время турнира. Последний шаг — версия приложения 2.10.2 с новым адресом.
+Переезд выполнен 27 сентября 2026 года заданием «Переезд на свой сервер» в репозитории votchina: база на этой машине, старый адрес на Cloudflare пересылает API. Осталось выпустить версию приложения 2.10.2 с новым адресом; копию базы в Cloudflare D1 удалить, когда старых версий не останется.
