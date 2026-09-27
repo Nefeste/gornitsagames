@@ -2,8 +2,9 @@
 # Автообновление сайта: забирает свежий main из GitHub и выкладывает site/ в папку nginx.
 # Запускается systemd-таймером gornitsa-update.timer (см. deploy/bootstrap.sh).
 # Если HTTPS ещё не включён, а DNS уже указывает на сервер, выпускает сертификат Let's Encrypt.
-# Когда в репозитории меняется deploy/votchina/, доводит настройку сервера игры «Вотчина»
-# (deploy/votchina/setup.sh). Сам этот скрипт тоже обновляется из репозитория.
+# Когда в репозитории меняется deploy/votchina/ или deploy/nardy/, доводит настройку сервера игры
+# «Вотчина» (deploy/votchina/setup.sh) или «Длинные нарды» (deploy/nardy/setup.sh).
+# Сам этот скрипт тоже обновляется из репозитория.
 
 set -euo pipefail
 
@@ -14,6 +15,7 @@ EMAIL="${EMAIL:-gornitsa.games@gmail.com}"
 WEBROOT="/var/www/${DOMAIN}"
 STAMP="/var/lib/gornitsa-deployed-commit"
 VOTCHINA_STAMP="/var/lib/gornitsa-votchina-setup"
+NARDY_STAMP="/var/lib/gornitsa-nardy-setup"
 SELF="/usr/local/bin/gornitsa-update"
 
 git -C "${DIR}" fetch -q origin "${BRANCH}"
@@ -37,6 +39,16 @@ if [[ -n "${VOTCHINA_TREE}" && "${VOTCHINA_TREE}" != "$(cat "${VOTCHINA_STAMP}" 
     echo "${VOTCHINA_TREE}" > "${VOTCHINA_STAMP}"
   else
     echo "Настройка сервера «Вотчины» не удалась — повторю через 5 минут" >&2
+  fi
+fi
+
+# Сервер «Длинных нард» — так же, при каждом изменении deploy/nardy/.
+NARDY_TREE="$(git -C "${DIR}" rev-parse -q --verify "HEAD:deploy/nardy" 2>/dev/null || true)"
+if [[ -n "${NARDY_TREE}" && "${NARDY_TREE}" != "$(cat "${NARDY_STAMP}" 2>/dev/null || true)" ]]; then
+  if bash "${DIR}/deploy/nardy/setup.sh"; then
+    echo "${NARDY_TREE}" > "${NARDY_STAMP}"
+  else
+    echo "Настройка сервера нард не удалась — повторю через 5 минут" >&2
   fi
 fi
 
