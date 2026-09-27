@@ -4,12 +4,12 @@ T = {
     "ru": {
         "skip": "К содержимому", "brand": "Горница", "home": "Горница, на главную", "sections": "Разделы",
         "games": "Игры", "about": "О студии", "support": "Поддержка", "privacy": "Политика конфиденциальности",
-        "docs": "Документы", "studio": "Студия «Горница»", "other": "English", "other_lang": "en", "fonts": "cyrillic",
+        "docs": "Документы", "studio": "Студия «Горница»", "brandbook": "Брендбук", "other": "English", "other_lang": "en", "fonts": "cyrillic",
     },
     "en": {
         "skip": "Skip to content", "brand": "Gornitsa", "home": "Gornitsa, home page", "sections": "Sections",
         "games": "Games", "about": "About", "support": "Support", "privacy": "Privacy policy",
-        "docs": "Documents", "studio": "Gornitsa Studio", "other": "Русский", "other_lang": "ru", "fonts": "latin",
+        "docs": "Documents", "studio": "Gornitsa Studio", "brandbook": "Brand book", "other": "Русский", "other_lang": "ru", "fonts": "latin",
     },
 }
 
@@ -24,6 +24,7 @@ def head(b, lang="ru", alternates=""):
     return f"""<link rel="icon" href="{b}favicon.svg" type="image/svg+xml">
 <link rel="preload" href="{b}assets/fonts/kurale-{f}-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="{b}assets/fonts/onest-{f}-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="{b}assets/brand.css">
 <link rel="stylesheet" href="{b}assets/site.css">{alternates}"""
 
 
@@ -43,7 +44,7 @@ def header(active, b, lang="ru", other=None):
     <a class="brand" href="{home}" aria-label="{t['home']}">{BRAND}<span class="brand-name">{t['brand']}</span></a>
     <nav class="nav" aria-label="{t['sections']}">
       {nav(f"{home}#games", t['games'], 'games')}
-      {nav(f"{home}#about", t['about'], 'about')}
+      {nav(f"{p}about.html", t['about'], 'about')}
       {nav(f"{p}support.html", t['support'], 'support')}{switch}
     </nav>
   </div>
@@ -60,6 +61,7 @@ def footer(b, lang="ru"):
     <nav aria-label="{t['docs']}">
       <a href="{p}support.html">{t['support']}</a>
       <a href="{p}privacy.html">{t['privacy']}</a>
+      <a href="{p}brand.html">{t['brandbook']}</a>
       <span>hello@gornitsa.games</span>
     </nav>
   </div>
