@@ -1,0 +1,77 @@
+/* из gornitsa: brand/tokens.css @ 1836829 — не править здесь, источник: https://github.com/Nefeste/gornitsa/blob/main/brand/tokens.css */
+/* Токены бренда «Горница» — источник для сайта и игр студии.
+ *
+ * Источник: Nefeste/gornitsa, brand/tokens.css. Правится только здесь (брендбук — brand/README.md).
+ * В проектах — копия с пометкой источника в первой строке (ADR студии 0002):
+ *   / * из gornitsa: brand/tokens.css @ <коммит> — не править здесь * /
+ * Игры на React Native переносят те же значения в свою тему (src/ui/theme.ts) с той же пометкой.
+ *
+ * Цвета названы нитями вышивки: лён и бумага — ткань, чернила — текст, кумач, ель и лён — нити.
+ * Тёмная тема — «горница вечером»: те же нити на тёмной ткани.
+ */
+:root {
+  /* ткань и текст */
+  --linen: #ecede6;      /* фон: отбелённый лён */
+  --paper: #f7f7f2;      /* поверхности: карточки, панели, полоса-рушник */
+  --ink: #1a1b1e;        /* основной текст */
+  --ink-soft: #4b4f4c;   /* второстепенный текст */
+  --line: #cfd1c6;       /* линии и рамки */
+  --cell: #d9dbd1;       /* пустая клетка канвы */
+
+  /* нити */
+  --kumach: #b3162f;     /* красная нить: главный акцент, кнопка действия, фокус */
+  --kumach-ink: #ffffff; /* текст на кумаче */
+  --spruce: #1f3c34;     /* еловая нить: второй цвет знака и орнамента */
+  --flax: #a8904f;       /* льняная нить: только украшение, не для текста на светлом */
+  --focus: #b3162f;      /* обводка фокуса клавиатуры */
+
+  /* шрифты: Kurale — заголовки и имена, Onest — всё остальное (SIL OFL) */
+  --display: "Kurale", "Georgia", "Times New Roman", serif;
+  --body: "Onest", "Segoe UI", "Roboto", "Helvetica Neue", Arial, sans-serif;
+
+  /* шкала размеров текста */
+  --step--1: 0.875rem;
+  --step-0: 1.0625rem;
+  --step-1: 1.3125rem;
+  --step-2: 1.75rem;
+  --step-3: clamp(2rem, 1.4rem + 2.4vw, 2.75rem);
+  --step-4: clamp(2.5rem, 1.6rem + 3.6vw, 3.9rem);
+
+  /* скругления: кнопки и поля — 6, карточки — 10, ярлыки и выбор нити — полностью */
+  --radius: 6px;
+  --radius-card: 10px;
+  --radius-pill: 999px;
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --linen: #111816;
+    --paper: #18211e;
+    --ink: #e9e8e0;
+    --ink-soft: #a9aea7;
+    --line: #2c3833;
+    --cell: #1f2a26;
+    --kumach: #e5566a;
+    --kumach-ink: #16090c;
+    --spruce: #7fb3a3;
+    --flax: #d2bd84;
+    --focus: #e5566a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --linen: #111816;
+  --paper: #18211e;
+  --ink: #e9e8e0;
+  --ink-soft: #a9aea7;
+  --line: #2c3833;
+  --cell: #1f2a26;
+  --kumach: #e5566a;
+  --kumach-ink: #16090c;
+  --spruce: #7fb3a3;
+  --flax: #d2bd84;
+  --focus: #e5566a;
+  color-scheme: dark;
+}

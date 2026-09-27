@@ -12,6 +12,8 @@ SITE = "https://gornitsa.games"
 # сайта ("/"), русские в корне — относительно ("").
 pages = {
     "index.html": ("home", "", "ru", "en/index.html"),
+    "about.html": ("about", "", "ru", "en/about.html"),
+    "brand.html": ("brand", "", "ru", "en/brand.html"),
     "support.html": ("support", "", "ru", "en/support.html"),
     "privacy.html": ("privacy", "", "ru", "en/privacy.html"),
     "404.html": ("404", "/", "ru", "en/index.html"),
@@ -21,6 +23,8 @@ pages = {
     "nardy/index.html": ("games", "/", "ru", "en/nardy/index.html"),
     "skazy/index.html": ("games", "/", "ru", "en/skazy/index.html"),
     "en/index.html": ("home", "/", "en", "index.html"),
+    "en/about.html": ("about", "/", "en", "about.html"),
+    "en/brand.html": ("brand", "/", "en", "brand.html"),
     "en/support.html": ("support", "/", "en", "support.html"),
     "en/privacy.html": ("privacy", "/", "en", "privacy.html"),
     "en/votchina/index.html": ("games", "/", "en", "votchina/index.html"),
@@ -40,11 +44,11 @@ def url(name):
 
 # Браузеры кэшируют стили и скрипты на неделю (см. nginx), поэтому к ссылкам на них
 # добавляется отпечаток содержимого: после правки site.css адрес меняется сам.
-ver = {ext: hashlib.sha256((root / "site" / "assets" / f"site.{ext}").read_bytes()).hexdigest()[:8] for ext in ("css", "js")}
+ver = {name: hashlib.sha256((root / "site" / "assets" / name).read_bytes()).hexdigest()[:8] for name in ("site.css", "site.js", "brand.css")}
 
 
 def write(name, html):
-    html = re.sub(r'(assets/site\.(css|js))"', lambda m: f'{m.group(1)}?v={ver[m.group(2)]}"', html)
+    html = re.sub(r'(assets/((?:site|brand)\.(?:css|js)))"', lambda m: f'{m.group(1)}?v={ver[m.group(2)]}"', html)
     out = root / "site" / name
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(html, encoding="utf-8")
@@ -59,7 +63,8 @@ for name, (key, base, lang, pair) in pages.items():
         alternates = f'\n<link rel="alternate" hreflang="ru" href="{SITE}{url(ru)}">\n<link rel="alternate" hreflang="en" href="{SITE}{url(en)}">'
     html = (html.replace("{{HEAD}}", partials.head(base, lang, alternates))
                 .replace("{{HEADER}}", partials.header(key, base, lang, url(pair)))
-                .replace("{{FOOTER}}", partials.footer(base, lang)))
+                .replace("{{FOOTER}}", partials.footer(base, lang))
+                .replace("{{MARK}}", partials.BRAND))
     write(name, html)
 
 for name in raw:

@@ -188,10 +188,26 @@
     });
   }
 
+  // Брендбук: значения токенов под образцами цветов — из стилей страницы (brand.css), в текущей теме.
+  function fillTokens() {
+    var cs = getComputedStyle(document.documentElement);
+    document.querySelectorAll("[data-token]").forEach(function (el) {
+      var v = cs.getPropertyValue(el.dataset.token).trim();
+      if (v) el.textContent = el.dataset.token + ": " + v;
+    });
+  }
+
   function init() {
     document.querySelectorAll("[data-hoop]").forEach(buildCanvas);
     document.querySelectorAll("svg.band").forEach(buildBand);
     document.querySelectorAll("[data-copy]").forEach(buildCopy);
+    if (document.querySelector("[data-token]")) {
+      fillTokens();
+      if (window.matchMedia) {
+        var mq = window.matchMedia("(prefers-color-scheme: dark)");
+        if (mq.addEventListener) mq.addEventListener("change", fillTokens);
+      }
+    }
     var y = document.querySelector("[data-year]");
     if (y) y.textContent = String(new Date().getFullYear());
   }

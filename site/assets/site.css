@@ -66,64 +66,11 @@
 }
 
 /* ---------- Токены ---------- */
+/* Цвета, шрифты, шкала текста и скругления — в brand.css (копия brand/tokens.css из
+   Nefeste/gornitsa, подключается перед этим файлом). Здесь — только раскладка сайта. */
 :root {
-  --linen: #ecede6;      /* фон: отбелённый лён */
-  --paper: #f7f7f2;      /* поверхности */
-  --ink: #1a1b1e;        /* основной текст */
-  --ink-soft: #4b4f4c;   /* второстепенный текст */
-  --line: #cfd1c6;       /* линии и рамки */
-  --kumach: #b3162f;     /* красная нить */
-  --kumach-ink: #ffffff; /* текст на красном */
-  --spruce: #1f3c34;     /* еловая нить */
-  --flax: #a8904f;       /* льняная нить */
-  --cell: #d9dbd1;       /* пустая клетка канвы */
-  --focus: #b3162f;
-
-  --display: "Kurale", "Georgia", "Times New Roman", serif;
-  --body: "Onest", "Segoe UI", "Roboto", "Helvetica Neue", Arial, sans-serif;
-
-  --step--1: 0.875rem;
-  --step-0: 1.0625rem;
-  --step-1: 1.3125rem;
-  --step-2: 1.75rem;
-  --step-3: clamp(2rem, 1.4rem + 2.4vw, 2.75rem);
-  --step-4: clamp(2.5rem, 1.6rem + 3.6vw, 3.9rem);
-
   --wrap: 72rem;
   --gutter: clamp(16px, 4vw, 40px);
-  --radius: 6px;
-  color-scheme: light;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --linen: #111816;
-    --paper: #18211e;
-    --ink: #e9e8e0;
-    --ink-soft: #a9aea7;
-    --line: #2c3833;
-    --kumach: #e5566a;
-    --kumach-ink: #16090c;
-    --spruce: #7fb3a3;
-    --flax: #d2bd84;
-    --cell: #1f2a26;
-    --focus: #e5566a;
-    color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --linen: #111816;
-  --paper: #18211e;
-  --ink: #e9e8e0;
-  --ink-soft: #a9aea7;
-  --line: #2c3833;
-  --kumach: #e5566a;
-  --kumach-ink: #16090c;
-  --spruce: #7fb3a3;
-  --flax: #d2bd84;
-  --cell: #1f2a26;
-  --focus: #e5566a;
-  color-scheme: dark;
 }
 
 /* ---------- База ---------- */
@@ -198,7 +145,7 @@ p { margin: 0; }
   display: grid; gap: 14px;
   background: var(--paper);
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: var(--radius-card);
   padding: clamp(14px, 2.5vw, 22px);
 }
 .canvas {
@@ -243,7 +190,7 @@ p { margin: 0; }
   display: inline-flex; align-items: center; gap: 8px;
   min-height: 38px; padding: 0 11px 0 7px;
   background: transparent; color: var(--ink);
-  border: 1px solid var(--line); border-radius: 999px;
+  border: 1px solid var(--line); border-radius: var(--radius-pill);
   font: 500 var(--step--1)/1 var(--body); cursor: pointer;
 }
 .thread .swatch { width: 20px; height: 20px; border-radius: 50%; background: var(--sw); display: grid; place-items: center; font-size: 11px; font-weight: 600; color: var(--paper); }
@@ -266,7 +213,7 @@ p { margin: 0; }
   display: flex; flex-direction: column; gap: 12px;
   background: var(--paper);
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: var(--radius-card);
   padding: 22px;
   overflow: hidden;
 }
@@ -286,12 +233,12 @@ p { margin: 0; }
   padding: 16px;
 }
 .game-shot-soon span {
-  background: var(--paper); border: 1px solid var(--line); border-radius: 999px;
+  background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius-pill);
   padding: 6px 14px; font-size: var(--step--1); color: var(--ink-soft); text-align: center;
 }
 .game-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
 .game-kind { font-size: var(--step--1); color: var(--ink-soft); }
-.status { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; padding: 4px 9px; border-radius: 999px; white-space: nowrap; }
+.status { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; padding: 4px 9px; border-radius: var(--radius-pill); white-space: nowrap; }
 .status-dev { background: color-mix(in srgb, var(--kumach) 14%, transparent); color: var(--kumach); }
 .status-plan { background: color-mix(in srgb, var(--flax) 20%, transparent); color: var(--ink-soft); }
 .status-live { background: color-mix(in srgb, var(--spruce) 16%, transparent); color: var(--spruce); }
@@ -319,7 +266,7 @@ p { margin: 0; }
 
 .contact {
   display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 20px; align-items: center;
-  background: var(--paper); border: 1px solid var(--line); border-radius: 10px;
+  background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius-card);
   padding: clamp(20px, 4vw, 36px);
 }
 .contact h2 { font-size: var(--step-3); }
@@ -376,6 +323,43 @@ details.faq summary::after { content: "+"; color: var(--kumach); font-weight: 40
 details.faq[open] summary::after { content: "−"; }
 details.faq .answer { display: grid; gap: 10px; padding-top: 10px; color: var(--ink-soft); }
 
+/* ---------- «О студии» и брендбук ---------- */
+.values { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.promises { list-style: none; margin: 0; padding: 0; counter-reset: promise; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(20px, 3vw, 36px) clamp(24px, 4vw, 48px); }
+.promises li { counter-increment: promise; display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 14px; row-gap: 6px; align-content: start; }
+.promises li::before { content: counter(promise); grid-row: span 2; font-family: var(--display); font-size: var(--step-2); line-height: 1; color: var(--kumach); min-width: 1.2ch; }
+.promises h3 { font-family: var(--body); font-weight: 600; font-size: var(--step-1); line-height: 1.3; }
+.promises p { color: var(--ink-soft); }
+.brand-section .section-head p:not(.eyebrow) { color: var(--ink-soft); }
+.brand-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.brand-tile { margin: 0; display: grid; grid-template-rows: 1fr auto; gap: 14px; justify-items: center; padding: 28px 18px 18px; min-height: 220px; background: var(--linen); border: 1px solid var(--line); border-radius: var(--radius-card); text-align: center; }
+.brand-tile.on-paper { background: var(--paper); }
+.brand-tile > div { align-self: center; }
+.brand-tile figcaption { font-size: var(--step--1); color: var(--ink-soft); }
+.mark-big .brand-mark { width: 112px; height: 112px; }
+.mono { color: var(--ink); }
+.mono .brand-mark path { stroke: currentColor; }
+.lockup { display: inline-flex; align-items: center; gap: 0.4em; font-family: var(--display); font-size: clamp(1.75rem, 1.2rem + 1.6vw, 2.25rem); line-height: 1; color: var(--ink); }
+.lockup .brand-mark { width: 1.25em; height: 1.25em; }
+.mark-sizes { display: flex; align-items: flex-end; gap: 18px; }
+.mark-sizes .s16 .brand-mark { width: 16px; height: 16px; }
+.mark-sizes .s24 .brand-mark { width: 24px; height: 24px; }
+.mark-sizes .s32 .brand-mark { width: 32px; height: 32px; }
+.mark-sizes span { display: block; line-height: 0; }
+.swatches { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.swatch-card { display: grid; grid-template-rows: 96px auto; background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius-card); overflow: hidden; }
+.swatch-card .chip { background: var(--c); border-bottom: 1px solid var(--line); }
+.swatch-card .info { display: grid; gap: 4px; padding: 12px 14px 14px; font-size: var(--step--1); color: var(--ink-soft); }
+.swatch-card b { font-weight: 600; font-size: var(--step-0); color: var(--ink); }
+.swatch-card code, .doc-body code { font: 500 0.8125rem/1.4 ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; color: var(--ink); overflow-wrap: anywhere; }
+.specimens { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(24px, 5vw, 64px); }
+.specimen { display: grid; gap: 10px; align-content: start; border-top: 1px solid var(--line); padding-top: 18px; }
+.specimen-kurale { font-family: var(--display); font-size: var(--step-4); line-height: 1.08; text-wrap: balance; }
+.specimen-onest { font-size: var(--step-1); line-height: 1.5; max-width: 34rem; }
+.specimen-weights { display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: var(--step-1); }
+.ui-sample { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; margin-bottom: 24px; }
+.voice-table { max-width: 52rem; }
+
 /* ---------- Подвал ---------- */
 .site-footer { margin-top: 0; }
 .site-footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding-block: 24px 36px; font-size: var(--step--1); color: var(--ink-soft); }
@@ -385,11 +369,14 @@ details.faq .answer { display: grid; gap: 10px; padding-top: 10px; color: var(--
 /* ---------- Адаптив ---------- */
 @media (max-width: 900px) {
   .hero .wrap, .about, .contact { grid-template-columns: minmax(0, 1fr); }
+  .values, .promises, .specimens { grid-template-columns: minmax(0, 1fr); }
+  .brand-tiles, .swatches { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .games, .games-planned { grid-template-columns: minmax(0, 1fr); }
   .hoop { max-width: 520px; }
 }
 @media (max-width: 640px) {
   .principles { grid-template-columns: minmax(0, 1fr); }
+  .brand-tiles { grid-template-columns: minmax(0, 1fr); }
   .canvas { gap: 1px; }
 }
 @media (prefers-reduced-motion: reduce) {
