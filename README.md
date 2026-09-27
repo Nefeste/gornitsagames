@@ -110,7 +110,7 @@ curl -fsSL https://raw.githubusercontent.com/Nefeste/gornitsagames/main/deploy/b
 
 - Проверьте политику конфиденциальности (`src/privacy.html` и `src/en/privacy.html`) с юристом и добавьте реквизиты оператора (ИП или ООО) после регистрации. Перед выходом каждой игры добавьте в политику её раздел, как у «Вотчины»: перечень сервисов (реклама, аналитика) должен совпадать с тем, что реально встроено в игру.
 - В консоли RuStore укажите ссылки: политика — https://gornitsa.games/privacy.html (для «Вотчины» можно сразу на её раздел: https://gornitsa.games/privacy.html#votchina), поддержка — https://gornitsa.games/support.html.
-- Карточки игр — в `src/index.html` и `src/en/index.html`, раздел «Наши игры». У «Анамнеза» пока нет снимков экрана: когда появятся, положите баннер 1024×500 в `site/assets/games/` и замените заглушку `game-shot-soon` картинкой, как у «Вотчины» и «Длинных нард». «Узоры» и «Сказы» — в строке «В планах».
+- Карточки игр — в `src/index.html` и `src/en/index.html`, раздел «Наши игры». У «Анамнеза» пока нет снимков экрана: когда появятся, положите баннер 1024×500 в `site/assets/games/` и замените заглушку `game-shot-soon` картинкой, как у «Вотчины», «Длинных нард» и «Сказов». «Узоры» — в строке «В планах».
 
 ## Страницы «Длинных нард»
 
@@ -118,6 +118,22 @@ curl -fsSL https://raw.githubusercontent.com/Nefeste/gornitsagames/main/deploy/b
 
 - Когда в RuStore откроется предзаказ — раскомментируйте кнопку в `src/nardy/index.html` (адрес `https://www.rustore.ru/catalog/app/games.gornitsa.nardy`) и добавьте ссылку «RuStore» в карточку на главной.
 - Политика: у нард пока ссылка на раздел «Игры в разработке». Перед выходом игры — свой раздел, как у «Вотчины»; черновик — `store/privacy.ru.md` в nardy.
+
+## Страницы «Сказов»
+
+`src/skazy/index.html` и `src/en/skazy/index.html` — https://gornitsa.games/skazy/. Тексты — из
+папки `store/` репозитория Nefeste/skazy (карточка RuStore, частые вопросы); картинки
+`site/assets/games/skazy-*` — оттуда же: иконка, обложки и снимки рисуются кодом (`bun tools/art/render.ts`,
+`bun tools/store/shots.ts`) и переводятся в WebP командой `bun tools/store/site.ts <путь к этому репозиторию>`
+(снимки — 540×960, картинка для ссылок `skazy-og.png` — 1200×630). Поменялась карточка или снимки
+в skazy — перенесите сюда.
+
+- Когда в RuStore откроется предзаказ — раскомментируйте кнопку в `src/skazy/index.html` (адрес
+  `https://www.rustore.ru/catalog/app/games.gornitsa.skazy`), добавьте её на английскую страницу
+  и ссылку «RuStore» в карточку на главной.
+- Политика: у «Сказов» пока ссылка на раздел «Игры в разработке». Перед выходом заставы (игры
+  с друзьями) — свой раздел, как у «Вотчины»: ник, тег, копия хозяйства; что собирает игра —
+  `store/forms.md` в skazy.
 
 ## Страницы «Вотчины»
 
