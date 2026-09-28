@@ -22,6 +22,7 @@ pages = {
     "votchina/delete.html": ("games", "/", "ru", "en/votchina/delete.html"),
     "nardy/index.html": ("games", "/", "ru", "en/nardy/index.html"),
     "skazy/index.html": ("games", "/", "ru", "en/skazy/index.html"),
+    "skazy/delete.html": ("games", "/", "ru", "en/skazy/delete.html"),
     "anamnez/index.html": ("games", "/", "ru", "en/anamnez/index.html"),
     "uzory/index.html": ("games", "/", "ru", "en/uzory/index.html"),
     "en/index.html": ("home", "/", "en", "index.html"),
@@ -34,6 +35,7 @@ pages = {
     "en/votchina/delete.html": ("games", "/", "en", "votchina/delete.html"),
     "en/nardy/index.html": ("games", "/", "en", "nardy/index.html"),
     "en/skazy/index.html": ("games", "/", "en", "skazy/index.html"),
+    "en/skazy/delete.html": ("games", "/", "en", "skazy/delete.html"),
     "en/anamnez/index.html": ("games", "/", "en", "anamnez/index.html"),
     "en/uzory/index.html": ("games", "/", "en", "uzory/index.html"),
 }

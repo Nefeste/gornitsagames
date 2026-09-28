@@ -15,7 +15,8 @@ src/                  шаблоны страниц (редактировать 
   votchina/           страницы «Вотчины»: об игре, турниры, удаление профиля
                       (privacy.html — переадресация на общую политику, раздел «Вотчина»)
   nardy/, skazy/,     страницы игр в разработке: «Длинные нарды», «Сказы», «Анамнез», «Узоры»
-  anamnez/, uzory/    (тексты и картинки — из папки store/ репозитория каждой игры, см. ниже)
+  anamnez/, uzory/    (тексты и картинки — из папки store/ репозитория каждой игры, см. ниже);
+                      у «Сказов» есть и страница удаления профиля заставы (delete.html)
   en/                 английская версия тех же страниц
   partials.py         общая шапка, подвал и <head> на обоих языках
   brandmark.svg       знак «Горницы» для шапки
@@ -171,6 +172,12 @@ curl -fsSL https://raw.githubusercontent.com/Nefeste/gornitsagames/main/deploy/s
 `bun tools/store/shots.ts`) и переводятся в WebP командой `bun tools/store/site.ts <путь к этому репозиторию>`
 (снимки — 540×960, картинка для ссылок `skazy-og.png` — 1200×630). Поменялась карточка или снимки
 в skazy — перенесите сюда.
+
+`src/skazy/delete.html` и `src/en/skazy/delete.html` — как удалить профиль заставы, по образцу
+«Вотчины»; адрес `https://gornitsa.games/skazy/delete.html` указывается в RuStore. Что удаляется
+и сколько хранятся журналы и копии, сверено с сервером «Сказов» (`server/src/profiles.ts`,
+`retention.ts`) и его `docs/05-process.md`, «Удаление профиля по просьбе»: поменялось там —
+поправьте здесь.
 
 - Когда в RuStore откроется предзаказ — раскомментируйте кнопку в `src/skazy/index.html` (адрес
   `https://www.rustore.ru/catalog/app/games.gornitsa.skazy`), добавьте её на английскую страницу
