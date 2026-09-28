@@ -1,17 +1,15 @@
 #!/usr/bin/env bash
 # skazy-pull (таймер skazy-pull.timer, каждые 2 минуты; ставит deploy/skazy/setup.sh).
+# Как nardy-pull (deploy/nardy/pull.sh), с именами «Сказов» и портом 8791.
 #
 #   1. HTTPS для skazy.gornitsa.games, как только DNS укажет на сервер (skazy-nginx).
-#   2. Ветка `vps` репозитория Nefeste/skazy — сборка сервера, прошедшая тесты в CI (server.yml).
+#   2. Ветка `vps` репозитория Nefeste/skazy — сборка сервера, прошедшая тесты в CI (server.yml);
+#      рядом с server.js может лежать cert.sha256 — отпечаток для App Links.
 #      Новая — в /opt/skazy/releases/<коммит>, ссылка current, перезапуск службы. Не ответила
 #      на /v1/ping — возвращается прежняя, а эта сборка больше не пробуется.
-#      В выпуск ложится вся ветка: server.js, build.json и cert.sha256 — отпечаток подписи
-#      приложения, его сервер читает рядом с server.js для /.well-known/assetlinks.json (App Links).
-#      Файл кладёт CI, если в Nefeste/skazy задана переменная ANDROID_CERT_SHA256; без него
-#      сервер работает, только assetlinks.json не отдаёт.
 #
-# Репозиторий закрытый: читаем его ключом /etc/skazy/deploy_key (deploy key, только чтение).
-# Пока ключ не добавлен в репозиторий, скрипт просто ждёт.
+# Читаем репозиторий ключом /etc/skazy/deploy_key (deploy key, только чтение) — так же, открыт
+# репозиторий или закрыт. Пока ключ не добавлен в репозиторий, скрипт просто ждёт.
 
 set -euo pipefail
 umask 022
@@ -69,7 +67,6 @@ systemctl restart skazy
 if healthy; then
   echo "$VPS" > "$STATE/build"
   echo "Сервер: сборка ${VPS:0:7} ($(sed -n 's/.*"commit": *"\([0-9a-f]\{7\}\).*/main \1/p' "$REL/build.json" 2>/dev/null))"
-  [[ -s "$REL/cert.sha256" ]] || echo "В сборке нет cert.sha256 — /.well-known/assetlinks.json не отдаётся (переменная ANDROID_CERT_SHA256 в Nefeste/skazy)"
   # Храним три последние сборки.
   find "$BASE/releases" -mindepth 1 -maxdepth 1 -type d -printf '%T@ %p\n' | sort -rn | awk 'NR > 3 {print $2}' |
     while read -r old; do if [[ "$old" != "$(readlink "$BASE/current")" ]]; then rm -rf "$old"; fi; done

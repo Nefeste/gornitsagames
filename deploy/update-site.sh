@@ -3,8 +3,8 @@
 # Запускается systemd-таймером gornitsa-update.timer (см. deploy/bootstrap.sh).
 # Если HTTPS ещё не включён, а DNS уже указывает на сервер, выпускает сертификат Let's Encrypt.
 # Когда в репозитории меняется deploy/votchina/, deploy/nardy/ или deploy/skazy/, доводит настройку
-# сервера игры «Вотчина» (deploy/votchina/setup.sh), «Длинные нарды» (deploy/nardy/setup.sh)
-# или «Сказы» (deploy/skazy/setup.sh).
+# сервера игры «Вотчина» (deploy/votchina/setup.sh), «Длинные нарды» (deploy/nardy/setup.sh) или
+# заставы «Сказов» (deploy/skazy/setup.sh).
 # Сам этот скрипт тоже обновляется из репозитория.
 
 set -euo pipefail
@@ -54,7 +54,7 @@ if [[ -n "${NARDY_TREE}" && "${NARDY_TREE}" != "$(cat "${NARDY_STAMP}" 2>/dev/nu
   fi
 fi
 
-# Сервер «Сказов» — так же, при каждом изменении deploy/skazy/.
+# Сервер заставы «Сказов» — так же, при каждом изменении deploy/skazy/.
 SKAZY_TREE="$(git -C "${DIR}" rev-parse -q --verify "HEAD:deploy/skazy" 2>/dev/null || true)"
 if [[ -n "${SKAZY_TREE}" && "${SKAZY_TREE}" != "$(cat "${SKAZY_STAMP}" 2>/dev/null || true)" ]]; then
   if bash "${DIR}/deploy/skazy/setup.sh"; then

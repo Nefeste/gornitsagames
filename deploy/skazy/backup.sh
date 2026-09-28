@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # skazy-backup (таймер skazy-backup.timer, раз в сутки; от пользователя skazy):
 # копия базы средствами SQLite (безопасно при работающем сервере), хранится семь дней.
+# Как nardy-backup (deploy/nardy/backup.sh). Раз в месяц skazy-restore-check проверяет,
+# что последняя копия восстанавливается.
 # Восстановить: systemctl stop skazy; gunzip -c <копия>.db.gz > /var/lib/skazy/skazy.db;
 # chown skazy: /var/lib/skazy/skazy.db; rm -f /var/lib/skazy/skazy.db-{wal,shm}; systemctl start skazy
 

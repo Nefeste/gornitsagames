@@ -5,8 +5,9 @@
 # Запускает автообновление сайта (deploy/update-site.sh), когда эта папка меняется в репозитории;
 # вручную — от root:  bash /opt/gornitsa/deploy/skazy/setup.sh
 # Скрипт можно запускать сколько угодно раз: он доводит настройку и ничего не ломает.
-# Устроено как сервер «Длинных нард» (deploy/nardy/); отличия — в nginx.sh: без WebSocket,
-# тело запроса до 260 КБ (копия хозяйства), журнал запросов без IP-адресов.
+# Устроено как сервер «Длинных нард» (deploy/nardy/), отличия — в docs/05-process.md «Сказов»:
+# без WebSocket; тело запроса до 260 КБ (копия хозяйства — до 256 КБ); журнал запросов
+# поддомена — без адресов; раз в месяц — проверка, что копия базы восстанавливается.
 #
 # Что настраивает:
 #   - Bun — официальная сборка с GitHub, версия закреплена (та же, что в CI «Сказов»), SHA-256 сверяется;
@@ -14,7 +15,8 @@
 #   - служба skazy (bun server.js на 127.0.0.1:8791) — стартует, когда появится сборка;
 #   - skazy-pull каждые 2 минуты: сборка из ветки `vps` репозитория Nefeste/skazy и сертификат
 #     HTTPS, как только DNS укажет на сервер (deploy/skazy/pull.sh, nginx.sh);
-#   - копия базы раз в сутки, семь дней (/var/backups/skazy); журнал nginx — три дня, без IP-адресов;
+#   - копия базы раз в сутки, семь дней (/var/backups/skazy); раз в месяц — проверка
+#     восстановления (deploy/skazy/restore-check.sh); журнал nginx — три дня;
 #   - ключ доступа к репозиторию (deploy key, только чтение): открытая часть —
 #     https://skazy.gornitsa.games/.well-known/skazy-deploy.pub. Закрытая не покидает машину.
 
@@ -25,8 +27,8 @@ NAME="skazy.gornitsa.games"
 ETC=/etc/skazy
 META=/var/www/skazy-meta/.well-known
 
-# Версия Bun — та же, что в .github/workflows/server.yml и server/package.json репозитория «Сказов».
-# Папка /opt/bun/<версия> — общая с нардами: одна и та же версия скачивается один раз.
+# Версия Bun — та же, что в .github/workflows/server.yml и server/package.json «Сказов»
+# (и у «Нард»: deploy/nardy/setup.sh).
 BUN_VERSION=1.3.11
 declare -A BUN_SHA256=(
   [bun-linux-x64.zip]=8611ba935af886f05a6f38740a15160326c15e5d5d07adef966130b4493607ed
@@ -50,7 +52,7 @@ if (( ${#need[@]} )); then
   "${APT[@]}" install "${need[@]}"
 fi
 
-# Bun: /opt/bun/<версия>/bun. Прежние версии остаются, пока их не удалить руками.
+# Bun: /opt/bun/<версия>/bun — общий с «Нардами»: та же версия ставится один раз.
 BUN="/opt/bun/${BUN_VERSION}/bun"
 if [[ ! -x "$BUN" ]] || [[ "$("$BUN" --version 2>/dev/null)" != "$BUN_VERSION" ]]; then
   case "$(uname -m)" in
@@ -109,8 +111,8 @@ setvar SKAZY_DB /var/lib/skazy/skazy.db
 setvar HOST 127.0.0.1
 setvar PORT 8791
 setvar SKAZY_TRUST_PROXY 1
-# Секрет для удаления профиля по просьбе (POST /v1/admin/delete, server/tools/delete-by-tag.sh в «Сказах»):
-# посмотреть — grep ADMIN_TOKEN /etc/skazy/env
+# Секрет для удаления профиля по просьбе (POST /v1/admin/delete, server/tools/delete-by-tag.sh
+# в «Сказах»): посмотреть — grep ADMIN_TOKEN /etc/skazy/env
 setvar ADMIN_TOKEN "$(openssl rand -hex 32)"
 chown root:skazy "$ENV"
 chmod 640 "$ENV"
@@ -119,6 +121,7 @@ echo "==> Сказы: скрипты и службы"
 install -m 755 "$SRC/pull.sh" /usr/local/sbin/skazy-pull
 install -m 755 "$SRC/nginx.sh" /usr/local/sbin/skazy-nginx
 install -m 755 "$SRC/backup.sh" /usr/local/sbin/skazy-backup
+install -m 755 "$SRC/restore-check.sh" /usr/local/sbin/skazy-restore-check
 
 CHANGED=()
 write_unit() {   # пишет файл службы, только если он изменился (тогда имя — в CHANGED)
@@ -161,6 +164,7 @@ RestrictSUIDSGID=yes
 RestrictNamespaces=yes
 LockPersonality=yes
 ReadWritePaths=/var/lib/skazy
+# Застава не должна уронить соседей по машине (ADR 0024 «Сказов»).
 MemoryMax=300M
 LimitNOFILE=65536
 
@@ -184,7 +188,7 @@ write_unit skazy-pull.timer <<'UNIT'
 Description=Сказы: проверять сборку каждые 2 минуты
 
 [Timer]
-OnBootSec=2min
+OnBootSec=100s
 OnUnitActiveSec=2min
 
 [Install]
@@ -215,6 +219,31 @@ Persistent=true
 WantedBy=timers.target
 UNIT
 
+write_unit skazy-restore-check.service <<'UNIT'
+[Unit]
+Description=Сказы: проверка восстановления базы из копии
+
+[Service]
+Type=oneshot
+User=skazy
+Group=skazy
+PrivateTmp=yes
+ExecStart=/usr/local/sbin/skazy-restore-check
+UNIT
+
+write_unit skazy-restore-check.timer <<'UNIT'
+[Unit]
+Description=Сказы: проверка восстановления раз в месяц
+
+[Timer]
+OnCalendar=*-*-01 05:20:00
+RandomizedDelaySec=30min
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+UNIT
+
 # Журнал запросов nginx — три дня (общий /etc/logrotate.d/nginx эту папку не трогает).
 cat > /etc/logrotate.d/skazy-nginx <<'ROT'
 /var/log/nginx/skazy/*.log {
@@ -237,7 +266,7 @@ echo "==> Сказы: nginx"
 
 systemctl daemon-reload
 systemctl enable skazy.service >/dev/null 2>&1
-systemctl enable --now skazy-pull.timer skazy-backup.timer >/dev/null 2>&1
+systemctl enable --now skazy-pull.timer skazy-backup.timer skazy-restore-check.timer >/dev/null 2>&1
 if [[ -e /opt/skazy/current/server.js ]]; then
   if [[ " ${CHANGED[*]} " == *" skazy.service "* ]]; then systemctl restart skazy; else systemctl start skazy; fi
 fi

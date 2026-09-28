@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 # skazy-nginx: сервер заставы «Сказов» skazy.gornitsa.games в nginx (ставит deploy/skazy/setup.sh,
-# вызывает skazy-pull каждые 2 минуты). Устроен как nardy-nginx, только без WebSocket (застава —
-# обычные запросы и опрос), тело запроса — до 260 КБ, а в журнале запросов нет IP-адресов
-# (ADR 0024 «Сказов»).
+# вызывает skazy-pull каждые 2 минуты). Устроен как nardy-nginx (deploy/nardy/nginx.sh), но:
+#   - без WebSocket: застава ходит обычными запросами (ADR 0024 «Сказов»);
+#   - тело запроса — до 260 КБ: копия хозяйства бывает до 256 КБ;
+#   - журнал запросов поддомена — без адресов: свой формат строки skazy_noaddr, без $remote_addr
+#     и без строки запроса (?…). В журнале ошибок nginx адрес остаётся — формат тех строк не
+#     меняется; живут они те же три дня.
 #
 # Пока нет сертификата — только порт 80. Как только A-запись skazy.gornitsa.games указывает туда
 # же, куда gornitsa.games (на этот сервер), выпускает сертификат Let's Encrypt (`certbot certonly`,
@@ -22,7 +25,6 @@ STATE=/var/lib/skazy-deploy
 common() {
   cat <<'CONF'
     charset utf-8;
-    # Самое большое тело — копия хозяйства (PUT /v1/backup, до 256 КБ); остальные сервер сам режет до 8 КБ.
     client_max_body_size 260k;
 
     # Открытый ключ машины для deploy key.
@@ -32,19 +34,18 @@ common() {
         add_header Cache-Control "no-cache" always;
     }
 
-    # Всё остальное — сервер заставы (и /.well-known/assetlinks.json для App Links — тоже он).
+    # Всё остальное — сервер заставы (в том числе /.well-known/assetlinks.json и страницы /z/…).
     location / {
         proxy_pass http://127.0.0.1:8791;
         proxy_http_version 1.1;
         proxy_set_header Connection "";
         proxy_set_header Host $host;
         proxy_set_header X-Forwarded-Proto $scheme;
-        # Сервер берёт последний адрес из X-Forwarded-For; заголовок пишется заново — в нём ровно адрес игрока.
         proxy_set_header X-Forwarded-For $remote_addr;
-        proxy_read_timeout 75s;
+        proxy_read_timeout 30s;
     }
 
-    access_log /var/log/nginx/skazy/access.log skazy_noip;
+    access_log /var/log/nginx/skazy/access.log skazy_noaddr;
     error_log  /var/log/nginx/skazy/error.log warn;
 CONF
 }
@@ -53,12 +54,11 @@ render() {   # $1: http | https
   echo "# Сервер заставы «Сказов». Файл пишет /usr/local/sbin/skazy-nginx (репозиторий gornitsagames,"
   echo "# deploy/skazy/nginx.sh) — правки здесь затрутся."
   echo
-  # Журнал запросов без IP-адресов (ADR 0024 «Сказов»): строка как в combined, только без адреса
-  # и имени пользователя. Имя формата своё, чтобы не столкнуться с чужими log_format в общем http {}.
-  cat <<'CONF'
-log_format skazy_noip '[$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent"';
-
-CONF
+  # Строка журнала без адреса и без строки запроса; имя своё, чтобы не столкнуться с чужими
+  # log_format в общем http {}.
+  echo "log_format skazy_noaddr '\$time_iso8601 \$request_method \$uri \$status \$body_bytes_sent '"
+  echo "                        '\$request_time \"\$http_user_agent\"';"
+  echo
   if [[ "$1" == https ]]; then
     cat <<CONF
 server {
@@ -72,9 +72,7 @@ server {
     location / {
         return 301 https://\$host\$request_uri;
     }
-    # и здесь журнал свой, без IP-адресов, — не общий журнал nginx
-    access_log /var/log/nginx/skazy/access.log skazy_noip;
-    error_log  /var/log/nginx/skazy/error.log warn;
+    access_log /var/log/nginx/skazy/access.log skazy_noaddr;
 }
 
 server {
