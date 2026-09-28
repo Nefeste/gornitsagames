@@ -186,9 +186,9 @@ curl -fsSL https://raw.githubusercontent.com/Nefeste/gornitsagames/main/deploy/s
 
 - Когда в RuStore откроется предзаказ — раскомментируйте кнопку в `src/anamnez/index.html` со ссылкой на
   карточку и добавьте ссылку «RuStore» в карточку на главной.
-- Политика: пока ссылка на раздел «Игры в разработке». Игра ждёт адрес `/anamnez/privacy` — раздел «Анамнез»
-  в единой политике (тексты готовы: `store/privacy.ru.md` и `store/privacy.en.md` в anamnez) и переадресация
-  с этого адреса — перед подачей карточки в RuStore.
+- Политика одна на всю студию — `src/privacy.html` (https://gornitsa.games/privacy.html); отдельных страниц
+  у игр нет. Пока ссылка на раздел «Игры в разработке»; перед подачей карточки в RuStore — раздел «Анамнез»
+  в той же политике (тексты готовы: `store/privacy.ru.md` и `store/privacy.en.md` в anamnez).
 
 ## Страницы «Узоров»
 

@@ -17,7 +17,7 @@ set -euo pipefail
 
 NAME="skazy.gornitsa.games"
 APEX="gornitsa.games"
-EMAIL="gornitsa.games@gmail.com"
+EMAIL="dev@gornitsa.games"   # ящик разработчика студии (устав, docs/03-team.md)
 CONF="/etc/nginx/sites-available/${NAME}.conf"
 LIVE="/etc/letsencrypt/live/${NAME}"
 STATE=/var/lib/skazy-deploy
