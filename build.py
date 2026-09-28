@@ -22,6 +22,8 @@ pages = {
     "votchina/delete.html": ("games", "/", "ru", "en/votchina/delete.html"),
     "nardy/index.html": ("games", "/", "ru", "en/nardy/index.html"),
     "skazy/index.html": ("games", "/", "ru", "en/skazy/index.html"),
+    "anamnez/index.html": ("games", "/", "ru", "en/anamnez/index.html"),
+    "uzory/index.html": ("games", "/", "ru", "en/uzory/index.html"),
     "en/index.html": ("home", "/", "en", "index.html"),
     "en/about.html": ("about", "/", "en", "about.html"),
     "en/brand.html": ("brand", "/", "en", "brand.html"),
@@ -32,6 +34,8 @@ pages = {
     "en/votchina/delete.html": ("games", "/", "en", "votchina/delete.html"),
     "en/nardy/index.html": ("games", "/", "en", "nardy/index.html"),
     "en/skazy/index.html": ("games", "/", "en", "skazy/index.html"),
+    "en/anamnez/index.html": ("games", "/", "en", "anamnez/index.html"),
+    "en/uzory/index.html": ("games", "/", "en", "uzory/index.html"),
 }
 
 # Старые адреса: страница копируется как есть и сразу переадресует на новый адрес.

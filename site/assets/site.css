@@ -306,6 +306,8 @@ p { margin: 0; }
 .shots-wide { grid-auto-columns: minmax(240px, 80vw); }
 @media (min-width: 900px) {
   .shots-wide { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  /* четыре или восемь снимков (Анамнез, Узоры) — по четыре в ряд, без пустых мест */
+  .shots-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); }
 table { border-collapse: collapse; width: 100%; min-width: 520px; font-size: var(--step--1); }
