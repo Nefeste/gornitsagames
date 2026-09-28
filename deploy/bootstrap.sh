@@ -7,8 +7,8 @@
 # (deploy/setup-server.sh) и включает автообновление: каждые 5 минут сервер проверяет GitHub
 # и, если в ветке main есть новые коммиты, выкладывает свежую версию сайта.
 # Как только DNS домена начнёт указывать на сервер, автообновление само выпустит сертификат HTTPS.
-# Заодно настраивает серверы игр «Вотчина» (deploy/votchina/setup.sh) и «Длинные нарды»
-# (deploy/nardy/setup.sh).
+# Заодно настраивает серверы игр «Вотчина» (deploy/votchina/setup.sh), «Длинные нарды»
+# (deploy/nardy/setup.sh) и заставы «Сказов» (deploy/skazy/setup.sh).
 
 set -euo pipefail
 
@@ -78,6 +78,11 @@ fi
 echo "==> Сервер игры «Длинные нарды» (nardy.gornitsa.games)"
 if bash "${DIR}/deploy/nardy/setup.sh"; then
   git -C "${DIR}" rev-parse "HEAD:deploy/nardy" > /var/lib/gornitsa-nardy-setup
+fi
+
+echo "==> Сервер заставы «Сказов» (skazy.gornitsa.games)"
+if bash "${DIR}/deploy/skazy/setup.sh"; then
+  git -C "${DIR}" rev-parse "HEAD:deploy/skazy" > /var/lib/gornitsa-skazy-setup
 fi
 
 echo
