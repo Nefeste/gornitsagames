@@ -51,6 +51,11 @@ deploy/
     nginx.sh          skazy.gornitsa.games в nginx (журнал без адресов) и его сертификат
     backup.sh         копия базы раз в сутки
     restore-check.sh  проверка восстановления из копии раз в месяц
+  uzory/              закрытая веб-версия «Узоров» на этой же машине (см. ниже)
+    setup.sh          настройка: папки, ключ шифрования сборки, таймер
+    pull.sh           сборка из ветки vps (каждые 5 минут)
+    nginx.sh          /uzory/test/ в nginx сайта: только HTTPS и по паролю
+    password.sh       имя и пароль владельца: sudo uzory-password
 ```
 
 ## Как посмотреть локально
@@ -126,7 +131,7 @@ curl -fsSL https://raw.githubusercontent.com/Nefeste/gornitsagames/main/deploy/b
 
 ### 6. Обновления сайта
 
-Просто делайте `git push` в ветку `main`: сервер проверяет GitHub каждые 5 минут и выкладывает новую версию сам. Журнал: `journalctl -u gornitsa-update -n 50`. Скрипт автообновления тоже берётся из репозитория (`deploy/update-site.sh`), а при изменении `deploy/votchina/`, `deploy/nardy/` или `deploy/skazy/` он доводит настройку сервера этой игры.
+Просто делайте `git push` в ветку `main`: сервер проверяет GitHub каждые 5 минут и выкладывает новую версию сам. Журнал: `journalctl -u gornitsa-update -n 50`. Скрипт автообновления тоже берётся из репозитория (`deploy/update-site.sh`), а при изменении `deploy/votchina/`, `deploy/nardy/`, `deploy/skazy/` или `deploy/uzory/` он доводит настройку сервера этой игры.
 
 Если репозиторий нужен закрытым, сайт можно выкладывать со своего компьютера: `./deploy/deploy.sh IP_СЕРВЕРА` (нужен SSH-доступ пользователем deploy, его создаёт `deploy/setup-server.sh`).
 
@@ -266,3 +271,24 @@ Cloudflare у части российских провайдеров работ�
 3. Переменная репозитория `ANDROID_CERT_SHA256` в Nefeste/skazy — для App Links; после неё — ручной запуск задания «Сервер», чтобы `cert.sha256` попал в сборку.
 
 Проверка: `curl https://skazy.gornitsa.games/v1/ping` и `curl https://skazy.gornitsa.games/.well-known/assetlinks.json`.
+
+## Закрытая веб-версия «Узоров»
+
+Проверочная сборка «Узоров» для компьютера — https://gornitsa.games/uzory/test/, только для владельца и по паролю (решение владельца от 28.09.2026; спецификация `docs/specs/2026-09-web.md` в репозитории Nefeste/uzory). Это статические файлы: службы нет, их отдаёт nginx сайта. Открытая веб-версия — позже, вместе с библиотекой игры.
+
+Как устроено на машине (всё ставит `deploy/uzory/setup.sh`, его запускает автообновление сайта при каждом изменении `deploy/uzory/`):
+
+- ключ шифрования машины (age) — `/etc/uzory/age.key`, открытая часть — https://gornitsa.games/.well-known/uzory-age.pub. CI «Узоров» после каждого слияния в main собирает веб-версию, шифрует её этим ключом и кладёт в ветку `vps`: репозиторий открытый, а в сборке — картинки «только для проверки», среди них картины российских музеев. Прочитать ветку может только эта машина;
+- `uzory-pull` каждые 5 минут: новая сборка из ветки `vps` — расшифровка в `/opt/uzory/releases/<коммит>/test`, сжатые копии `.gz`, ссылка `current`; хранятся три последние. Не расшифровалась или неполная — остаётся прежняя;
+- `uzory-nginx` пишет `/etc/nginx/snippets/gornitsa.games-uzory.conf` и один раз добавляет в конфиг сайта на сервере строку `include /etc/nginx/snippets/gornitsa.games-*.conf;` — сразу после `root` (в `deploy/nginx/gornitsa.games.conf` она уже есть; конфиг, который поправил certbot, из репозитория не обновляется). Новый конфиг не прошёл `nginx -t` — возвращается прежний;
+- `/uzory/test/` — только по HTTPS и только с именем и паролем из `/etc/uzory/test.htpasswd`; пока файла нет — 403 всем. Правила безопасности (CSP) — как у сайта, плюс `'wasm-unsafe-eval'`: игра рисует через WebAssembly. Поисковикам — `noindex`.
+
+Пароль задаёт владелец — один раз, на сервере:
+
+```bash
+sudo uzory-password
+```
+
+Команда спросит имя (латиницей) и пароль (не короче 10 знаков, дважды); в файл ложится только хеш. Та же команда меняет пароль; другое имя — ещё один вход. Закрыть всем: `sudo rm /etc/uzory/test.htpasswd && sudo uzory-nginx`.
+
+Журнал: `journalctl -u uzory-pull -n 50`. Проверка: `curl -sI https://gornitsa.games/uzory/test/` — `401` (просит пароль); пока пароля нет — `403`.

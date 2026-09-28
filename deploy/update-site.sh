@@ -2,9 +2,10 @@
 # Автообновление сайта: забирает свежий main из GitHub и выкладывает site/ в папку nginx.
 # Запускается systemd-таймером gornitsa-update.timer (см. deploy/bootstrap.sh).
 # Если HTTPS ещё не включён, а DNS уже указывает на сервер, выпускает сертификат Let's Encrypt.
-# Когда в репозитории меняется deploy/votchina/, deploy/nardy/ или deploy/skazy/, доводит настройку
-# сервера игры «Вотчина» (deploy/votchina/setup.sh), «Длинные нарды» (deploy/nardy/setup.sh) или
-# заставы «Сказов» (deploy/skazy/setup.sh).
+# Когда в репозитории меняется deploy/votchina/, deploy/nardy/, deploy/skazy/ или deploy/uzory/,
+# доводит настройку сервера игры «Вотчина» (deploy/votchina/setup.sh), «Длинные нарды»
+# (deploy/nardy/setup.sh), заставы «Сказов» (deploy/skazy/setup.sh) или закрытой веб-версии
+# «Узоров» (deploy/uzory/setup.sh).
 # Сам этот скрипт тоже обновляется из репозитория.
 
 set -euo pipefail
@@ -18,6 +19,7 @@ STAMP="/var/lib/gornitsa-deployed-commit"
 VOTCHINA_STAMP="/var/lib/gornitsa-votchina-setup"
 NARDY_STAMP="/var/lib/gornitsa-nardy-setup"
 SKAZY_STAMP="/var/lib/gornitsa-skazy-setup"
+UZORY_STAMP="/var/lib/gornitsa-uzory-setup"
 LE_STAMP="/var/lib/gornitsa-le-email"
 SELF="/usr/local/bin/gornitsa-update"
 
@@ -62,6 +64,16 @@ if [[ -n "${SKAZY_TREE}" && "${SKAZY_TREE}" != "$(cat "${SKAZY_STAMP}" 2>/dev/nu
     echo "${SKAZY_TREE}" > "${SKAZY_STAMP}"
   else
     echo "Настройка сервера «Сказов» не удалась — повторю через 5 минут" >&2
+  fi
+fi
+
+# Закрытая веб-версия «Узоров» — так же, при каждом изменении deploy/uzory/.
+UZORY_TREE="$(git -C "${DIR}" rev-parse -q --verify "HEAD:deploy/uzory" 2>/dev/null || true)"
+if [[ -n "${UZORY_TREE}" && "${UZORY_TREE}" != "$(cat "${UZORY_STAMP}" 2>/dev/null || true)" ]]; then
+  if bash "${DIR}/deploy/uzory/setup.sh"; then
+    echo "${UZORY_TREE}" > "${UZORY_STAMP}"
+  else
+    echo "Настройка веб-версии «Узоров» не удалась — повторю через 5 минут" >&2
   fi
 fi
 
