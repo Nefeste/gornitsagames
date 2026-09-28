@@ -12,12 +12,13 @@ set -euo pipefail
 DIR="/opt/gornitsa"
 BRANCH="${BRANCH:-main}"
 DOMAIN="${DOMAIN:-gornitsa.games}"
-EMAIL="${EMAIL:-gornitsa.games@gmail.com}"
+EMAIL="${EMAIL:-dev@gornitsa.games}"   # почта аккаунта Let's Encrypt — ящик разработчика студии
 WEBROOT="/var/www/${DOMAIN}"
 STAMP="/var/lib/gornitsa-deployed-commit"
 VOTCHINA_STAMP="/var/lib/gornitsa-votchina-setup"
 NARDY_STAMP="/var/lib/gornitsa-nardy-setup"
 SKAZY_STAMP="/var/lib/gornitsa-skazy-setup"
+LE_STAMP="/var/lib/gornitsa-le-email"
 SELF="/usr/local/bin/gornitsa-update"
 
 git -C "${DIR}" fetch -q origin "${BRANCH}"
@@ -72,6 +73,17 @@ if [[ ! -d "/etc/letsencrypt/live/${DOMAIN}" ]]; then
     certbot --nginx -d "${DOMAIN}" -d "www.${DOMAIN}" -m "${EMAIL}" --agree-tos -n --redirect
     systemctl reload nginx
     echo "HTTPS включён для ${DOMAIN}"
+  fi
+fi
+
+# Почта аккаунта Let's Encrypt — одного на все сертификаты машины. Меняется один раз после смены
+# адреса (раньше был Gmail студии); следующий запуск по отметке в LE_STAMP ничего не делает.
+if [[ -d /etc/letsencrypt/accounts && "$(cat "${LE_STAMP}" 2>/dev/null || true)" != "${EMAIL}" ]]; then
+  if certbot update_account -m "${EMAIL}" --no-eff-email -n >/dev/null 2>&1; then
+    echo "${EMAIL}" > "${LE_STAMP}"
+    echo "Почта аккаунта Let's Encrypt: ${EMAIL}"
+  else
+    echo "Не удалось сменить почту аккаунта Let's Encrypt — повторю через 5 минут" >&2
   fi
 fi
 

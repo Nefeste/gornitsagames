@@ -15,7 +15,7 @@
 set -euo pipefail
 
 DOMAIN="${DOMAIN:-gornitsa.games}"
-EMAIL="${EMAIL:-gornitsa.games@gmail.com}"   # сюда Let's Encrypt пишет, если сертификат скоро истечёт
+EMAIL="${EMAIL:-dev@gornitsa.games}"   # почта аккаунта Let's Encrypt — ящик разработчика студии (устав, docs/03-team.md)
 DEPLOY_USER="${DEPLOY_USER:-deploy}"
 WEBROOT="/var/www/${DOMAIN}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
