@@ -42,6 +42,11 @@ deploy/
     pull.sh           сборка из ветки vps (каждые 2 минуты)
     nginx.sh          nardy.gornitsa.games в nginx (с WebSocket) и его сертификат
     backup.sh         копия базы раз в сутки
+  skazy/              сервер заставы «Сказов» на этой же машине (см. ниже)
+    setup.sh          настройка: Bun, служба, ключ, таймеры
+    pull.sh           сборка из ветки vps (каждые 2 минуты)
+    nginx.sh          skazy.gornitsa.games в nginx (журнал без IP-адресов) и его сертификат
+    backup.sh         копия базы раз в сутки
 ```
 
 ## Как посмотреть локально
@@ -117,7 +122,7 @@ curl -fsSL https://raw.githubusercontent.com/Nefeste/gornitsagames/main/deploy/b
 
 ### 6. Обновления сайта
 
-Просто делайте `git push` в ветку `main`: сервер проверяет GitHub каждые 5 минут и выкладывает новую версию сам. Журнал: `journalctl -u gornitsa-update -n 50`. Скрипт автообновления тоже берётся из репозитория (`deploy/update-site.sh`), а при изменении `deploy/votchina/` он доводит настройку сервера «Вотчины».
+Просто делайте `git push` в ветку `main`: сервер проверяет GitHub каждые 5 минут и выкладывает новую версию сам. Журнал: `journalctl -u gornitsa-update -n 50`. Скрипт автообновления тоже берётся из репозитория (`deploy/update-site.sh`), а при изменении `deploy/votchina/`, `deploy/nardy/` или `deploy/skazy/` он доводит настройку сервера этой игры.
 
 Если репозиторий нужен закрытым, сайт можно выкладывать со своего компьютера: `./deploy/deploy.sh IP_СЕРВЕРА` (нужен SSH-доступ пользователем deploy, его создаёт `deploy/setup-server.sh`).
 
@@ -190,3 +195,24 @@ Cloudflare у части российских провайдеров работ�
 2. Ключ машины — в Nefeste/nardy → Settings → Deploy keys, **без** права записи. Сам ключ: https://nardy.gornitsa.games/.well-known/nardy-deploy.pub (открывается после A-записи) или в журнале `journalctl -u gornitsa-update -n 80`.
 
 Сборка появляется в ветке `vps` после первого слияния сервера в main нард. Проверка: `curl https://nardy.gornitsa.games/v1/ping`.
+
+## Сервер игры «Сказы»
+
+Застава «Сказов» (игра с друзьями), облачная копия хозяйства и перенос на новый телефон работают на этой же машине: https://skazy.gornitsa.games (решение — ADR 0024 в репозитории Nefeste/skazy, протокол — `docs/03-server-api.md` там же). Сервер — один процесс Bun с базой SQLite `/var/lib/skazy/skazy.db`; устроен так же, как «Длинные нарды», только без WebSocket (застава — обычные запросы и опрос), тело запроса — до 260 КБ, а в журнале запросов nginx нет IP-адресов.
+
+Как устроено на машине (всё ставит `deploy/skazy/setup.sh`, его запускает автообновление сайта при каждом изменении `deploy/skazy/`):
+
+- Bun — тот же, что у нард: официальная сборка с GitHub, версия закреплена в `setup.sh` (та же, что в CI «Сказов») и сверяется по SHA-256; лежит в `/opt/bun/<версия>/bun`;
+- служба `skazy` — `bun server.js` на 127.0.0.1:8791 от пользователя `skazy`, память — не больше 300 МБ; nginx отдаёт её наружу по HTTPS и пропускает тело до 260 КБ (копия хозяйства — до 256 КБ);
+- `skazy-pull` каждые 2 минуты: забирает из закрытого репозитория ветку `vps` (сборку, прошедшую тесты сервера в CI; с ней — `cert.sha256`, отпечаток подписи для `/.well-known/assetlinks.json`) ключом только для чтения `/etc/skazy/deploy_key`; новая сборка — перезапуск, не ответила на `/v1/ping` — возвращается прежняя;
+- сертификат Let's Encrypt выпускается сам, как только A-запись `skazy` указывает на сервер;
+- копия базы — раз в сутки в `/var/backups/skazy/`, хранится семь дней; журнал запросов nginx (`/var/log/nginx/skazy/`) — три дня, без IP-адресов.
+
+Настройки службы — `/etc/skazy/env` (там же секрет `ADMIN_TOKEN` для удаления профиля по просьбе, `server/tools/delete-by-tag.sh` в skazy). Журналы: `journalctl -u skazy -u skazy-pull -n 50`.
+
+Чтобы сервер поднялся, владельцу нужно два шага:
+
+1. У регистратора — A-запись `skazy` на тот же адрес, что у `gornitsa.games`.
+2. Ключ машины — в Nefeste/skazy → Settings → Deploy keys, **без** права записи. Сам ключ: https://skazy.gornitsa.games/.well-known/skazy-deploy.pub (открывается после A-записи) или в журнале `journalctl -u gornitsa-update -n 80`.
+
+Сборка появляется в ветке `vps` после первого слияния сервера в main «Сказов». Проверка: `curl https://skazy.gornitsa.games/v1/ping`.
