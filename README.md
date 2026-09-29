@@ -12,11 +12,10 @@ src/                  шаблоны страниц (редактировать 
   support.html
   privacy.html        единая политика конфиденциальности (у каждой вышедшей игры — свой раздел)
   404.html
-  votchina/           страницы «Вотчины»: об игре, турниры, удаление профиля
-                      (privacy.html — переадресация на общую политику, раздел «Вотчина»)
-  nardy/, skazy/,     страницы игр в разработке: «Длинные нарды», «Сказы», «Анамнез», «Узоры»
-  anamnez/, uzory/    (тексты и картинки — из папки store/ репозитория каждой игры, см. ниже);
-                      у «Сказов» есть и страница удаления профиля заставы (delete.html)
+  votchina/, nardy/,  страницы игр: index.html собирает tools/games.py из store/site/ игры —
+  anamnez/, skazy/,   здесь не правится (см. «Страницы игр»); рядом — страницы сайта: удаление
+  uzory/              профиля (delete.html у «Вотчины» и «Сказов»), турниры «Вотчины»,
+                      votchina/privacy.html — переадресация на общую политику
   en/                 английская версия тех же страниц
   partials.py         общая шапка, подвал и <head> на обоих языках
   brandmark.svg       знак «Горницы» для шапки
@@ -28,6 +27,13 @@ site/                 сайт, который выкладывается на �
   assets/fonts/       шрифты woff2 (скачивает deploy/fetch-fonts.sh)
   favicon.svg, robots.txt, sitemap.xml
 build.py              собирает site/*.html из src/
+tools/
+  games.json          игры, чьи страницы собираются из store/site/, и ссылки, которые знает только сайт
+  fetch-games.sh      забирает store/ с main игр в games/ (закрытые — токеном GAMES_READ_TOKEN)
+  games.py            собирает страницы, карточки на главной и картинки игр из games/*/store/site/
+  check.py            проверяет собранный сайт: ссылки, якоря, размеры картинок игр
+games.lock.json       из какого коммита игры и из каких файлов собраны её страница и картинки
+.github/workflows/games.yml   «Страницы игр»: каждую ночь — PR «Сайт: обновления игр»
 deploy/
   setup-server.sh     первичная настройка VPS: nginx, HTTPS, файрвол
   deploy.sh           выкладка сайта со своего компьютера
@@ -70,7 +76,8 @@ python3 -m http.server 8000 -d site
 
 ## Как поменять текст
 
-1. Отредактируйте нужную страницу в `src/` (шапку и подвал — в `src/partials.py`).
+1. Отредактируйте нужную страницу в `src/` (шапку и подвал — в `src/partials.py`). Страницы игр
+   и карточки игр на главной здесь не правятся: они собираются из `store/site/` игр (см. «Страницы игр»).
 2. Запустите `python3 build.py`.
 3. Сделайте `git push` — через несколько минут сервер обновит сайт сам.
 
@@ -154,70 +161,62 @@ curl -fsSL https://raw.githubusercontent.com/Nefeste/gornitsagames/main/deploy/s
 
 - Проверьте политику конфиденциальности (`src/privacy.html` и `src/en/privacy.html`) с юристом и добавьте реквизиты оператора (ИП или ООО) после регистрации. Перед выходом каждой игры добавьте в политику её раздел, как у «Вотчины»: перечень сервисов (реклама, аналитика) должен совпадать с тем, что реально встроено в игру.
 - В консоли RuStore укажите ссылки: политика — https://gornitsa.games/privacy.html (для «Вотчины» можно сразу на её раздел: https://gornitsa.games/privacy.html#votchina), поддержка — https://gornitsa.games/support.html.
-- Карточки игр — в `src/index.html` и `src/en/index.html`, раздел «Наши игры». У «Анамнеза» пока нет снимков экрана: когда появятся, положите баннер 1024×500 в `site/assets/games/` и замените заглушку `game-shot-soon` картинкой, как у «Вотчины», «Длинных нард» и «Сказов». «Узоры» — в строке «В планах».
+- Ссылка на предзаказ или карточку RuStore на странице игры и в её карточке на главной — поле `links` (и `card.links`) в `store/site/page.*.md` игры.
 
-## Страницы «Длинных нард»
+## Страницы игр — из `store/site/` игр
 
-`src/nardy/index.html` и `src/en/nardy/index.html` — https://gornitsa.games/nardy/. Тексты — из папки `store/` репозитория Nefeste/nardy (карточка RuStore, вопросы и ответы); картинки `site/assets/games/nardy-*` — оттуда же: иконка, баннер и снимки рисуются кодом (`tools/store/shots.ts` в nardy) и переводятся в WebP (снимки — 960×540). Поменялась карточка или снимки в nardy — перенесите сюда.
+Страница каждой игры (`src/<игра>/index.html` и `src/en/<игра>/index.html`), её карточка на главной
+и картинки `site/assets/games/<игра>-*` собираются из папки `store/site/` репозитория игры (ADR студии
+0015; формат — устав `Nefeste/gornitsa`, `docs/08-publishing.md`, раздел «Сайт»). Здесь их руками
+не правят: правка текста или снимков — PR в игру, а сайт заберёт её сам.
 
-- Снимки в nardy (`store/screenshots/ru/`) сняты до новых оформлений доски («Классика», «Ночь», «Контраст», этап Д) — их нужно пересобрать там и перенести сюда; тексты страниц обновлены 28 сентября 2026 года.
-- Когда в RuStore откроется предзаказ — раскомментируйте кнопку в `src/nardy/index.html` (адрес `https://www.rustore.ru/catalog/app/games.gornitsa.nardy`) и добавьте ссылку «RuStore» в карточку на главной.
-- Политика: у нард пока ссылка на раздел «Игры в разработке». Перед выходом игры — свой раздел, как у «Вотчины»; черновик — `store/privacy.ru.md` в nardy.
+- Workflow «Страницы игр» (`.github/workflows/games.yml`) каждую ночь в 03:17 по Москве и по кнопке
+  «Run workflow» забирает `store/` с `main` игр из `tools/games.json` (`tools/fetch-games.sh`),
+  собирает страницы (`tools/games.py`), собирает сайт и проверяет ссылки и картинки (`build.py`,
+  `tools/check.py`) и открывает или обновляет PR «Сайт: обновления игр» из ветки `games/sync`.
+  Сливает владелец; через несколько минут сервер обновит сайт сам.
+- Из какого коммита игры взята страница и из каких файлов картинки — в `games.lock.json`;
+  неизменившиеся картинки не перекодируются, а те, на которые больше нет ссылок, убираются.
+- Игра без `store/site/page.ru.md` не трогается; игра с ошибками в папке пропускается, причина —
+  в описании PR. Без `page.en.md` английская страница не меняется.
+- Закрытые `nardy` и `votchina` workflow читает токеном из секрета `GAMES_READ_TOKEN`:
+  fine-grained, только чтение содержимого этих двух репозиториев, действует до 28.09.2027.
+  Продлевает владелец: новый токен с теми же правами (github.com → Settings → Developer settings →
+  Fine-grained tokens) — и новое значение секрета в Settings → Secrets and variables → Actions.
+  Без токена закрытые игры пропускаются.
+- Чтобы workflow мог открыть PR, в Settings → Actions → General → Workflow permissions включено
+  «Allow GitHub Actions to create and approve pull requests».
+- В открытом репозитории без коммитов 60 дней GitHub выключает расписание; тогда — Actions →
+  «Страницы игр» → Enable workflow.
 
-## Страницы «Сказов»
+Собрать у себя (нужны `pip install pillow pyyaml`):
 
-`src/skazy/index.html` и `src/en/skazy/index.html` — https://gornitsa.games/skazy/. Тексты — из
-папки `store/` репозитория Nefeste/skazy (карточка RuStore, частые вопросы); картинки
-`site/assets/games/skazy-*` — оттуда же: иконка, обложки и снимки рисуются кодом (`bun tools/art/render.ts`,
-`bun tools/store/shots.ts`) и переводятся в WebP командой `bun tools/store/site.ts <путь к этому репозиторию>`
-(снимки — 540×960, картинка для ссылок `skazy-og.png` — 1200×630). Поменялась карточка или снимки
-в skazy — перенесите сюда.
+```bash
+bash tools/fetch-games.sh                  # закрытые игры — с GAMES_READ_TOKEN в окружении
+python3 tools/games.py --src games
+python3 build.py && python3 tools/check.py
+python3 tools/games.py --check ../skazy    # только проверить store/site/ одной игры
+```
 
-`src/skazy/delete.html` и `src/en/skazy/delete.html` — как удалить профиль заставы, по образцу
-«Вотчины»; адрес `https://gornitsa.games/skazy/delete.html` указывается в RuStore. Что удаляется
-и сколько хранятся журналы и копии, сверено с сервером «Сказов» (`server/src/profiles.ts`,
-`retention.ts`) и его `docs/05-process.md`, «Удаление профиля по просьбе»: поменялось там —
-поправьте здесь.
+Что остаётся за сайтом:
 
-- Когда в RuStore откроется предзаказ — раскомментируйте кнопку в `src/skazy/index.html` (адрес
-  `https://www.rustore.ru/catalog/app/games.gornitsa.skazy`), добавьте её на английскую страницу
-  и ссылку «RuStore» в карточку на главной.
-- Политика: у «Сказов» пока ссылка на раздел «Игры в разработке». Перед выходом заставы (игры
-  с друзьями) — свой раздел, как у «Вотчины»: ник, тег, копия хозяйства; что собирает игра —
-  `store/forms.md` в skazy.
-
-## Страницы «Анамнеза»
-
-`src/anamnez/index.html` и `src/en/anamnez/index.html` — https://gornitsa.games/anamnez/. Тексты — из папки
-`store/` репозитория Nefeste/anamnez (`listing.ru.md` и `site/anamnez.ru.md`; английская страница — перевод);
-картинки `site/assets/games/anamnez-*` — оттуда же: иконка `store/icon/icon-512.png` (192×192), баннер
-`store/graphics/feature-1024x500.png`, восемь снимков `store/screenshots/phone/` (540×960, с подписями,
-как в RuStore) и картинка для ссылок `anamnez-og.png` — обложка `store/graphics/cover-1920x1080.png`,
-обрезанная до 1200×630. Снимки рисует сама игра (`npm run export:web && npm run store` в anamnez);
-поменялись — перенесите сюда.
-
-- Когда в RuStore откроется предзаказ — раскомментируйте кнопку в `src/anamnez/index.html` со ссылкой на
-  карточку и добавьте ссылку «RuStore» в карточку на главной.
-- Политика одна на всю студию — `src/privacy.html` (https://gornitsa.games/privacy.html); отдельных страниц
-  у игр нет. Пока ссылка на раздел «Игры в разработке»; перед подачей карточки в RuStore — раздел «Анамнез»
-  в той же политике (тексты готовы: `store/privacy.ru.md` и `store/privacy.en.md` в anamnez).
-
-## Страницы «Узоров»
-
-`src/uzory/index.html` и `src/en/uzory/index.html` — https://gornitsa.games/uzory/. Страницы, картинки
-`site/assets/games/uzory-*` и карточка на главной — из папки `store/site/` репозитория Nefeste/uzory
-(там же `README.md` — что куда); отличия: кнопка предзаказа закомментирована, политика — раздел
-«Игры в разработке». Картинки пересоздают `bun tools/store/graphics.ts` и `bun tools/store/shots.ts`
-в uzory; поменялись — перенесите сюда.
-
-- Когда карточка RuStore пройдёт модерацию — раскомментируйте кнопку «Предзаказ в RuStore» на обеих
-  страницах и добавьте ссылку в карточку на главной.
-- Политика: до подачи карточки в RuStore — раздел `#uzory` в `src/privacy.html` и `src/en/privacy.html`
-  (текст — `store/site/privacy-uzory.ru.html` в uzory), ссылки на страницах — на него.
-
-## Страницы «Вотчины»
-
-Страницы игры перенесены с votchina.michail-manylov.workers.dev в `src/votchina/` и `src/en/votchina/` и открываются по адресам https://gornitsa.games/votchina/ и https://gornitsa.games/en/votchina/. Её политика вошла в общую, раздел «Вотчина». Онлайн-сервер, веб-версия (`/play/`) и ссылки на ход (`/g/`) с 27 сентября 2026 года работают на https://votchina.gornitsa.games (эта же машина, раздел ниже); старый адрес на Cloudflare пересылает туда запросы версий приложения до 2.10.2. Если текст страниц поменяется в `server/src/pages.ts`, перенесите правку и сюда.
+- Порядок игр на главной и метки `<!-- game:<игра> -->` … `<!-- /game:<игра> -->` вокруг карточки.
+  Ссылки, которые знает только сайт (у «Узоров» — «Закрасить узор-пример ↑», у «Вотчины» — «Турниры»
+  внизу страницы), — в `tools/games.json`.
+- Новая игра: строка в `tools/games.json`, пара страниц в `pages` в `build.py`, метки карточки на
+  главной, адреса в `site/sitemap.xml` и строка в `.gitignore`; дальше страница собирается сама.
+- Раздел игры в политике конфиденциальности (`src/privacy.html`, `src/en/privacy.html`): есть раздел
+  с `id` игры — страница ссылается на него, нет — на «Игры в разработке» (`#upcoming`). Текст раздела
+  готовит игра (`store/privacy.*.md`), но живёт раздел только здесь; перед выходом игры в RuStore
+  раздел должен быть.
+- Страницы удаления профиля (`src/skazy/delete.html`, `src/votchina/delete.html` и английские): есть
+  такая страница — на странице игры появляется ссылка «Удалить профиль». Что удаляется и сколько
+  хранятся журналы и копии, сверено с серверами игр («Сказы» — `server/src/profiles.ts`,
+  `retention.ts` и `docs/05-process.md`); поменялось там — поправьте здесь.
+- У «Вотчины» — страница турниров `src/votchina/tournaments.html` и переадресация
+  `src/votchina/privacy.html`. Онлайн-сервер, веб-версия (`/play/`) и ссылки на ход (`/g/`) с 27 сентября
+  2026 года работают на https://votchina.gornitsa.games (раздел ниже); старый адрес на Cloudflare
+  пересылает туда запросы версий приложения до 2.10.2.
 
 ## Сервер игры «Вотчина»
 
