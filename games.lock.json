@@ -1,0 +1,89 @@
+{
+  "votchina": {
+    "repo": "Nefeste/votchina",
+    "commit": "03c0741649bc68ec959847d1b7875531cd0982a2",
+    "images": {
+      "votchina-01-game-en.webp": "b83478a9a9fa1e89:shot-portrait:0",
+      "votchina-01-game.webp": "2cbb84258acf952d:shot-portrait:0",
+      "votchina-02-results-en.webp": "8b9279174b591db2:shot-portrait:0",
+      "votchina-02-results.webp": "82a05ddf540e1862:shot-portrait:0",
+      "votchina-03-review-en.webp": "a339b94d6d3007b1:shot-portrait:0",
+      "votchina-03-review.webp": "90387b1db1eaf4ce:shot-portrait:0",
+      "votchina-04-bot-levels-en.webp": "d17192c06881b52f:shot-portrait:0",
+      "votchina-04-bot-levels.webp": "930682454fccf4af:shot-portrait:0",
+      "votchina-05-history-en.webp": "98aa24957daab8be:shot-portrait:0",
+      "votchina-05-history.webp": "9605032cd71971c0:shot-portrait:0",
+      "votchina-06-guide-en.webp": "c78e3ca0315affe6:shot-portrait:0",
+      "votchina-06-guide.webp": "12bfc3651dd2e957:shot-portrait:0",
+      "votchina-feature-en.webp": "1f2d8d2b2e23a31a:feature:0",
+      "votchina-feature.webp": "e5c7e2cfc2ee703c:feature:0",
+      "votchina-icon.webp": "ff63b1410755b301:icon:0",
+      "votchina-og-en.png": "1f2d8d2b2e23a31a:og:0",
+      "votchina-og.png": "e5c7e2cfc2ee703c:og:0"
+    }
+  },
+  "nardy": {
+    "repo": "Nefeste/nardy",
+    "commit": "0768926eaf4a3b35a094e48fcddbdb1f513feaf0",
+    "images": {
+      "nardy-01-game.webp": "2779434a275f7856:shot-landscape:0",
+      "nardy-02-why.webp": "582c381a32408d79:shot-landscape:0",
+      "nardy-03-hint.webp": "4614014ce39f5992:shot-landscape:0",
+      "nardy-04-bots.webp": "dcd631e196c3707b:shot-landscape:0",
+      "nardy-05-stats.webp": "3773dc077e22134e:shot-landscape:0",
+      "nardy-06-rules.webp": "7d9e00e48cd17593:shot-landscape:0",
+      "nardy-feature.webp": "60c8b5c9b458ba81:feature:0",
+      "nardy-icon.webp": "3f9e35ca9c38c845:icon:0",
+      "nardy-og.png": "852998c1423c2f07:og:1"
+    }
+  },
+  "anamnez": {
+    "repo": "Nefeste/anamnez",
+    "commit": "f4c68f1ba1c163bb7417a43e1f15ca50845c3c5d",
+    "images": {
+      "anamnez-01-queue.webp": "650e76a3eb59edc2:shot-portrait:0",
+      "anamnez-02-xray.webp": "eeef0cd9733da317:shot-portrait:0",
+      "anamnez-03-ecg.webp": "1d21a81b8915c4e6:shot-portrait:0",
+      "anamnez-04-diagnosis.webp": "36d4fc378b6208ac:shot-portrait:0",
+      "anamnez-05-plan.webp": "004b363cbc0c105f:shot-portrait:0",
+      "anamnez-06-outcome.webp": "36e8f893cc2f7e54:shot-portrait:0",
+      "anamnez-07-summary.webp": "fd3c9fa543432e5c:shot-portrait:0",
+      "anamnez-08-build.webp": "7b6db313c9039ab2:shot-portrait:0",
+      "anamnez-feature.webp": "c2650fb51b675757:feature:0",
+      "anamnez-icon.webp": "5dbeddc11eeb6e16:icon:0",
+      "anamnez-og.png": "b549a11d1121ae23:og:1"
+    }
+  },
+  "skazy": {
+    "repo": "Nefeste/skazy",
+    "commit": "d647eea122a8761d9a62524c8ee13fce22535b03",
+    "images": {
+      "skazy-01-path.webp": "a4e5fd327fa966a7:shot-portrait:0",
+      "skazy-02-battle.webp": "7262b3871c3337f1:shot-portrait:0",
+      "skazy-03-raven.webp": "a7459554334f002c:shot-portrait:0",
+      "skazy-04-hero.webp": "f38211ae1e14cdfb:shot-portrait:0",
+      "skazy-05-chronicle.webp": "787963f93e8950c1:shot-portrait:0",
+      "skazy-06-zastava.webp": "9af2fc7f9cdb4e06:shot-portrait:0",
+      "skazy-feature-en.webp": "606fb56a3cd07215:feature:0",
+      "skazy-feature.webp": "63b931ecec47b8be:feature:0",
+      "skazy-icon.webp": "cae124bd3690fafa:icon:0",
+      "skazy-og-en.png": "606fb56a3cd07215:og:0",
+      "skazy-og.png": "63b931ecec47b8be:og:0"
+    }
+  },
+  "uzory": {
+    "repo": "Nefeste/uzory",
+    "commit": "852ad0104adc3e598979b8ee2a6a9c5a8a963b9c",
+    "images": {
+      "uzory-01-stitch.webp": "ca4733083976d183:shot-portrait:0",
+      "uzory-02-close.webp": "840417ee0019fcfe:shot-portrait:0",
+      "uzory-03-mosaic.webp": "314d1b6f8bf6e2f9:shot-portrait:0",
+      "uzory-04-done.webp": "1cbc4cc591e9fc7c:shot-portrait:0",
+      "uzory-feature-en.webp": "d4d63fd618cbcff0:feature:0",
+      "uzory-feature.webp": "fc70698ce369a62f:feature:0",
+      "uzory-icon.webp": "ad7d3aedb5f630ad:icon:0",
+      "uzory-og-en.png": "d4d63fd618cbcff0:og:0",
+      "uzory-og.png": "fc70698ce369a62f:og:0"
+    }
+  }
+}
