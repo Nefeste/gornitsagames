@@ -14,3 +14,6 @@ gornitsa_deploy.pub
 /site/en/
 /site/assets/fonts/
 /site/og.png
+
+# Папки store/ игр, которые забирает tools/fetch-games.sh (workflow «Страницы игр»)
+/games/

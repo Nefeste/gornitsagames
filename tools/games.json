@@ -1,0 +1,25 @@
+{
+  "_": "Игры, чьи страницы сайт собирает из store/site/ (ADR студии 0015). Порядок карточек задаёт src/index.html. card — ссылки карточки на главной, которые знает только сайт; meta — ссылки внизу страницы перед политикой.",
+  "games": [
+    {
+      "slug": "votchina",
+      "repo": "Nefeste/votchina",
+      "private": true,
+      "meta": {
+        "ru": [{"text": "Турниры", "url": "/votchina/tournaments.html"}],
+        "en": [{"text": "Tournaments", "url": "/en/votchina/tournaments.html"}]
+      }
+    },
+    {"slug": "nardy", "repo": "Nefeste/nardy", "private": true},
+    {"slug": "anamnez", "repo": "Nefeste/anamnez"},
+    {"slug": "skazy", "repo": "Nefeste/skazy"},
+    {
+      "slug": "uzory",
+      "repo": "Nefeste/uzory",
+      "card": {
+        "ru": [{"text": "Закрасить узор-пример ↑", "url": "#hoop"}],
+        "en": [{"text": "Fill in the sample pattern ↑", "url": "#hoop"}]
+      }
+    }
+  ]
+}

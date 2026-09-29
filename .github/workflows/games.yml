@@ -1,0 +1,52 @@
+# Страницы игр — из store/site/ их репозиториев (ADR студии 0015, устав Nefeste/gornitsa).
+# Каждую ночь и по кнопке: забрать store/ с main игр, собрать страницы и картинки, проверить
+# сайт и открыть или обновить PR «Сайт: обновления игр». Сливает владелец.
+# Запускается только по расписанию и по кнопке — не из PR, поэтому токен закрытых игр
+# в чужие руки не попадает. Репозиторий открытый: минуты Actions не тратятся.
+name: Страницы игр
+
+on:
+  schedule:
+    - cron: '17 0 * * *'   # 03:17 по Москве
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: games-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      # Точные версии: те же байты картинок при каждом запуске.
+      - name: Библиотеки
+        run: pip install pillow==12.2.0 pyyaml==6.0.3
+
+      - name: Забрать store/ игр
+        env:
+          GAMES_READ_TOKEN: ${{ secrets.GAMES_READ_TOKEN }}
+        run: bash tools/fetch-games.sh
+
+      - name: Собрать страницы игр
+        run: python3 tools/games.py --src games --report "$RUNNER_TEMP/report.md"
+
+      - name: Собрать сайт и проверить
+        run: |
+          python3 build.py > /dev/null
+          python3 tools/check.py
+
+      - name: 'PR «Сайт: обновления игр»'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash tools/games-pr.sh "$RUNNER_TEMP/report.md"
