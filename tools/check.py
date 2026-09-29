@@ -3,14 +3,18 @@
 страницы, файлы и якоря, а у картинок игр пропорции в разметке (width и height) совпадают
 с файлом — иначе картинка растянется. Файл может быть крупнее разметки (для чётких экранов).
 Разметка для поисковиков (application/ld+json) — правильный JSON, и адреса сайта в ней есть.
+Новости (news/) — по формату tools/news.py, ленты news.atom — правильный XML.
 
     python3 build.py && python3 tools/check.py
 """
 import datetime, json, pathlib, re, sys
+import xml.dom.minidom
 from urllib.parse import urljoin, urlsplit
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SITE = ROOT / "site"
+sys.path.insert(0, str(ROOT / "tools"))
+import news  # noqa: E402
 
 
 def target(path):
@@ -78,6 +82,13 @@ def main():
             for ref in re.findall(r'"(https://gornitsa\.games/[^"#]*)', json.dumps(data, ensure_ascii=False)):
                 if target(urlsplit(ref).path) is None:
                     errors.append(f"{name}: в ld+json адрес {ref} — такого файла нет")
+    for lang in ("ru", "en"):
+        errors += news.load(lang)[1]
+    for feed in sorted(SITE.rglob("*.atom")):
+        try:
+            xml.dom.minidom.parse(str(feed))
+        except Exception as e:
+            errors.append(f"{feed.relative_to(ROOT).as_posix()}: лента — не XML: {e}")
     # security.txt действует до даты Expires (RFC 9116): просрочен — ошибка, меньше 60 дней — напоминание
     sec = SITE / ".well-known" / "security.txt"
     if sec.is_file():

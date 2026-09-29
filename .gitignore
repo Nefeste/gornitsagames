@@ -6,6 +6,7 @@ gornitsa_deploy.pub
 
 # Собираются автоматически: страницы — build.py, шрифты — deploy/fetch-fonts.sh
 /site/*.html
+/site/news.atom
 /site/votchina/
 /site/nardy/
 /site/skazy/

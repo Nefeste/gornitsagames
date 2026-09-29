@@ -10,6 +10,7 @@ T = {
         "docs": "Документы", "studio": "Студия «Горница»", "brandbook": "Брендбук", "other": "English", "other_lang": "en", "fonts": "cyrillic",
         "tagline": "Спокойные, честные и понятные игры для RuStore.", "studio_col": "Студия", "help": "Помощь",
         "mail": "Почта", "mail_hello": "общая", "mail_support": "поддержка", "mail_press": "для прессы",
+        "news": "Новости", "press": "Для прессы", "feed": "Новости «Горницы»",
         "og_alt": "Знак «Горницы» — ромб из вышитых крестиков — и надпись «Светлая комната для хороших игр»",
     },
     "en": {
@@ -18,6 +19,7 @@ T = {
         "docs": "Documents", "studio": "Gornitsa Studio", "brandbook": "Brand book", "other": "Русский", "other_lang": "ru", "fonts": "latin",
         "tagline": "Calm, honest and clear games for RuStore.", "studio_col": "Studio", "help": "Help",
         "mail": "Email", "mail_hello": "general", "mail_support": "support", "mail_press": "press",
+        "news": "News", "press": "Press", "feed": "Gornitsa news",
         "og_alt": "The Gornitsa mark, a diamond of cross-stitches, and the words “A bright room for good games”",
     },
 }
@@ -53,10 +55,12 @@ def prefix(b, lang):
 
 def head(b, lang="ru", alternates=""):
     f = T[lang]["fonts"]
+    feed = "/en/news.atom" if lang == "en" else "/news.atom"
     return f"""<link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" href="{b}favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="manifest" href="/manifest.webmanifest">
+<link rel="alternate" type="application/atom+xml" title="{T[lang]['feed']}" href="{feed}">
 <link rel="preload" href="{b}assets/fonts/kurale-{f}-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="{b}assets/fonts/onest-{f}-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="{b}assets/brand.css">
@@ -111,6 +115,8 @@ def footer(b, lang="ru", games=(), other=None):
       <h2 id="footer-studio">{t['studio_col']}</h2>
       <ul>
         <li><a href="{p}about.html">{t['about']}</a></li>
+        <li><a href="{p}news.html">{t['news']}</a></li>
+        <li><a href="{p}press.html">{t['press']}</a></li>
         <li><a href="{p}brand.html">{t['brandbook']}</a></li>
       </ul>
     </nav>
