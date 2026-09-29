@@ -17,7 +17,8 @@ src/                  шаблоны страниц (редактировать 
   uzory/              профиля (delete.html у «Вотчины» и «Сказов»), турниры «Вотчины»,
                       votchina/privacy.html — переадресация на общую политику
   en/                 английская версия тех же страниц
-  partials.py         общая шапка, подвал и <head> на обоих языках
+  partials.py         общая шапка, подвал и <head> на обоих языках (игры в подвале build.py берёт
+                      из tools/games.json и <h1> их страниц — новая игра появится там сама)
   brandmark.svg       знак «Горницы» для шапки
 site/                 сайт, который выкладывается на сервер (страницы *.html собирает build.py)
   assets/brand.css    токены бренда: копия brand/tokens.css из Nefeste/gornitsa, здесь не правится
@@ -25,13 +26,19 @@ site/                 сайт, который выкладывается на �
   assets/site.js      узор-раскраска на главной, орнамент, кнопка «Скопировать»
   assets/games/       баннеры, значки и снимки экрана игр (WebP)
   assets/fonts/       шрифты woff2 (скачивает deploy/fetch-fonts.sh)
+  assets/og-studio.png, og-studio-en.png   картинка 1200 × 630 для ссылок на страницы без своей
+                      (у страниц игр — своя); build.py ставит её и поля og: сам
+  assets/icons/, apple-touch-icon.png, favicon.ico, manifest.webmanifest   значки для телефонов,
+                      вкладок и поисковиков; картинки студии перерисовывает tools/brand-assets.mjs
+  .well-known/security.txt   куда писать об уязвимостях; срок — до Expires, check.py напомнит
   favicon.svg, robots.txt, sitemap.xml
 build.py              собирает site/*.html из src/
 tools/
   games.json          игры, чьи страницы собираются из store/site/, и ссылки, которые знает только сайт
   fetch-games.sh      забирает store/ с main игр в games/ (закрытые — токеном GAMES_READ_TOKEN)
   games.py            собирает страницы, карточки на главной и картинки игр из games/*/store/site/
-  check.py            проверяет собранный сайт: ссылки, якоря, размеры картинок игр
+  check.py            проверяет собранный сайт: ссылки, якоря, размеры картинок игр, срок security.txt
+  brand-assets.mjs    рисует картинку для ссылок и значки из знака и шрифтов сайта (Playwright)
 games.lock.json       из какого коммита игры и из каких файлов собраны её страница и картинки
 .github/workflows/games.yml   «Страницы игр»: каждую ночь — PR «Сайт: обновления игр»
 deploy/
@@ -41,7 +48,12 @@ deploy/
   bootstrap.sh        настройка сервера одной командой и автообновление из GitHub
   update-site.sh      автообновление (запускается таймером раз в 5 минут)
   seni-bootstrap.sh   установщик Сеней — шлюза студии — на отдельной машине (см. ниже)
-  nginx/gornitsa.games.conf
+  nginx/              настройка nginx сайта (см. «Обновления сайта»)
+    gornitsa.games.conf        до выпуска сертификата — первая установка
+    gornitsa.games.https.conf  с HTTPS: HTTP/2, редирект с http и www — сама настройка на машине
+    headers.conf, locations.conf   заголовки безопасности (в каждом месте сайта, с HSTS) и места
+    server.conf        server_tokens off для всей машины
+    apply.sh           ставит всё это на машину с проверкой и откатом
   votchina/           сервер игры «Вотчина» на этой же машине (см. ниже)
     setup.sh          настройка: Node, служба, ключи, таймеры
     pull.sh           сборка из ветки vps и выгрузка базы (каждые 2 минуты)
@@ -140,6 +152,8 @@ curl -fsSL https://raw.githubusercontent.com/Nefeste/gornitsagames/main/deploy/b
 ### 6. Обновления сайта
 
 Просто делайте `git push` в ветку `main`: сервер проверяет GitHub каждые 5 минут и выкладывает новую версию сам. Журнал: `journalctl -u gornitsa-update -n 50`. Скрипт автообновления тоже берётся из репозитория (`deploy/update-site.sh`), а при изменении `deploy/votchina/`, `deploy/nardy/`, `deploy/skazy/` или `deploy/uzory/` он доводит настройку сервера этой игры.
+
+Настройка nginx самого сайта тоже идёт из репозитория: при изменении `deploy/nginx/` (и когда сертификат уже выпущен) `update-site.sh` запускает `deploy/nginx/apply.sh`. Тот сохраняет нынешние файлы, ставит `gornitsa.games.https.conf` как `/etc/nginx/sites-available/gornitsa.games.conf`, заголовки и места — в `/etc/nginx/snippets/gornitsa-site-*.conf`, `server_tokens off` — в `/etc/nginx/conf.d/`, проверяет `nginx -t`, перезагружает nginx и убеждается, что `https://gornitsa.games/` отвечает 200, а `http://` — 301. Что-то не так — всё возвращается как было, а в `/var/lib/gornitsa-nginx-site` пишется `failed <версия>`: эту версию скрипт больше не пробует, пока `deploy/nginx/` не поменяется снова. Блоки сертификата в конфиге — в том виде, в каком их пишет certbot, поэтому продление работает по-прежнему. Заголовки безопасности — в `headers.conf` и подключаются в каждом `location`: nginx не складывает `add_header` сервера и места, и заголовки на уровне сервера молча пропадали бы.
 
 Если репозиторий нужен закрытым, сайт можно выкладывать со своего компьютера: `./deploy/deploy.sh IP_СЕРВЕРА` (нужен SSH-доступ пользователем deploy, его создаёт `deploy/setup-server.sh`).
 
@@ -299,7 +313,7 @@ Cloudflare у части российских провайдеров работ�
 
 - ключ шифрования машины (age) — `/etc/uzory/age.key`, открытая часть — https://gornitsa.games/.well-known/uzory-age.pub. CI «Узоров» после каждого слияния в main собирает веб-версию, шифрует её этим ключом и кладёт в ветку `vps`: репозиторий открытый, а в сборке — картинки «только для проверки», среди них картины российских музеев. Прочитать ветку может только эта машина;
 - `uzory-pull` каждые 5 минут: новая сборка из ветки `vps` — расшифровка в `/opt/uzory/releases/<коммит>/test`, сжатые копии `.gz`, ссылка `current`; хранятся три последние. Не расшифровалась или неполная — остаётся прежняя;
-- `uzory-nginx` пишет `/etc/nginx/snippets/gornitsa.games-uzory.conf` и один раз добавляет в конфиг сайта на сервере строку `include /etc/nginx/snippets/gornitsa.games-*.conf;` — сразу после `root` (в `deploy/nginx/gornitsa.games.conf` она уже есть; конфиг, который поправил certbot, из репозитория не обновляется). Новый конфиг не прошёл `nginx -t` — возвращается прежний;
+- `uzory-nginx` пишет `/etc/nginx/snippets/gornitsa.games-uzory.conf` и один раз добавляет в конфиг сайта на сервере строку `include /etc/nginx/snippets/gornitsa.games-*.conf;` — сразу после `root` (в `deploy/nginx/gornitsa.games.conf` и `gornitsa.games.https.conf` она уже есть). Новый конфиг не прошёл `nginx -t` — возвращается прежний;
 - `/uzory/test/` — только по HTTPS и только с именем и паролем из `/etc/uzory/test.htpasswd`; пока файла нет — 403 всем. Правила безопасности (CSP) — как у сайта, плюс `'wasm-unsafe-eval'`: игра рисует через WebAssembly. Поисковикам — `noindex`.
 
 Пароль задаёт владелец — один раз, на сервере:

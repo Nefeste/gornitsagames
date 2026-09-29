@@ -1,0 +1,6 @@
+# Нашли уязвимость на сайте или в играх студии «Горница»? Напишите — ответим.
+# Found a security issue on the site or in a Gornitsa game? Please write to us.
+Contact: mailto:support@gornitsa.games
+Expires: 2027-09-29T00:00:00.000Z
+Preferred-Languages: ru, en
+Canonical: https://gornitsa.games/.well-known/security.txt
