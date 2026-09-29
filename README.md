@@ -30,6 +30,7 @@ site/                 сайт, который выкладывается на �
   assets/site.js      узор-раскраска на главной, орнамент, кнопка «Скопировать»
   assets/games/       баннеры, значки и снимки экрана игр (WebP)
   assets/fonts/       шрифты woff2 (скачивает deploy/fetch-fonts.sh)
+  assets/stores/rustore.svg   официальная кнопка «Скачайте из RuStore» (см. «Страницы игр»)
   assets/og-studio.png, og-studio-en.png   картинка 1200 × 630 для ссылок на страницы без своей
                       (у страниц игр — своя); build.py ставит её и поля og: сам
   assets/icons/, apple-touch-icon.png, favicon.ico, manifest.webmanifest   значки для телефонов,
@@ -60,6 +61,7 @@ deploy/
     gornitsa.games.conf        до выпуска сертификата — первая установка
     gornitsa.games.https.conf  с HTTPS: HTTP/2, редирект с http и www — сама настройка на машине
     headers.conf, locations.conf   заголовки безопасности (в каждом месте сайта, с HSTS) и места
+    server.conf        server_tokens off для всей машины
     apply.sh           ставит всё это на машину с проверкой и откатом
   votchina/           сервер игры «Вотчина» на этой же машине (см. ниже)
     setup.sh          настройка: Node, служба, ключи, таймеры
@@ -181,7 +183,7 @@ curl -fsSL https://raw.githubusercontent.com/Nefeste/gornitsagames/main/deploy/b
 
 Просто делайте `git push` в ветку `main`: сервер проверяет GitHub каждые 5 минут и выкладывает новую версию сам. Журнал: `journalctl -u gornitsa-update -n 50`. Скрипт автообновления тоже берётся из репозитория (`deploy/update-site.sh`), а при изменении `deploy/votchina/`, `deploy/nardy/`, `deploy/skazy/` или `deploy/uzory/` он доводит настройку сервера этой игры.
 
-Настройка nginx самого сайта тоже идёт из репозитория: при изменении `deploy/nginx/` (и когда сертификат уже выпущен) `update-site.sh` запускает `deploy/nginx/apply.sh`. Тот сохраняет нынешние файлы, ставит `gornitsa.games.https.conf` как `/etc/nginx/sites-available/gornitsa.games.conf`, заголовки и места — в `/etc/nginx/snippets/gornitsa-site-*.conf` (`server_tokens off` — в самом конфиге сайта: в `http{}` машины он уже задан, второй раз там nginx не пропускает), проверяет `nginx -t`, перезагружает nginx и убеждается, что `https://gornitsa.games/` отвечает 200, а `http://` — 301. Что-то не так — всё возвращается как было, а в `/var/lib/gornitsa-nginx-site` пишется `failed <версия>`: эту версию скрипт больше не пробует, пока `deploy/nginx/` не поменяется снова. Блоки сертификата в конфиге — в том виде, в каком их пишет certbot, поэтому продление работает по-прежнему. Заголовки безопасности — в `headers.conf` и подключаются в каждом `location`: nginx не складывает `add_header` сервера и места, и заголовки на уровне сервера молча пропадали бы.
+Настройка nginx самого сайта тоже идёт из репозитория: при изменении `deploy/nginx/` (и когда сертификат уже выпущен) `update-site.sh` запускает `deploy/nginx/apply.sh`. Тот сохраняет нынешние файлы, ставит `gornitsa.games.https.conf` как `/etc/nginx/sites-available/gornitsa.games.conf`, заголовки и места — в `/etc/nginx/snippets/gornitsa-site-*.conf`, `server_tokens off` — в `/etc/nginx/conf.d/`, проверяет `nginx -t`, перезагружает nginx и убеждается, что `https://gornitsa.games/` отвечает 200, а `http://` — 301. Что-то не так — всё возвращается как было, а в `/var/lib/gornitsa-nginx-site` пишется `failed <версия>`: эту версию скрипт больше не пробует, пока `deploy/nginx/` не поменяется снова. Блоки сертификата в конфиге — в том виде, в каком их пишет certbot, поэтому продление работает по-прежнему. Заголовки безопасности — в `headers.conf` и подключаются в каждом `location`: nginx не складывает `add_header` сервера и места, и заголовки на уровне сервера молча пропадали бы.
 
 Если репозиторий нужен закрытым, сайт можно выкладывать со своего компьютера: `./deploy/deploy.sh IP_СЕРВЕРА` (нужен SSH-доступ пользователем deploy, его создаёт `deploy/setup-server.sh`).
 
@@ -204,6 +206,7 @@ curl -fsSL https://raw.githubusercontent.com/Nefeste/gornitsagames/main/deploy/s
 - Перед выходом каждой игры добавьте в политику её раздел, как у «Вотчины»: перечень сервисов (реклама, аналитика) должен совпадать с тем, что реально встроено в игру.
 - В консоли RuStore укажите ссылки: политика — https://gornitsa.games/privacy.html (для «Вотчины» можно сразу на её раздел: https://gornitsa.games/privacy.html#votchina), поддержка — https://gornitsa.games/support.html.
 - Ссылка на предзаказ или карточку RuStore на странице игры и в её карточке на главной — поле `links` (и `card.links`) в `store/site/page.*.md` игры.
+- У вышедшей игры (`status: live`) ссылка на карточку RuStore из `links` показывается официальной кнопкой «Скачайте из RuStore» — `site/assets/stores/rustore.svg`, файл с rustore.ru/help (раздел для разработчиков «Кнопка „Скачайте из RuStore“», двухцветный логотип на тёмной кнопке, 30.09.2026). Файл не перерисовываем и не перекрашиваем; у игр в разработке ссылка остаётся обычной кнопкой: надпись «Скачайте» для предзаказа неверна.
 
 ## Страницы игр — из `store/site/` игр
 

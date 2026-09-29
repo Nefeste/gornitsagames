@@ -54,11 +54,13 @@ T = {
            "shots": "Снимки экрана", "privacy": "Политика конфиденциальности",
            "delete": "Удалить профиль", "other": "English", "about": "Об игре",
            "site_name": "Горница", "banner": "Баннер 1024 × 500", "icon": "Значок 192 × 192",
+           "rustore": "Скачайте из RuStore",
            "page_shots": "Страница и снимки экрана"},
     "en": {"crumbs_label": "Navigation", "crumbs": "← All games", "home": "/en/#games",
            "shots": "Screenshots", "privacy": "Privacy policy", "delete": "Delete your profile",
            "other": "По-русски", "about": "About the game", "site_name": "Gornitsa",
-           "banner": "Banner 1024 × 500", "icon": "Icon 192 × 192", "page_shots": "Page and screenshots"},
+           "banner": "Banner 1024 × 500", "icon": "Icon 192 × 192", "page_shots": "Page and screenshots",
+           "rustore": "Download from RuStore"},
 }
 
 # Картинки: размер на сайте, формат, качество.
@@ -300,8 +302,15 @@ def render_page(slug, lang, meta, body, img, extra_meta, has_delete, privacy_anc
                    f'<figcaption>{esc(s["caption"])}</figcaption></figure>')
     actions = ""
     if meta.get("links"):
-        btns = [f'      <a class="btn {"btn-primary" if i == 0 else "btn-ghost"}" href="{attr(local(l["url"]))}">{esc(l["text"])}</a>'
-                for i, l in enumerate(meta["links"])]
+        btns = []
+        for i, l in enumerate(meta["links"]):
+            if meta["status"] == "live" and "rustore.ru/catalog/app/" in l["url"]:
+                # У вышедшей игры ссылка на RuStore — официальной кнопкой «Скачайте из RuStore»
+                # (rustore.ru/help, «Кнопка „Скачайте из RuStore“»); файл кнопки не меняем.
+                btns.append(f'      <a class="store-badge" href="{attr(l["url"])}"><img src="/assets/stores/rustore.svg" '
+                            f'width="128" height="46" alt="{t["rustore"]}"></a>')
+            else:
+                btns.append(f'      <a class="btn {"btn-primary" if i == 0 else "btn-ghost"}" href="{attr(local(l["url"]))}">{esc(l["text"])}</a>')
         actions = '    <div class="actions">\n' + "\n".join(btns) + "\n    </div>\n"
     pre = "" if lang == "ru" else "/en"
     links = [f'<a href="{attr(l["url"])}">{esc(l["text"])}</a>' for l in extra_meta]
