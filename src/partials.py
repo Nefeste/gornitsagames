@@ -1,4 +1,7 @@
+import json
+
 BRAND = open(__file__.replace("partials.py", "brandmark.svg")).read().strip()
+SITE = "https://gornitsa.games"
 
 T = {
     "ru": {
@@ -18,6 +21,29 @@ T = {
         "og_alt": "The Gornitsa mark, a diamond of cross-stitches, and the words “A bright room for good games”",
     },
 }
+
+
+def ld_json(data):
+    """Разметка schema.org для поисковиков: JSON в <script>, без «</» внутри."""
+    text = json.dumps(data, ensure_ascii=False).replace("</", "<\\/")
+    return f'<script type="application/ld+json">{text}</script>'
+
+
+def studio_ld(lang="ru"):
+    """Главная: студия (название, знак, почта) и сайт. Страницы игр ссылаются на студию по @id."""
+    t, other = T[lang], T["en" if lang == "ru" else "ru"]
+    home = f"{SITE}/en/" if lang == "en" else f"{SITE}/"
+    return ld_json({"@context": "https://schema.org", "@graph": [
+        {"@type": "Organization", "@id": f"{SITE}/#studio", "name": t["brand"], "alternateName": other["brand"],
+         "url": f"{SITE}/", "logo": f"{SITE}/assets/brand/mark-1024.png", "description": t["tagline"],
+         "email": "hello@gornitsa.games",
+         "contactPoint": [
+             {"@type": "ContactPoint", "contactType": "customer support", "email": "support@gornitsa.games",
+              "availableLanguage": ["ru", "en"]},
+             {"@type": "ContactPoint", "contactType": "press", "email": "press@gornitsa.games"}]},
+        {"@type": "WebSite", "@id": f"{home}#site", "url": home, "name": t["brand"], "inLanguage": lang,
+         "publisher": {"@id": f"{SITE}/#studio"}},
+    ]})
 
 
 def prefix(b, lang):
