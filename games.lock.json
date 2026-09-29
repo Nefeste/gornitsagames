@@ -24,22 +24,24 @@
   },
   "nardy": {
     "repo": "Nefeste/nardy",
-    "commit": "0768926eaf4a3b35a094e48fcddbdb1f513feaf0",
+    "commit": "2ecc44b11d1e591289545531e46975d70b64540f",
     "images": {
       "nardy-01-game.webp": "2779434a275f7856:shot-landscape:0",
-      "nardy-02-why.webp": "582c381a32408d79:shot-landscape:0",
-      "nardy-03-hint.webp": "4614014ce39f5992:shot-landscape:0",
-      "nardy-04-bots.webp": "dcd631e196c3707b:shot-landscape:0",
-      "nardy-05-stats.webp": "3773dc077e22134e:shot-landscape:0",
-      "nardy-06-rules.webp": "7d9e00e48cd17593:shot-landscape:0",
+      "nardy-02-review.webp": "cc37378dc3598eb7:shot-landscape:0",
+      "nardy-03-end.webp": "db1f38c6827659af:shot-landscape:0",
+      "nardy-04-why.webp": "582c381a32408d79:shot-landscape:0",
+      "nardy-05-online.webp": "5b9bad34dc88be96:shot-landscape:0",
+      "nardy-06-dice.webp": "a639966ee0c17c85:shot-landscape:0",
+      "nardy-07-bots.webp": "dcd631e196c3707b:shot-landscape:0",
+      "nardy-08-stats.webp": "3773dc077e22134e:shot-landscape:0",
       "nardy-feature.webp": "60c8b5c9b458ba81:feature:0",
       "nardy-icon.webp": "3f9e35ca9c38c845:icon:0",
-      "nardy-og.png": "852998c1423c2f07:og:1"
+      "nardy-og.png": "1bf35f7869311f39:og:1"
     }
   },
   "anamnez": {
     "repo": "Nefeste/anamnez",
-    "commit": "f4c68f1ba1c163bb7417a43e1f15ca50845c3c5d",
+    "commit": "9ae87567837c2d721fa52bc508714ef7f1e04a2e",
     "images": {
       "anamnez-01-queue.webp": "650e76a3eb59edc2:shot-portrait:0",
       "anamnez-02-xray.webp": "eeef0cd9733da317:shot-portrait:0",
@@ -73,12 +75,14 @@
   },
   "uzory": {
     "repo": "Nefeste/uzory",
-    "commit": "852ad0104adc3e598979b8ee2a6a9c5a8a963b9c",
+    "commit": "921b65c9cea02583ae5d685d7cdfc27645bdaaff",
     "images": {
-      "uzory-01-stitch.webp": "ca4733083976d183:shot-portrait:0",
-      "uzory-02-close.webp": "840417ee0019fcfe:shot-portrait:0",
-      "uzory-03-mosaic.webp": "314d1b6f8bf6e2f9:shot-portrait:0",
-      "uzory-04-done.webp": "1cbc4cc591e9fc7c:shot-portrait:0",
+      "uzory-01-stitch.webp": "8bcdade6b135eaf8:shot-portrait:0",
+      "uzory-02-far.webp": "6c452527993cfd87:shot-portrait:0",
+      "uzory-03-close.webp": "791964d6746f66a2:shot-portrait:0",
+      "uzory-04-mosaic.webp": "a179361198fb5a7f:shot-portrait:0",
+      "uzory-05-done.webp": "c987791e0d5237c9:shot-portrait:0",
+      "uzory-06-replay.webp": "9ee9dcb3d5509bd4:shot-portrait:0",
       "uzory-feature-en.webp": "d4d63fd618cbcff0:feature:0",
       "uzory-feature.webp": "fc70698ce369a62f:feature:0",
       "uzory-icon.webp": "ad7d3aedb5f630ad:icon:0",
