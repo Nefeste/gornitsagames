@@ -36,14 +36,18 @@
     pick: "Pick a thread and fill in the numbered cells.",
     wrong: function (v) { return "This cell takes thread " + v + " (" + T.names[v] + "). Pick it below."; },
     done: "Pattern complete. That’s how our color-by-number game Uzory will work.",
-    copy: "Copy", copied: "Copied", selected: "Selected — press Ctrl+C"
+    copy: "Copy", copied: "Copied", selected: "Selected — press Ctrl+C",
+    zoom: "Screenshot", close: "Close", prev: "Previous screenshot", next: "Next screenshot",
+    bigger: "Actual size", fit: "Fit to screen", of: " of "
   } : {
     names: { 1: "красная", 2: "еловая", 3: "льняная" },
     cell: function (r, c, v) { return "Клетка " + r + "-" + c + ", нить " + v + " (" + T.names[v] + ")"; },
     pick: "Выберите нить и закрасьте клетки с номерами.",
     wrong: function (v) { return "Эта клетка под нить " + v + " (" + T.names[v] + "). Выберите её ниже."; },
     done: "Узор готов. Так будет устроена наша раскраска «Узоры».",
-    copy: "Скопировать", copied: "Скопировано", selected: "Выделено, нажмите Ctrl+C"
+    copy: "Скопировать", copied: "Скопировано", selected: "Выделено, нажмите Ctrl+C",
+    zoom: "Снимок экрана", close: "Закрыть", prev: "Предыдущий снимок", next: "Следующий снимок",
+    bigger: "Исходный размер", fit: "Вписать в экран", of: " из "
   };
 
   function buildCanvas(root) {
@@ -197,7 +201,154 @@
     });
   }
 
+  // Снимки игр крупно. Нажатие на снимок открывает крупную картинку (…-full.webp) во весь экран,
+  // чтобы читался мелкий текст игры. Нажатие на снимок — исходный размер и обратно; стрелки,
+  // кнопки и свайп — соседние снимки; Esc, «Назад» телефона и нажатие мимо снимка — закрыть.
+  // Без JS или без <dialog> ссылка просто открывает крупную картинку.
+  function buildZoom(section) {
+    var links = [].slice.call(section.querySelectorAll("a.shot"));
+    if (!links.length || typeof HTMLDialogElement !== "function") return;
+
+    var icon = function (d) {
+      return '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="' + d + '"/></svg>';
+    };
+    var LENS = "M10.5 4a6.5 6.5 0 1 1 0 13a6.5 6.5 0 0 1 0-13zM15.3 15.3L20 20M7.5 10.5h6";
+    var dlg = document.createElement("dialog");
+    dlg.className = "zoom";
+    dlg.setAttribute("aria-label", T.zoom);
+    dlg.innerHTML =
+      '<div class="zoom-frame"><img alt="" draggable="false"></div>' +
+      '<div class="zoom-bar"><span class="zoom-count"></span>' +
+      '<button type="button" class="zoom-btn" data-z="size">' + icon(LENS) + "</button>" +
+      '<button type="button" class="zoom-btn" data-z="close" autofocus>' + icon("M6 6l12 12M18 6L6 18") + "</button></div>" +
+      '<p class="zoom-cap"></p>' +
+      '<button type="button" class="zoom-btn zoom-nav" data-z="prev">' + icon("M15 5l-7 7 7 7") + "</button>" +
+      '<button type="button" class="zoom-btn zoom-nav" data-z="next">' + icon("M9 5l7 7-7 7") + "</button>";
+    document.body.appendChild(dlg);
+
+    var frame = dlg.querySelector(".zoom-frame"), img = frame.querySelector("img");
+    var count = dlg.querySelector(".zoom-count"), cap = dlg.querySelector(".zoom-cap");
+    var btn = {};
+    dlg.querySelectorAll("[data-z]").forEach(function (b) { btn[b.dataset.z] = b; });
+    function name(b, text) { b.setAttribute("aria-label", text); b.title = text; }
+    name(btn.close, T.close); name(btn.prev, T.prev); name(btn.next, T.next);
+    btn.prev.hidden = btn.next.hidden = links.length < 2;
+
+    var i = 0, full = false, pushed = false;
+
+    // Размер: вписать в экран (не крупнее самой картинки) или исходный — пиксель в пиксель.
+    function layout(x, y) {
+      var d = (links[i].dataset.size || "").split("x");
+      var nw = +d[0] || img.naturalWidth, nh = +d[1] || img.naturalHeight;
+      if (!nw || !nh) return;
+      var cs = getComputedStyle(frame);  // поля рамки — место под кнопками и подписью
+      var px = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
+      var py = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
+      var k = Math.min((frame.clientWidth - px) / nw, (frame.clientHeight - py) / nh, 1);
+      var grow = k < 0.97;
+      if (!grow) full = false;
+      var s = full ? 1 : k;
+      img.style.width = Math.round(nw * s) + "px";
+      img.style.height = Math.round(nh * s) + "px";
+      frame.classList.toggle("is-full", full);
+      frame.classList.toggle("no-grow", !grow);
+      btn.size.hidden = !grow;
+      btn.size.setAttribute("aria-pressed", String(full));
+      btn.size.querySelector("path").setAttribute("d", full ? LENS : LENS + "M10.5 7.5v6");
+      name(btn.size, full ? T.fit : T.bigger);
+      if (full && x != null) {  // та точка снимка, куда нажали, — посередине экрана
+        frame.scrollLeft = parseFloat(cs.paddingLeft) + x * nw - frame.clientWidth / 2;
+        frame.scrollTop = parseFloat(cs.paddingTop) + y * nh - frame.clientHeight / 2;
+      }
+    }
+
+    function show(n) {
+      i = (n + links.length) % links.length;
+      var a = links[i], small = a.querySelector("img"), fig = a.closest("figure");
+      var c = fig && fig.querySelector("figcaption");
+      full = false;
+      img.alt = small ? small.alt : "";
+      // Пока грузится крупная, видна уже загруженная маленькая — того же размера на экране.
+      img.src = small && small.complete && small.naturalWidth ? (small.currentSrc || small.src) : a.href;
+      var big = new Image();
+      big.onload = function () { if (links[i] === a) img.src = a.href; };
+      big.src = a.href;
+      cap.textContent = c ? c.textContent : "";
+      count.textContent = links.length > 1 ? (i + 1) + T.of + links.length : "";
+      layout();
+      frame.scrollTop = frame.scrollLeft = 0;
+      [i + 1, i - 1].forEach(function (m) { new Image().src = links[(m + links.length) % links.length].href; });
+    }
+
+    function open(n) {
+      show(n);
+      if (dlg.open) return;
+      dlg.showModal();
+      document.documentElement.classList.add("zoom-open");
+      layout();
+      try { history.pushState({ zoom: true }, ""); pushed = true; } catch (e) { pushed = false; }
+    }
+
+    dlg.addEventListener("close", function () {
+      document.documentElement.classList.remove("zoom-open");
+      img.removeAttribute("src");
+      links[i].focus();
+      if (pushed) { pushed = false; history.back(); }
+    });
+    // «Назад» на телефоне закрывает снимок, а не уводит со страницы.
+    window.addEventListener("popstate", function () {
+      if (dlg.open) { pushed = false; dlg.close(); }
+    });
+    window.addEventListener("resize", function () { if (dlg.open) layout(); });
+
+    links.forEach(function (a, n) {
+      a.addEventListener("click", function (e) {
+        if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;  // новая вкладка — как обычно
+        e.preventDefault();
+        open(n);
+      });
+    });
+    btn.close.addEventListener("click", function () { dlg.close(); });
+    btn.prev.addEventListener("click", function () { show(i - 1); });
+    btn.next.addEventListener("click", function () { show(i + 1); });
+    btn.size.addEventListener("click", function () { full = !full; layout(0.5, 0.5); });
+
+    // Мышь в исходном размере: снимок тянется. Палец вписанный снимок листает свайпом.
+    var drag = null, moved = false;
+    frame.addEventListener("pointerdown", function (e) {
+      moved = false;
+      if (e.isPrimary) drag = { x: e.clientX, y: e.clientY, l: frame.scrollLeft, t: frame.scrollTop, mouse: e.pointerType === "mouse" };
+    });
+    frame.addEventListener("pointermove", function (e) {
+      if (!drag) return;
+      var dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+      if (Math.abs(dx) + Math.abs(dy) > 6) moved = true;
+      if (drag.mouse && full) { frame.scrollLeft = drag.l - dx; frame.scrollTop = drag.t - dy; }
+    });
+    frame.addEventListener("pointerup", function (e) {
+      if (!drag) return;
+      var dx = e.clientX - drag.x, dy = e.clientY - drag.y, touch = !drag.mouse;
+      drag = null;
+      if (touch && !full && Math.abs(dx) > 50 && Math.abs(dx) > 1.5 * Math.abs(dy)) show(i + (dx < 0 ? 1 : -1));
+    });
+    frame.addEventListener("pointercancel", function () { drag = null; });
+    frame.addEventListener("click", function (e) {
+      if (moved) return;
+      if (e.target !== img) { dlg.close(); return; }  // мимо снимка — закрыть
+      if (frame.classList.contains("no-grow")) return;
+      var r = img.getBoundingClientRect();
+      full = !full;
+      layout((e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height);
+    });
+    dlg.addEventListener("keydown", function (e) {
+      if (full && e.key.indexOf("Arrow") === 0) return;  // в исходном размере стрелки двигают снимок
+      if (e.key === "ArrowRight") { show(i + 1); e.preventDefault(); }
+      else if (e.key === "ArrowLeft") { show(i - 1); e.preventDefault(); }
+    });
+  }
+
   function init() {
+    document.querySelectorAll(".shots").forEach(buildZoom);
     document.querySelectorAll("[data-hoop]").forEach(buildCanvas);
     document.querySelectorAll("svg.band").forEach(buildBand);
     document.querySelectorAll("[data-copy]").forEach(buildCopy);

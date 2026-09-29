@@ -53,6 +53,10 @@ SPEC = {
     "feature": ((1024, 500), "WEBP", 86),
     "shot-portrait": ((540, 960), "WEBP", 84),
     "shot-landscape": ((960, 540), "WEBP", 84),
+    # Снимок крупно — по нажатию на снимок (site.js): мелкий текст игры читается.
+    # Больше исходника не растягивается.
+    "shot-portrait-full": ((1080, 1920), "WEBP", 86),
+    "shot-landscape-full": ((1920, 1080), "WEBP", 86),
     "og": ((1200, 630), "PNG", None),
 }
 
@@ -294,10 +298,20 @@ def pixels_key(data):
         return hashlib.sha256(f"{im.width}x{im.height}:".encode() + im.tobytes()).hexdigest()[:16]
 
 
+def target_size(spec, src_size):
+    """Размер картинки на сайте. Крупный снимок (-full) не бывает больше исходника."""
+    (w, h), _, _ = SPEC[spec]
+    if spec.endswith("-full"):
+        k = min(1, src_size[0] / w, src_size[1] / h)
+        w, h = round(w * k), round(h * k)
+    return w, h
+
+
 def encode(path, spec, cover_og=False):
-    (w, h), fmt, q = SPEC[spec]
+    _, fmt, q = SPEC[spec]
     raw = path.read_bytes()
     with Image.open(io.BytesIO(raw)) as im:
+        w, h = target_size(spec, im.size)
         if im.format == "WEBP" and im.size == (w, h) and fmt == "WEBP":
             return raw  # уже готова для сайта — без второго сжатия
     im = load_rgb(path)
@@ -339,8 +353,12 @@ def render_page(slug, lang, meta, body, img, extra_meta, has_delete, privacy_anc
     fig = []
     for i, s in enumerate(shots):
         lazy = ' loading="lazy"' if i else ""
-        fig.append(f'      <figure><img src="/assets/games/{s["name"]}" width="{s["w"]}" height="{s["h"]}" '
-                   f'alt="{attr(s["alt"])}"{lazy}><figcaption>{esc(s["caption"])}</figcaption></figure>')
+        # Ссылка на крупный снимок: site.js открывает его поверх страницы, без JS — просто картинкой.
+        fw, fh = s["full_size"]
+        fig.append(f'      <figure><a class="shot" href="/assets/games/{s["full"]}" data-size="{fw}x{fh}">'
+                   f'<img src="/assets/games/{s["name"]}" '
+                   f'width="{s["w"]}" height="{s["h"]}" alt="{attr(s["alt"])}"{lazy}></a>'
+                   f'<figcaption>{esc(s["caption"])}</figcaption></figure>')
     actions = ""
     if meta.get("links"):
         btns = [f'      <a class="btn {"btn-primary" if i == 0 else "btn-ghost"}" href="{attr(local(l["url"]))}">{esc(l["text"])}</a>'
@@ -453,14 +471,14 @@ class Game:
             pages[lang] = (meta, body)
         return pages
 
-    def image(self, rel, spec, base, lang_tag, taken, cover_og=False):
-        """Имя картинки на сайте: <игра>-<имя файла>; у другого файла с тем же именем — -en."""
+    def image(self, rel, spec, base, lang_tag, taken, cover_og=False, suffix=""):
+        """Имя картинки на сайте: <игра>-<имя файла>[-full]; у другого файла с тем же именем — -en."""
         src = (self.store / rel).resolve()
         stem = re.sub(rf"^{self.slug}-", "", pathlib.Path(rel).stem)
         ext = ".png" if SPEC[spec][1] == "PNG" else ".webp"
-        name = f"{self.slug}-{base or stem}{ext}"
+        name = f"{self.slug}-{base or stem}{suffix}{ext}"
         if taken.get(name, src) != src:
-            name = f"{self.slug}-{base or stem}-{lang_tag}{ext}"
+            name = f"{self.slug}-{base or stem}-{lang_tag}{suffix}{ext}"
         taken[name] = src
         data, how = src.read_bytes(), f":{spec}:{int(cover_og)}"
         key = "px" + pixels_key(data) + how
@@ -505,8 +523,10 @@ def sync(cfg, src, lock, index):
             w, h = image_size(g.store / s["file"])
             spec = "shot-landscape" if w > h else "shot-portrait"
             name = g.image(s["file"], spec, None, lang, taken)
+            full = g.image(s["file"], spec + "-full", None, lang, taken, suffix="-full")
             (sw, sh), _, _ = SPEC[spec]
-            img["shots"].append({"name": name, "w": sw, "h": sh, "alt": s["alt"], "caption": s["caption"]})
+            img["shots"].append({"name": name, "full": full, "full_size": target_size(spec + "-full", (w, h)),
+                                 "w": sw, "h": sh, "alt": s["alt"], "caption": s["caption"]})
         source = f"store/site/page.{lang}.md репозитория {repo}"  # коммит — в games.lock.json
         out = ROOT / "src" / ("" if lang == "ru" else "en") / slug / "index.html"
         g.files[out] = render_page(slug, lang, meta, body, img, cfg.get("meta", {}).get(lang, []),
