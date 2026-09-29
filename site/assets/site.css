@@ -298,6 +298,13 @@ p { margin: 0; }
 .game-hero { display: flex; align-items: center; gap: clamp(16px, 3vw, 24px); max-width: 48rem; }
 .game-hero .game-icon { width: clamp(64px, 12vw, 96px); height: clamp(64px, 12vw, 96px); border-radius: 18px; }
 .game-hero > div { display: grid; gap: 8px; }
+/* Обложка игры (cover в store/site/): 3 : 1, на телефоне — от края до края и 2 : 1 по центру. */
+.game-cover img { display: block; width: 100%; height: auto; aspect-ratio: 3 / 1; object-fit: cover; border-radius: 12px; background: var(--paper); }
+/* Паспорт игры (facts): клетки в рамке, последняя строка растягивается — пустых клеток нет. */
+.game-facts { display: flex; flex-wrap: wrap; margin: 0; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); overflow: hidden; }
+.game-facts > div { flex: 1 1 8.5rem; display: grid; gap: 2px; align-content: start; padding: 12px 16px; margin: -1px 0 0 -1px; border-left: 1px solid var(--line); border-top: 1px solid var(--line); }
+.game-facts dt { font-size: var(--step--1); color: var(--ink-soft); }
+.game-facts dd { margin: 0; font-weight: 500; line-height: 1.35; }
 .shots {
   display: grid; grid-auto-flow: column; grid-auto-columns: minmax(150px, 42vw);
   gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 6px;
@@ -476,6 +483,8 @@ details.faq .answer { display: grid; gap: 10px; padding-top: 10px; color: var(--
   .footer-about { grid-column: 1 / -1; max-width: none; }
 }
 @media (max-width: 640px) {
+  .game-cover { margin-inline: calc(-1 * var(--gutter)); }
+  .game-cover img { aspect-ratio: 2 / 1; border-radius: 0; }
   .principles { grid-template-columns: minmax(0, 1fr); }
   /* игры на телефоне — лентой: листаются пальцем вбок, а не пять экранов вниз */
   .games {

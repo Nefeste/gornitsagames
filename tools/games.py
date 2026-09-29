@@ -27,9 +27,20 @@ ASSETS = ROOT / "site" / "assets" / "games"
 SITE = "https://gornitsa.games"
 PAPER = (247, 247, 242)  # --paper из brand/tokens.css: фон под прозрачными картинками
 
+# Паспорт игры (facts): поле — подпись ru/en. Строки идут в этом порядке, какие есть.
+FACTS = {
+    "platform": ("Платформа", "Platform"),
+    "price": ("Цена", "Price"),
+    "age": ("Возраст", "Age rating"),
+    "players": ("Игроки", "Players"),
+    "internet": ("Интернет", "Internet"),
+    "languages": ("Языки", "Languages"),
+}
+
 # Сколько знаков можно в полях (docs/08-publishing.md устава).
 LIMITS = {"name": 40, "title": 60, "description": 220, "kind": 40, "lead": 160, "caption": 30,
-          "alt": 160, "card.text": 240, "card.points": 80, "links.text": 40, "note": 200}
+          "alt": 160, "card.text": 240, "card.points": 80, "links.text": 40, "note": 200,
+          **{f"facts.{k}": 40 for k in FACTS}}
 
 STATUS = {  # класс плашки, плашка ru/en, приписка к жанру ru/en
     "dev": ("dev", "В разработке", "In development", "в разработке", "in development"),
@@ -58,6 +69,9 @@ SPEC = {
     "shot-portrait-full": ((1080, 1920), "WEBP", 86),
     "shot-landscape-full": ((1920, 1080), "WEBP", 86),
     "og": ((1200, 630), "PNG", None),
+    # Обложка над названием: 3 : 1, на телефоне края срезаются до 2 : 1.
+    "cover": ((1920, 640), "WEBP", 82),
+    "cover-small": ((960, 320), "WEBP", 82),
 }
 
 esc = lambda s: html.escape(str(s), quote=False)
@@ -233,6 +247,21 @@ def validate(meta, body, store):
           lambda w, h: None if near(w / h, 1024 / 500) and w >= 1024 else "нужно 1024 × 500")
     if meta.get("og"):
         image("og", meta["og"], lambda w, h: None if w >= 1200 and h >= 630 else "нужно не меньше 1200 × 630")
+    if meta.get("cover"):
+        image("cover", meta["cover"], lambda w, h: None if near(w / h, 3) and w >= 1920 else "нужно 3 : 1 от 1920 × 640")
+
+    facts = meta.get("facts")
+    if facts is not None:
+        if not isinstance(facts, dict):
+            errs.append("facts — не словарь: строки вида «platform: Android»")
+        else:
+            for k, v in facts.items():
+                if k in FACTS:
+                    text(f"facts.{k}", v)
+                else:
+                    errs.append(f"facts: поля {k} нет — можно {', '.join(FACTS)}")
+            if len(facts) < 2:
+                errs.append("facts: нужно от 2 строк")
 
     shots = meta.get("shots")
     if not isinstance(shots, list) or not 3 <= len(shots) <= 8:
@@ -372,6 +401,32 @@ def render_page(slug, lang, meta, body, img, extra_meta, has_delete, privacy_anc
     other = "en" if lang == "ru" else "ru"
     links.append(f'<a href="{page_path(slug, other)}" hreflang="{other}" lang="{other}">{t["other"]}</a>')
     note = f'      <p class="meta">{inline(meta["note"])}</p>\n' if meta.get("note") else ""
+    cover = ""
+    if img.get("cover"):
+        # Картинка без надписей: название рядом, текстом. Декор — поэтому alt пустой.
+        cover = (f'    <div class="game-cover"><img src="/assets/games/{img["cover"]}" '
+                 f'srcset="/assets/games/{img["cover_small"]} 960w, /assets/games/{img["cover"]} 1920w" '
+                 f'sizes="(min-width: 1160px) 1072px, 100vw" width="1920" height="640" alt="" fetchpriority="high"></div>\n')
+    facts = meta.get("facts") or {}
+    passport = ""
+    if facts:
+        rows = [f'      <div><dt>{FACTS[k][0 if lang == "ru" else 1]}</dt><dd>{esc(facts[k])}</dd></div>'
+                for k in FACTS if facts.get(k)]
+        passport = '    <dl class="game-facts">\n' + "\n".join(rows) + "\n    </dl>\n"
+    studio = {"@type": "Organization", "@id": f"{SITE}/#studio", "name": t["site_name"], "url": f"{SITE}/"}
+    ld = {"@context": "https://schema.org", "@type": "VideoGame", "name": meta["name"], "url": f"{SITE}{path}",
+          "description": meta["description"], "genre": meta["kind"], "image": f"{SITE}/assets/games/{img['og']}",
+          "screenshot": [f"{SITE}/assets/games/{s['full']}" for s in shots],
+          "applicationCategory": "GameApplication", "operatingSystem": "Android",
+          "author": studio, "publisher": studio}
+    if facts.get("platform"):
+        ld["gamePlatform"] = facts["platform"]
+    if facts.get("age"):
+        ld["contentRating"] = facts["age"]
+    store = [l["url"] for l in meta.get("links") or [] if "rustore.ru/" in l["url"]]
+    if meta["status"] == "live" and store:
+        ld["installUrl"] = store[0]
+    ld_text = json.dumps(ld, ensure_ascii=False).replace("</", "<\\/")
     return f"""<!doctype html>
 <!-- Собрано tools/games.py из {source}.
      Не правьте здесь: правка — в store/site/ игры, сайт заберёт её сам (ADR студии 0015). -->
@@ -388,7 +443,10 @@ def render_page(slug, lang, meta, body, img, extra_meta, has_delete, privacy_anc
 <meta property="og:description" content="{attr(meta["lead"])}">
 <meta property="og:url" content="{SITE}{path}">
 <meta property="og:image" content="{SITE}/assets/games/{img["og"]}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <meta name="theme-color" content="#ecede6">
+<script type="application/ld+json">{ld_text}</script>
 {{{{HEAD}}}}
 </head>
 <body>
@@ -396,7 +454,7 @@ def render_page(slug, lang, meta, body, img, extra_meta, has_delete, privacy_anc
 <main id="main" class="doc">
   <div class="wrap">
     <nav class="crumbs" aria-label="{t["crumbs_label"]}"><a href="{t["home"]}">{t["crumbs"]}</a></nav>
-    <header class="game-hero">
+{cover}    <header class="game-hero">
       <img class="game-icon" src="/assets/games/{img["icon"]}" width="192" height="192" alt="">
       <div>
         <p class="eyebrow">{esc(eyebrow)}</p>
@@ -404,7 +462,7 @@ def render_page(slug, lang, meta, body, img, extra_meta, has_delete, privacy_anc
         <p class="lead">{esc(meta["lead"])}</p>
       </div>
     </header>
-{actions}
+{actions}{passport}
     <section class="{cls}" aria-label="{t["shots"]}">
 {chr(10).join(fig)}
     </section>
@@ -518,6 +576,9 @@ def sync(cfg, src, lock, index):
             img["og"] = g.image(meta["og"], "og", "og", lang, taken, cover_og=True)
         else:
             img["og"] = g.image(meta["feature"], "og", "og", lang, taken)
+        if meta.get("cover"):
+            img["cover"] = g.image(meta["cover"], "cover", "cover", lang, taken)
+            img["cover_small"] = g.image(meta["cover"], "cover-small", "cover", lang, taken, suffix="-960")
         img["shots"] = []
         for s in meta["shots"]:
             w, h = image_size(g.store / s["file"])

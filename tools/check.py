@@ -2,10 +2,11 @@
 """Проверка собранного сайта (после build.py): ссылки внутри сайта ведут на существующие
 страницы, файлы и якоря, а у картинок игр пропорции в разметке (width и height) совпадают
 с файлом — иначе картинка растянется. Файл может быть крупнее разметки (для чётких экранов).
+Разметка для поисковиков (application/ld+json) — правильный JSON, и адреса сайта в ней есть.
 
     python3 build.py && python3 tools/check.py
 """
-import datetime, pathlib, re, sys
+import datetime, json, pathlib, re, sys
 from urllib.parse import urljoin, urlsplit
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -46,8 +47,10 @@ def main():
         name = page.relative_to(ROOT).as_posix()
         for tag in re.finditer(r"<(?:a|img|link|script)\b[^>]*>", text):
             t = tag.group(0)
-            for m in re.finditer(r'\b(?:href|src)="([^"]*)"', t):
-                ref = m.group(1)
+            refs = [m.group(1) for m in re.finditer(r'\b(?:href|src)="([^"]*)"', t)]
+            for m in re.finditer(r'\bsrcset="([^"]*)"', t):
+                refs += [c.split()[0] for c in m.group(1).split(",") if c.strip()]
+            for ref in refs:
                 if re.match(r"(https?:|mailto:|tel:|data:)", ref) or ref == "":
                     continue
                 parts = urlsplit(urljoin(url, ref))
@@ -66,6 +69,15 @@ def main():
                 size = dest and image_size(dest)
                 if size and w and h and abs(size[0] * int(h.group(1)) - size[1] * int(w.group(1))) > 0.01 * size[1] * int(w.group(1)):
                     errors.append(f"{name}: {src} — в разметке {w.group(1)} × {h.group(1)}, в файле {size[0]} × {size[1]}: пропорции другие")
+        for m in re.finditer(r'<script type="application/ld\+json">(.*?)</script>', text, re.S):
+            try:
+                data = json.loads(m.group(1))
+            except ValueError as e:
+                errors.append(f"{name}: разметка ld+json — не JSON: {e}")
+                continue
+            for ref in re.findall(r'"(https://gornitsa\.games/[^"#]*)', json.dumps(data, ensure_ascii=False)):
+                if target(urlsplit(ref).path) is None:
+                    errors.append(f"{name}: в ld+json адрес {ref} — такого файла нет")
     # security.txt действует до даты Expires (RFC 9116): просрочен — ошибка, меньше 60 дней — напоминание
     sec = SITE / ".well-known" / "security.txt"
     if sec.is_file():

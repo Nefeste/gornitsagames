@@ -116,6 +116,8 @@ for name, (key, base, lang, pair) in pages.items():
                 .replace("{{MARK}}", partials.BRAND))
     if key != "404":
         html = og_defaults(html, lang)
+    if key == "home":
+        html = html.replace("</head>", partials.studio_ld(lang) + "\n</head>", 1)
     write(name, html)
 
 for name in raw:
