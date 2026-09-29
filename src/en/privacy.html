@@ -17,7 +17,7 @@
       <p class="eyebrow">Document</p>
       <h1>Privacy policy</h1>
       <p>How Gornitsa’s games and website handle your data. We collect only what a game can’t work without, and we don’t sell data to third parties.</p>
-      <p class="meta">Version of September 27, 2026. The Russian version is the authoritative one.</p>
+      <p class="meta">Version of September 29, 2026. The Russian version is the authoritative one.</p>
     </header>
 
     <article class="doc-body">
@@ -26,7 +26,7 @@
       <p>For any questions about your data, write to <span class="mail-address" style="font-size: inherit">privacy@gornitsa.games</span>.</p>
 
       <h2>2. What data we process</h2>
-      <p>Below is everything our games may process. What each released game actually collects is described in section 3.</p>
+      <p>Below is everything our games may process. What each game actually collects is described in its own section: Votchina in section 3, Skazy in section 4.</p>
       <div class="table-wrap">
         <table>
           <thead>
@@ -36,6 +36,8 @@
             <tr><td>Game progress, saved games and settings</td><td>While you play</td><td>To continue where you left off</td></tr>
             <tr><td>Profile nickname and tag, device key fingerprint</td><td>If you play online</td><td>Playing online with friends, ratings, moving your profile to another phone</td></tr>
             <tr><td>Online games: moves, results, chat messages, ratings, friends and invitations</td><td>If you play online</td><td>Playing with other people and tournaments</td></tr>
+            <tr><td>Skazy outpost: feed of ready-made phrases, helper hero, gifts, hunt strikes</td><td>If you play in an outpost</td><td>Playing with friends</td></tr>
+            <tr><td>A copy of your game on the server</td><td>If you have a Skazy outpost profile</td><td>Moving the game to another phone and keeping it safe</td></tr>
             <tr><td>Purchase details: order number, item, status</td><td>When you buy something</td><td>Granting and restoring purchases</td></tr>
             <tr><td>Device advertising ID</td><td>In games with ads</td><td>Showing ads and limiting how often they appear</td></tr>
             <tr><td>Anonymous statistics: which screens were opened, how long a game lasted</td><td>In games where it is enabled</td><td>Improving games and their balance</td></tr>
@@ -82,37 +84,90 @@
       <h3>Age</h3>
       <p>The game is intended for everyone aged 13 and over; online play is not directed at children.</p>
 
-      <h2 id="upcoming">4. Games in development</h2>
-      <p>Long Nardy, Anamnesis, Uzory and Skazy haven’t been released yet. Before each game comes out, we will add a section here describing what data it collects.</p>
+      <h2 id="skazy">4. Skazy</h2>
+      <p>Skazy is a game with no ads: the beginning is free, and the rest of the book and the heroes’ folk paintings can be bought. It works offline; the network is needed only for the outpost — playing with friends. The game contains no analytics, no ad networks and no third-party tracking. The game is being prepared for release in RuStore; this section already applies to the closed-test versions.</p>
 
-      <h2>5. Legal grounds</h2>
+      <h3>Playing on your phone</h3>
+      <p>Your household — the band, items, silver, the versts you have travelled — and your settings are kept only on your phone and are deleted together with the game. Until you join an outpost or open an invitation to one, the game contacts the studio’s server only once a day, to send the daily statistics, which contain no data about you (see below).</p>
+      <p>Save to file in Settings packs the game into a file and hands it to the system Share menu — the file goes only where you send it yourself. Load from file opens the system file picker; the game reads only the file you choose.</p>
+
+      <h3>The outpost: what the server keeps</h3>
+      <p>The outpost is optional and open from the age of 14 (see Age below). When you join it for the first time, the studio’s server issues your phone a random key, and you choose a nickname. The game never asks for an email, phone number or password. The server keeps only what the outpost can’t work without:</p>
+      <ul>
+        <li>Your <strong>nickname</strong> and six-character <strong>tag</strong>, by which your comrades recognise you, and a <strong>fingerprint of your device key</strong> (a SHA-256 hash); the key itself is not on the server.</li>
+        <li>The <strong>outpost</strong>: which outpost you are in, its name, invitation code and leader.</li>
+        <li>The <strong>outpost feed</strong> — ready-made phrases and emoji only; there is no free text in the game. Entries are kept for no longer than 30 days.</li>
+        <li>A <strong>snapshot of the helper hero</strong> you lent to your comrades.</li>
+        <li>The <strong>weekly hunt</strong> — the monster, its strength, its health and the damage dealt by the whole outpost — and <strong>your strikes</strong>: the day, the damage and a fingerprint of the battle log the server used to verify the strike. The server replays the strike’s line-up and doesn’t keep it. Hunts and strikes are kept for five weeks.</li>
+        <li><strong>Gifts and “thank you” notes</strong> for your helper until you open them: a gift for up to three days, everything else for up to 30 days.</li>
+        <li>The <strong>day of your last visit</strong>, without the time: your comrades see “played today”.</li>
+        <li>A <strong>copy of your household</strong> — the latest and the previous one: it lets you move the game to another phone and not lose it together with the phone.</li>
+        <li>A <strong>transfer code</strong> — for 15 minutes; <strong>command replies</strong> — for a day, so that a retry over a poor connection isn’t carried out twice.</li>
+      </ul>
+      <p>There are no IP addresses in the database.</p>
+
+      <h3>Who can see it</h3>
+      <p>Your nickname, tag, helper, feed phrases and the day of your last visit are visible to your comrades in the outpost. The outpost’s name, its leader’s nickname and the number of members are visible to anyone who has the invitation code or link. Data is not shared with or sold to anyone else. The outpost server runs in Russia, on the same machine as the gornitsa.games website; its request logs are kept for 3 days, and backups of its database for 7 days.</p>
+
+      <h3>How long it is kept and how to delete it</h3>
+      <p>For as long as your profile exists; a profile that hasn’t been used for 18 months is deleted together with its copies. You can delete your profile in the game: Settings → Profile → Delete profile. The server erases your nickname, your place in the outpost, your feed entries, helper, parcels, hunt strikes and copies; the damage you dealt stays in the outpost’s total without your name, and the game on your phone stays. If you no longer have the phone, see <a href="/en/skazy/delete.html">how to delete your profile</a>.</p>
+
+      <h3>Moving to another phone</h3>
+      <p>With a one-time code valid for 15 minutes: your profile and the latest copy of your household move to the new phone, and the old one carries on without a profile.</p>
+
+      <h3>Daily statistics</h3>
+      <p>Once a day the game sends the studio’s server the day’s totals — without your nickname, profile, key or any phone or installation number: the install date, the day, the game version and store, the number of visits and minutes, the farthest verst, the number of completed tales, whether Today’s tasks were done, whether you have the Whole Book, and whether you are in an outpost. The server immediately adds them to the day’s totals and doesn’t keep the submission itself. We use these totals to decide what to improve in the game.</p>
+
+      <h3>Notifications</h3>
+      <p>Evening Tale is a single notification in the evening, at a time you choose, when the band has returned from a journey or the travel bag is almost full. The game asks for permission once; without it there are no notifications. The notification is scheduled by the phone itself — it isn’t a push notification: it needs no server, and the server knows nothing about it. You can turn it off in the game’s settings or in the phone’s settings.</p>
+
+      <h3>Permissions</h3>
+      <p>Internet and network state (the outpost, daily statistics and purchases), vibration, audio settings, notifications (Evening Tale) and starting after the phone restarts, so that a scheduled notification isn’t lost. The game asks for no other permissions.</p>
+
+      <h3>What the game does not collect</h3>
+      <p>Advertising ID, location, contacts, photos or files (other than the save file you choose), camera or microphone, or information about other apps.</p>
+
+      <h3>Problem reports</h3>
+      <p>Settings → Report a problem opens your email app with a message to support@gornitsa.games containing the game version, your phone model and Android version. The message is sent only if you send it yourself.</p>
+
+      <h3>Purchases</h3>
+      <p>The Whole Book and the paintings are bought through RuStore Pay. We never see or store card or payment details, and purchases never reach our server: what you have bought is known to RuStore and your phone. When the game opens, it asks RuStore what you have bought — that’s how purchases come back on a new phone. RuStore Pay itself sends RuStore the details needed for payment and technical details of how payment works, under RuStore’s rules; we don’t receive them.</p>
+
+      <h3>Age</h3>
+      <p>The game is intended for everyone aged 6 and over. In RuStore’s kids mode, a parent confirms purchases. The outpost — playing with other people through the studio’s server — is open from the age of 14: before you create a profile, the game asks you to confirm “I am 14 or older”. The single-player game sends no data about you and is open to everyone.</p>
+
+      <h2 id="upcoming">5. Games in development</h2>
+      <p>Long Nardy, Anamnesis and Uzory haven’t been released yet. Before each game comes out, we will add a section here describing what data it collects.</p>
+
+      <h2>6. Legal grounds</h2>
       <p>We process data to perform the user agreement you enter into when you install and launch a game, and on the basis of your consent. You give consent to personalized ads in the game itself and can withdraw it at any time.</p>
 
-      <h2>6. Who we share data with</h2>
+      <h2>7. Who we share data with</h2>
       <ul>
-        <li><strong>RuStore</strong> — distributing our games and handling payments and subscriptions.</li>
+        <li><strong>RuStore</strong> — distributing our games and handling payments and subscriptions. In games with purchases, the RuStore Pay payment SDK itself sends RuStore details of payments and of how payment works, under RuStore’s rules; we don’t receive them.</li>
         <li><strong>Cloudflare</strong> — Votchina versions before 2.10.2 reach our server through its network; requests are only forwarded.</li>
-        <li><strong>A hosting provider in Russia</strong> — the gornitsa.games website and Votchina’s online mode run on its server.</li>
+        <li><strong>A hosting provider in Russia</strong> — the gornitsa.games website, Votchina’s online mode and the Skazy outpost run on its server.</li>
         <li><strong>Ad networks</strong> such as VK Ads or Yandex Advertising Network — only in games with ads, and only the advertising ID and technical details of the device.</li>
         <li><strong>Analytics and crash-reporting services</strong> such as AppMetrica — only in games where they are enabled, and only anonymous statistics.</li>
       </ul>
       <p>We don’t sell or rent out data.</p>
 
-      <h2>7. Where and how long we keep data</h2>
-      <p>The gornitsa.games website and Votchina’s online mode run on a server in Russia, and the data is stored there. A copy of Votchina’s data made during the move on September 27, 2026 still sits on Cloudflare’s servers and is no longer updated; we will delete it once game versions before 2.10.2 are no longer in use.</p>
+      <h2>8. Where and how long we keep data</h2>
+      <p>The gornitsa.games website, Votchina’s online mode and the Skazy outpost run on a server in Russia, and the data is stored there. A copy of Votchina’s data made during the move on September 27, 2026 still sits on Cloudflare’s servers and is no longer updated; we will delete it once game versions before 2.10.2 are no longer in use.</p>
       <ul>
         <li>A Votchina online profile — for as long as it exists (see section 3).</li>
-        <li>In other games, your account, progress and purchases — while you play and for 3 more years after your last sign-in.</li>
+        <li>A Skazy outpost profile — for as long as it exists; a profile that hasn’t been used for 18 months is deleted together with its copies (see section 4).</li>
+        <li>In the remaining games, your account, progress and purchases — while you play and for 3 more years after your last sign-in.</li>
         <li>Support correspondence — 1 year after the last email.</li>
         <li>Website server logs — no longer than 30 days.</li>
-        <li>Votchina server request logs — 3 days; backups of its database — 7 days.</li>
+        <li>Votchina and Skazy server request logs — 3 days; backups of their databases — 7 days.</li>
       </ul>
       <p>After these periods, data is deleted or anonymized.</p>
 
-      <h2>8. Children</h2>
+      <h2>9. Children</h2>
       <p>We don’t knowingly collect personal data from children under 14 without parental consent. If you are a parent and believe your child has given us data, write to us and we will delete it.</p>
 
-      <h2>9. Your rights</h2>
+      <h2>10. Your rights</h2>
       <p>At any time you can:</p>
       <ul>
         <li>find out what data we hold about you and how we use it;</li>
@@ -121,12 +176,12 @@
         <li>withdraw your consent to data processing;</li>
         <li>complain to Roskomnadzor if you believe we are violating your rights.</li>
       </ul>
-      <p>To exercise these rights, write to privacy@gornitsa.games from the address or account you use in the game; for Votchina, include your tag. We reply within 10 business days and delete data within 30 days of the request.</p>
+      <p>To exercise these rights, write to privacy@gornitsa.games from the address or account you use in the game; for Votchina, include your tag; for Skazy, your nickname and tag. We reply within 10 business days and delete data within 30 days of the request.</p>
 
-      <h2>10. How we protect data</h2>
+      <h2>11. How we protect data</h2>
       <p>Data is transmitted over a secure connection (HTTPS), only the studio’s developers have access to the servers, and passwords and keys are stored separately from the code.</p>
 
-      <h2>11. Changes to this policy</h2>
+      <h2>12. Changes to this policy</h2>
       <p>If we change the policy, the new version will appear on this page with a new date. We will announce significant changes in the game.</p>
     </article>
   </div>
