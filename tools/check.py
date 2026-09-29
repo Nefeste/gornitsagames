@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Проверка собранного сайта (после build.py): ссылки внутри сайта ведут на существующие
-страницы, файлы и якоря, а у картинок игр размеры в разметке совпадают с файлами.
+страницы, файлы и якоря, а у картинок игр пропорции в разметке (width и height) совпадают
+с файлом — иначе картинка растянется. Файл может быть крупнее разметки (для чётких экранов).
 
     python3 build.py && python3 tools/check.py
 """
@@ -63,8 +64,8 @@ def main():
                 w, h = re.search(r'width="(\d+)"', t), re.search(r'height="(\d+)"', t)
                 dest = target(urlsplit(urljoin(url, src)).path)
                 size = dest and image_size(dest)
-                if size and w and h and size != (int(w.group(1)), int(h.group(1))):
-                    errors.append(f"{name}: {src} — в разметке {w.group(1)} × {h.group(1)}, в файле {size[0]} × {size[1]}")
+                if size and w and h and abs(size[0] * int(h.group(1)) - size[1] * int(w.group(1))) > 0.01 * size[1] * int(w.group(1)):
+                    errors.append(f"{name}: {src} — в разметке {w.group(1)} × {h.group(1)}, в файле {size[0]} × {size[1]}: пропорции другие")
     for e in errors:
         print(e)
     print(f"Проверено страниц: {len(pages)}; ошибок: {len(errors)}")
