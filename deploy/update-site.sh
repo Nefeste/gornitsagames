@@ -20,6 +20,7 @@ VOTCHINA_STAMP="/var/lib/gornitsa-votchina-setup"
 NARDY_STAMP="/var/lib/gornitsa-nardy-setup"
 SKAZY_STAMP="/var/lib/gornitsa-skazy-setup"
 UZORY_STAMP="/var/lib/gornitsa-uzory-setup"
+NGINX_STAMP="/var/lib/gornitsa-nginx-site"
 LE_STAMP="/var/lib/gornitsa-le-email"
 SELF="/usr/local/bin/gornitsa-update"
 
@@ -85,6 +86,20 @@ if [[ ! -d "/etc/letsencrypt/live/${DOMAIN}" ]]; then
     certbot --nginx -d "${DOMAIN}" -d "www.${DOMAIN}" -m "${EMAIL}" --agree-tos -n --redirect
     systemctl reload nginx
     echo "HTTPS включён для ${DOMAIN}"
+  fi
+fi
+
+# Настройки nginx самого сайта (deploy/nginx/) — при каждом изменении, когда HTTPS уже включён.
+# apply.sh сам возвращает прежние настройки, если новые не прошли проверку; неудачная версия
+# повторно не пробуется, пока deploy/nginx/ не поменяется снова (иначе nginx дёргался бы каждые 5 минут).
+NGINX_TREE="$(git -C "${DIR}" rev-parse -q --verify "HEAD:deploy/nginx" 2>/dev/null || true)"
+if [[ -n "${NGINX_TREE}" && -d "/etc/letsencrypt/live/${DOMAIN}" ]] \
+   && [[ "$(cat "${NGINX_STAMP}" 2>/dev/null || true)" != "${NGINX_TREE}" && "$(cat "${NGINX_STAMP}" 2>/dev/null || true)" != "failed ${NGINX_TREE}" ]]; then
+  if DIR="${DIR}" DOMAIN="${DOMAIN}" bash "${DIR}/deploy/nginx/apply.sh"; then
+    echo "${NGINX_TREE}" > "${NGINX_STAMP}"
+  else
+    echo "failed ${NGINX_TREE}" > "${NGINX_STAMP}"
+    echo "Настройки nginx сайта не применились — прежние оставлены; подробности выше" >&2
   fi
 fi
 

@@ -38,7 +38,8 @@
     done: "Pattern complete. That’s how our color-by-number game Uzory will work.",
     copy: "Copy", copied: "Copied", selected: "Selected — press Ctrl+C",
     zoom: "Screenshot", close: "Close", prev: "Previous screenshot", next: "Next screenshot",
-    bigger: "Actual size", fit: "Fit to screen", of: " of "
+    bigger: "Actual size", fit: "Fit to screen", of: " of ",
+    hoop: "Try the cross-stitch demo"
   } : {
     names: { 1: "красная", 2: "еловая", 3: "льняная" },
     cell: function (r, c, v) { return "Клетка " + r + "-" + c + ", нить " + v + " (" + T.names[v] + ")"; },
@@ -47,7 +48,8 @@
     done: "Узор готов. Так будет устроена наша раскраска «Узоры».",
     copy: "Скопировать", copied: "Скопировано", selected: "Выделено, нажмите Ctrl+C",
     zoom: "Снимок экрана", close: "Закрыть", prev: "Предыдущий снимок", next: "Следующий снимок",
-    bigger: "Исходный размер", fit: "Вписать в экран", of: " из "
+    bigger: "Исходный размер", fit: "Вписать в экран", of: " из ",
+    hoop: "Вышить узор-пример"
   };
 
   function buildCanvas(root) {
@@ -347,8 +349,38 @@
     });
   }
 
+  // На телефоне узор-пример на главной свёрнут в кнопку под первым экраном: так игры ближе.
+  // Ссылка на #hoop (карточка «Узоров») и кнопка его разворачивают.
+  function foldHoop(hoop) {
+    if (!window.matchMedia || !window.matchMedia("(max-width: 640px)").matches) return;
+    var actions = document.querySelector(".hero .actions");
+    if (!actions) return;
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "btn btn-ghost hoop-open";
+    btn.textContent = T.hoop;
+    btn.setAttribute("aria-controls", hoop.id);
+    btn.setAttribute("aria-expanded", "false");
+    actions.insertAdjacentElement("afterend", btn);
+    hoop.classList.add("is-folded");
+    function unfold(scroll) {
+      hoop.classList.remove("is-folded");
+      btn.hidden = true;
+      btn.setAttribute("aria-expanded", "true");
+      if (scroll) hoop.scrollIntoView({ block: "start" });
+    }
+    btn.addEventListener("click", function () { unfold(true); });
+    document.addEventListener("click", function (e) {
+      var a = e.target.closest && e.target.closest('a[href$="#' + hoop.id + '"]');
+      if (a && hoop.classList.contains("is-folded")) { e.preventDefault(); unfold(true); history.replaceState(null, "", "#" + hoop.id); }
+    });
+    if (location.hash === "#" + hoop.id) unfold(true);
+  }
+
   function init() {
     document.querySelectorAll(".shots").forEach(buildZoom);
+    var hoop = document.getElementById("hoop");
+    if (hoop) foldHoop(hoop);
     document.querySelectorAll("[data-hoop]").forEach(buildCanvas);
     document.querySelectorAll("svg.band").forEach(buildBand);
     document.querySelectorAll("[data-copy]").forEach(buildCopy);

@@ -5,7 +5,7 @@
 
     python3 build.py && python3 tools/check.py
 """
-import pathlib, re, sys
+import datetime, pathlib, re, sys
 from urllib.parse import urljoin, urlsplit
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -66,6 +66,18 @@ def main():
                 size = dest and image_size(dest)
                 if size and w and h and abs(size[0] * int(h.group(1)) - size[1] * int(w.group(1))) > 0.01 * size[1] * int(w.group(1)):
                     errors.append(f"{name}: {src} — в разметке {w.group(1)} × {h.group(1)}, в файле {size[0]} × {size[1]}: пропорции другие")
+    # security.txt действует до даты Expires (RFC 9116): просрочен — ошибка, меньше 60 дней — напоминание
+    sec = SITE / ".well-known" / "security.txt"
+    if sec.is_file():
+        m = re.search(r"^Expires:\s*(\S+)", sec.read_text(encoding="utf-8"), re.M)
+        if not m:
+            errors.append("site/.well-known/security.txt: нет строки Expires")
+        else:
+            left = (datetime.datetime.fromisoformat(m.group(1).replace("Z", "+00:00")) - datetime.datetime.now(datetime.timezone.utc)).days
+            if left < 0:
+                errors.append(f"site/.well-known/security.txt: срок Expires вышел — продлите на год")
+            elif left < 60:
+                print(f"Напоминание: site/.well-known/security.txt действует ещё {left} дн. — продлите Expires на год")
     for e in errors:
         print(e)
     print(f"Проверено страниц: {len(pages)}; ошибок: {len(errors)}")

@@ -7,7 +7,8 @@
 # Что делает скрипт:
 #   1. Обновляет систему и ставит nginx, certbot, ufw, rsync, автообновления безопасности.
 #   2. Создаёт пользователя deploy (только для выкладки сайта) с вашим SSH-ключом.
-#   3. Настраивает nginx по deploy/nginx/gornitsa.games.conf.
+#   3. Настраивает nginx по deploy/nginx/gornitsa.games.conf (до сертификата); после выпуска
+#      сертификата настройку с HTTPS ставит deploy/nginx/apply.sh из update-site.sh.
 #   4. Открывает в файрволе только SSH, 80 и 443.
 #   5. Если DNS уже указывает на этот сервер — выпускает бесплатный сертификат Let's Encrypt.
 # Скрипт можно запускать повторно: он ничего не ломает, а просто доводит настройку.
@@ -66,6 +67,12 @@ fi
 chown -R "${DEPLOY_USER}:www-data" "${WEBROOT}"
 
 echo "==> Настраиваю nginx"
+install -d -m 755 /etc/nginx/snippets
+install -m 644 "${SCRIPT_DIR}/nginx/headers.conf" /etc/nginx/snippets/gornitsa-site-headers.conf
+install -m 644 "${SCRIPT_DIR}/nginx/locations.conf" /etc/nginx/snippets/gornitsa-site-locations.conf
+if ! grep -Eq '^[[:space:]]*server_tokens[[:space:]]+off;' /etc/nginx/nginx.conf; then
+  install -m 644 "${SCRIPT_DIR}/nginx/server.conf" /etc/nginx/conf.d/gornitsa-server.conf
+fi
 NGINX_CONF="/etc/nginx/sites-available/${DOMAIN}.conf"
 if [[ -f "${NGINX_CONF}" ]] && grep -q "managed by Certbot" "${NGINX_CONF}"; then
   echo "   Конфиг уже содержит настройки HTTPS от certbot — оставляю его как есть."
@@ -74,7 +81,6 @@ else
 fi
 ln -sf "${NGINX_CONF}" "/etc/nginx/sites-enabled/${DOMAIN}.conf"
 rm -f /etc/nginx/sites-enabled/default
-sed -i 's/^\s*#\s*server_tokens off;/\tserver_tokens off;/' /etc/nginx/nginx.conf
 nginx -t
 systemctl enable --now nginx
 systemctl reload nginx
