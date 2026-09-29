@@ -60,7 +60,6 @@ deploy/
     gornitsa.games.conf        до выпуска сертификата — первая установка
     gornitsa.games.https.conf  с HTTPS: HTTP/2, редирект с http и www — сама настройка на машине
     headers.conf, locations.conf   заголовки безопасности (в каждом месте сайта, с HSTS) и места
-    server.conf        server_tokens off для всей машины
     apply.sh           ставит всё это на машину с проверкой и откатом
   votchina/           сервер игры «Вотчина» на этой же машине (см. ниже)
     setup.sh          настройка: Node, служба, ключи, таймеры
@@ -182,7 +181,7 @@ curl -fsSL https://raw.githubusercontent.com/Nefeste/gornitsagames/main/deploy/b
 
 Просто делайте `git push` в ветку `main`: сервер проверяет GitHub каждые 5 минут и выкладывает новую версию сам. Журнал: `journalctl -u gornitsa-update -n 50`. Скрипт автообновления тоже берётся из репозитория (`deploy/update-site.sh`), а при изменении `deploy/votchina/`, `deploy/nardy/`, `deploy/skazy/` или `deploy/uzory/` он доводит настройку сервера этой игры.
 
-Настройка nginx самого сайта тоже идёт из репозитория: при изменении `deploy/nginx/` (и когда сертификат уже выпущен) `update-site.sh` запускает `deploy/nginx/apply.sh`. Тот сохраняет нынешние файлы, ставит `gornitsa.games.https.conf` как `/etc/nginx/sites-available/gornitsa.games.conf`, заголовки и места — в `/etc/nginx/snippets/gornitsa-site-*.conf`, `server_tokens off` — в `/etc/nginx/conf.d/`, проверяет `nginx -t`, перезагружает nginx и убеждается, что `https://gornitsa.games/` отвечает 200, а `http://` — 301. Что-то не так — всё возвращается как было, а в `/var/lib/gornitsa-nginx-site` пишется `failed <версия>`: эту версию скрипт больше не пробует, пока `deploy/nginx/` не поменяется снова. Блоки сертификата в конфиге — в том виде, в каком их пишет certbot, поэтому продление работает по-прежнему. Заголовки безопасности — в `headers.conf` и подключаются в каждом `location`: nginx не складывает `add_header` сервера и места, и заголовки на уровне сервера молча пропадали бы.
+Настройка nginx самого сайта тоже идёт из репозитория: при изменении `deploy/nginx/` (и когда сертификат уже выпущен) `update-site.sh` запускает `deploy/nginx/apply.sh`. Тот сохраняет нынешние файлы, ставит `gornitsa.games.https.conf` как `/etc/nginx/sites-available/gornitsa.games.conf`, заголовки и места — в `/etc/nginx/snippets/gornitsa-site-*.conf` (`server_tokens off` — в самом конфиге сайта: в `http{}` машины он уже задан, второй раз там nginx не пропускает), проверяет `nginx -t`, перезагружает nginx и убеждается, что `https://gornitsa.games/` отвечает 200, а `http://` — 301. Что-то не так — всё возвращается как было, а в `/var/lib/gornitsa-nginx-site` пишется `failed <версия>`: эту версию скрипт больше не пробует, пока `deploy/nginx/` не поменяется снова. Блоки сертификата в конфиге — в том виде, в каком их пишет certbot, поэтому продление работает по-прежнему. Заголовки безопасности — в `headers.conf` и подключаются в каждом `location`: nginx не складывает `add_header` сервера и места, и заголовки на уровне сервера молча пропадали бы.
 
 Если репозиторий нужен закрытым, сайт можно выкладывать со своего компьютера: `./deploy/deploy.sh IP_СЕРВЕРА` (нужен SSH-доступ пользователем deploy, его создаёт `deploy/setup-server.sh`).
 
