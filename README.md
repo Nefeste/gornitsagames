@@ -30,6 +30,7 @@ site/                 сайт, который выкладывается на �
   assets/site.js      узор-раскраска на главной, орнамент, кнопка «Скопировать»
   assets/games/       баннеры, значки и снимки экрана игр (WebP)
   assets/fonts/       шрифты woff2 (скачивает deploy/fetch-fonts.sh)
+  assets/stores/rustore.svg   официальная кнопка «Скачайте из RuStore» (см. «Страницы игр»)
   assets/og-studio.png, og-studio-en.png   картинка 1200 × 630 для ссылок на страницы без своей
                       (у страниц игр — своя); build.py ставит её и поля og: сам
   assets/icons/, apple-touch-icon.png, favicon.ico, manifest.webmanifest   значки для телефонов,
@@ -204,6 +205,7 @@ curl -fsSL https://raw.githubusercontent.com/Nefeste/gornitsagames/main/deploy/s
 - Перед выходом каждой игры добавьте в политику её раздел, как у «Вотчины»: перечень сервисов (реклама, аналитика) должен совпадать с тем, что реально встроено в игру.
 - В консоли RuStore укажите ссылки: политика — https://gornitsa.games/privacy.html (для «Вотчины» можно сразу на её раздел: https://gornitsa.games/privacy.html#votchina), поддержка — https://gornitsa.games/support.html.
 - Ссылка на предзаказ или карточку RuStore на странице игры и в её карточке на главной — поле `links` (и `card.links`) в `store/site/page.*.md` игры.
+- У вышедшей игры (`status: live`) ссылка на карточку RuStore из `links` показывается официальной кнопкой «Скачайте из RuStore» — `site/assets/stores/rustore.svg`, файл с rustore.ru/help (раздел для разработчиков «Кнопка „Скачайте из RuStore“», двухцветный логотип на тёмной кнопке, 30.09.2026). Файл не перерисовываем и не перекрашиваем; у игр в разработке ссылка остаётся обычной кнопкой: надпись «Скачайте» для предзаказа неверна.
 
 ## Страницы игр — из `store/site/` игр
 

@@ -142,6 +142,10 @@ p { margin: 0; }
 .btn-primary:hover { filter: brightness(1.08); }
 .btn-ghost { background: transparent; color: var(--ink); border-color: var(--line); }
 .btn-ghost:hover { border-color: var(--ink); }
+/* Официальная кнопка «Скачайте из RuStore» (site/assets/stores/rustore.svg) — вровень с кнопками */
+.store-badge { display: inline-flex; border-radius: 4px; }
+.store-badge img { display: block; width: auto; height: 46px; }
+.store-badge:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
 
 /* ---------- Канва: раскраска по номерам ---------- */
 .hoop {
