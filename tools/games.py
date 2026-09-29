@@ -9,7 +9,8 @@ docs/08-publishing.md, раздел «Сайт»).
 формат и пишет src/<игра>/index.html, src/en/<игра>/index.html, карточку на главной
 (между метками <!-- game:<игра> --> и <!-- /game:<игра> --> в src/index.html и
 src/en/index.html) и картинки в site/assets/games/. Из какого коммита игры взята страница
-и из каких файлов картинки — в games.lock.json: неизменившиеся картинки не перекодируются.
+и из каких картинок (отпечаток пикселей) — в games.lock.json: картинки, у которых пиксели
+не изменились, не перекодируются и в PR не попадают.
 Игра с ошибками в store/site/ пропускается, причина — в отчёте (--report, описание PR).
 
 Нужны PyYAML и Pillow (в workflow — точные версии из .github/workflows/games.yml).
@@ -285,6 +286,14 @@ def load_rgb(path):
     return im.convert("RGB")
 
 
+def pixels_key(data):
+    """Отпечаток пикселей, а не байтов файла: картинку, которую игра пересохранила без изменений
+    (другое сжатие PNG, метаданные), сайт не перекодирует и в PR не несёт."""
+    with Image.open(io.BytesIO(data)) as im:
+        im = im.convert("RGBA")
+        return hashlib.sha256(f"{im.width}x{im.height}:".encode() + im.tobytes()).hexdigest()[:16]
+
+
 def encode(path, spec, cover_og=False):
     (w, h), fmt, q = SPEC[spec]
     raw = path.read_bytes()
@@ -453,9 +462,11 @@ class Game:
         if taken.get(name, src) != src:
             name = f"{self.slug}-{base or stem}-{lang_tag}{ext}"
         taken[name] = src
-        key = hashlib.sha256(src.read_bytes()).hexdigest()[:16] + f":{spec}:{int(cover_og)}"
+        data, how = src.read_bytes(), f":{spec}:{int(cover_og)}"
+        key = "px" + pixels_key(data) + how
         old = self.lock.get("images", {}).get(name)
-        if old != key or not (ASSETS / name).is_file():
+        bytes_key = hashlib.sha256(data).hexdigest()[:16] + how  # ключ в games.lock.json до 30.09.2026
+        if old not in (key, bytes_key) or not (ASSETS / name).is_file():
             self.files[ASSETS / name] = encode(src, spec, cover_og)
         self.images[name] = key
         return name
@@ -558,6 +569,8 @@ def main():
         if not res and not cards:
             report.append(f"= {g.slug}: без изменений")
             continue
+        pics_new = [p.name for p in sorted(res) if p.parent == ASSETS and not p.is_file()]
+        pics_changed = [p.name for p in sorted(res) if p.parent == ASSETS and p.is_file()]
         for p in res:
             p.parent.mkdir(parents=True, exist_ok=True)
             p.write_bytes(g.files[p])
@@ -565,9 +578,10 @@ def main():
         commit = f"{c['repo']}@{g.commit[:7]}" if g.commit else c["repo"]
         what = [p.relative_to(ROOT).as_posix() for p in sorted(res) if p.suffix == ".html"]
         what += [p.relative_to(ROOT).as_posix() + " (карточка)" for p in cards]
-        pics = sum(1 for p in res if p.parent == ASSETS)
-        if pics:
-            what.append(f"картинок: {pics}")
+        if pics_new:
+            what.append("новые картинки: " + ", ".join(f"`{n}`" for n in pics_new))
+        if pics_changed:
+            what.append("изменились картинки: " + ", ".join(f"`{n}`" for n in pics_changed))
         report.append(f"✓ {g.slug}: из {commit} — " + ", ".join(what))
     for v in index.values():
         if v["text"] != v["path"].read_text(encoding="utf-8"):

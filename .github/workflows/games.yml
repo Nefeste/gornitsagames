@@ -23,7 +23,12 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
+      # Всегда свежий main, а не коммит, на котором запуск был начат: «Re-run» повторяет запуск
+      # на его старом коммите, и PR собрался бы от устаревшего main — с откатом того, что слито
+      # после, и с конфликтами (так вышел #21).
       - uses: actions/checkout@v5
+        with:
+          ref: main
 
       - uses: actions/setup-python@v6
         with:
