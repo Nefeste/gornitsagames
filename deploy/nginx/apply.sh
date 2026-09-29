@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Ставит настройки nginx сайта из deploy/nginx/ на машину: заголовки и места (snippets),
-# server_tokens off (conf.d) и сам конфиг сайта с HTTPS (gornitsa.games.https.conf).
+# Ставит настройки nginx сайта из deploy/nginx/ на машину: заголовки и места (snippets)
+# и сам конфиг сайта с HTTPS (gornitsa.games.https.conf; server_tokens off — в нём, у сайта).
 # Запускает update-site.sh, когда меняется deploy/nginx/ и сертификат Let's Encrypt уже есть.
 #
 # Порядок: копия нынешних файлов → новые файлы → nginx -t → reload → проверка: https://домен/
@@ -14,6 +14,8 @@ SRC="${DIR}/deploy/nginx"
 SITE_CONF="/etc/nginx/sites-available/${DOMAIN}.conf"
 HEADERS=/etc/nginx/snippets/gornitsa-site-headers.conf
 LOCATIONS=/etc/nginx/snippets/gornitsa-site-locations.conf
+# Первая версия (30.09.2026) ставила server_tokens off сюда, для всей машины, — nginx -t не прошёл:
+# на машине server_tokens уже задан в http{}. Теперь он в server{} сайта, а этот файл убирается.
 SERVER=/etc/nginx/conf.d/gornitsa-server.conf
 
 if [[ ! -f "/etc/letsencrypt/live/${DOMAIN}/fullchain.pem" ]]; then
@@ -34,15 +36,10 @@ restore() {
   if nginx -t -q 2>/dev/null; then systemctl reload nginx; fi
 }
 
-install -d -m 755 /etc/nginx/snippets /etc/nginx/conf.d
+install -d -m 755 /etc/nginx/snippets
 install -m 644 "${SRC}/headers.conf" "$HEADERS"
 install -m 644 "${SRC}/locations.conf" "$LOCATIONS"
-# server_tokens off: если он уже включён в nginx.conf, второй раз его ставить нельзя (nginx -t не пройдёт)
-if grep -Eq '^[[:space:]]*server_tokens[[:space:]]+off;' /etc/nginx/nginx.conf; then
-  rm -f "$SERVER"
-else
-  install -m 644 "${SRC}/server.conf" "$SERVER"
-fi
+rm -f "$SERVER"
 
 tmp="$(mktemp)"
 sed "s/gornitsa\.games/${DOMAIN}/g" "${SRC}/gornitsa.games.https.conf" > "$tmp"

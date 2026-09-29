@@ -70,9 +70,6 @@ echo "==> Настраиваю nginx"
 install -d -m 755 /etc/nginx/snippets
 install -m 644 "${SCRIPT_DIR}/nginx/headers.conf" /etc/nginx/snippets/gornitsa-site-headers.conf
 install -m 644 "${SCRIPT_DIR}/nginx/locations.conf" /etc/nginx/snippets/gornitsa-site-locations.conf
-if ! grep -Eq '^[[:space:]]*server_tokens[[:space:]]+off;' /etc/nginx/nginx.conf; then
-  install -m 644 "${SCRIPT_DIR}/nginx/server.conf" /etc/nginx/conf.d/gornitsa-server.conf
-fi
 NGINX_CONF="/etc/nginx/sites-available/${DOMAIN}.conf"
 if [[ -f "${NGINX_CONF}" ]] && grep -q "managed by Certbot" "${NGINX_CONF}"; then
   echo "   Конфиг уже содержит настройки HTTPS от certbot — оставляю его как есть."
