@@ -3,7 +3,8 @@
 import hashlib, json, pathlib, re, sys
 root = pathlib.Path(__file__).parent
 sys.path.insert(0, str(root / "src"))
-import partials
+sys.path.insert(0, str(root / "tools"))
+import news, partials
 
 SITE = "https://gornitsa.games"
 
@@ -14,6 +15,8 @@ pages = {
     "index.html": ("home", "", "ru", "en/index.html"),
     "about.html": ("about", "", "ru", "en/about.html"),
     "brand.html": ("brand", "", "ru", "en/brand.html"),
+    "news.html": ("news", "", "ru", "en/news.html"),
+    "press.html": ("press", "", "ru", "en/press.html"),
     "support.html": ("support", "", "ru", "en/support.html"),
     "privacy.html": ("privacy", "", "ru", "en/privacy.html"),
     "404.html": ("404", "/", "ru", "en/index.html"),
@@ -28,6 +31,8 @@ pages = {
     "en/index.html": ("home", "/", "en", "index.html"),
     "en/about.html": ("about", "/", "en", "about.html"),
     "en/brand.html": ("brand", "/", "en", "brand.html"),
+    "en/news.html": ("news", "/", "en", "news.html"),
+    "en/press.html": ("press", "/", "en", "press.html"),
     "en/support.html": ("support", "/", "en", "support.html"),
     "en/privacy.html": ("privacy", "/", "en", "privacy.html"),
     "en/votchina/index.html": ("games", "/", "en", "votchina/index.html"),
@@ -113,7 +118,9 @@ for name, (key, base, lang, pair) in pages.items():
     html = (html.replace("{{HEAD}}", partials.head(base, lang, alternates))
                 .replace("{{HEADER}}", partials.header(key, base, lang, url(pair)))
                 .replace("{{FOOTER}}", partials.footer(base, lang, GAMES[lang], url(pair)))
-                .replace("{{MARK}}", partials.BRAND))
+                .replace("{{MARK}}", partials.BRAND)
+                .replace("{{NEWS}}", news.page(lang))
+                .replace("{{NEWS_LATEST}}\n", news.latest(lang, base)))
     if key != "404":
         html = og_defaults(html, lang)
     if key == "home":
@@ -122,3 +129,10 @@ for name, (key, base, lang, pair) in pages.items():
 
 for name in raw:
     write(name, (root / "src" / name).read_text(encoding="utf-8"))
+
+# Лента новостей Atom; новость с ошибкой в сайт не попадает — причина здесь и в tools/check.py.
+for lang, name in (("ru", "news.atom"), ("en", "en/news.atom")):
+    (root / "site" / name).write_text(news.atom(lang), encoding="utf-8")
+    print("site/" + name)
+    for err in news.load(lang)[1]:
+        print("Новость пропущена — " + err, file=sys.stderr)

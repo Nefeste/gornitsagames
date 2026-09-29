@@ -265,6 +265,15 @@ p { margin: 0; }
 .principle h3 { font-family: var(--body); font-weight: 600; font-size: var(--step-1); }
 .principle p { color: var(--ink-soft); max-width: 32rem; }
 
+/* Свежие новости на главной — как обещания: три колонки с линией сверху */
+.news-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(20px, 3vw, 36px); }
+.news-list li { display: grid; align-content: start; gap: 6px; padding-top: 16px; border-top: 1px solid var(--line); }
+.news-list h3 { font-family: var(--body); font-weight: 600; font-size: var(--step-1); line-height: 1.3; }
+.news-list h3 a { color: inherit; text-decoration: none; }
+.news-list h3 a:hover { color: var(--kumach); }
+.news-list p { color: var(--ink-soft); }
+.news-list time, .news-date { font-size: var(--step--1); color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+
 .about { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: clamp(24px, 5vw, 72px); align-items: start; }
 .about blockquote { margin: 0; font-family: var(--display); font-size: var(--step-2); line-height: 1.3; }
 .about blockquote cite { display: block; margin-top: 12px; font: 400 var(--step--1)/1.4 var(--body); color: var(--ink-soft); font-style: normal; }
@@ -283,6 +292,26 @@ p { margin: 0; }
 .copy:hover { border-color: var(--ink); }
 
 /* ---------- Текстовые страницы ---------- */
+/* Новости: лента записей с датой */
+.news { display: grid; max-width: 44rem; }
+.news-item { display: grid; gap: 14px; padding-block: 28px; border-top: 1px solid var(--line); scroll-margin-top: 16px; }
+.news-item:first-child { padding-top: 0; border-top: 0; }
+.news-item h2 { font-size: var(--step-2); }
+.news-item ul, .news-item ol { margin: 0; padding-left: 1.3em; display: grid; gap: 6px; }
+.news-item li::marker { color: var(--kumach); }
+.news-item:target h2 { color: var(--kumach); }
+/* Для прессы: карточки игр — значок слева, текст и файлы справа */
+.press-title { font-size: var(--step-2); margin-bottom: 14px; }
+.press-games { display: grid; gap: 16px; }
+.press-game { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: clamp(14px, 3vw, 24px); align-items: start; padding: clamp(16px, 3vw, 24px); background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius-card); }
+.press-game .game-icon { width: clamp(56px, 10vw, 80px); height: clamp(56px, 10vw, 80px); border-radius: 16px; }
+.press-game > div { display: grid; gap: 8px; max-width: 52rem; }
+.press-game h3 { font-size: var(--step-2); }
+.press-game h3 a { color: inherit; text-decoration: none; }
+.press-game h3 a:hover { color: var(--kumach); }
+.press-game > div > p:not([class]) { color: var(--ink-soft); }
+.press-game .game-facts { background: transparent; }
+.press-files { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: var(--step--1); font-weight: 500; }
 .doc { padding-block: clamp(36px, 6vw, 72px) clamp(48px, 7vw, 96px); }
 .doc .wrap { display: grid; gap: 28px; }
 .doc-head { display: grid; gap: 12px; max-width: 44rem; }
@@ -476,6 +505,7 @@ details.faq .answer { display: grid; gap: 10px; padding-top: 10px; color: var(--
   .values, .promises, .specimens { grid-template-columns: minmax(0, 1fr); }
   .brand-tiles, .swatches { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .games, .games-planned { grid-template-columns: minmax(0, 1fr); }
+  .news-list { grid-template-columns: minmax(0, 1fr); }
   .hoop { max-width: 520px; }
 }
 @media (max-width: 1000px) {
@@ -484,6 +514,7 @@ details.faq .answer { display: grid; gap: 10px; padding-top: 10px; color: var(--
 }
 @media (max-width: 640px) {
   .game-cover { margin-inline: calc(-1 * var(--gutter)); }
+  .press-game { grid-template-columns: minmax(0, 1fr); }
   .game-cover img { aspect-ratio: 2 / 1; border-radius: 0; }
   .principles { grid-template-columns: minmax(0, 1fr); }
   /* игры на телефоне — лентой: листаются пальцем вбок, а не пять экранов вниз */

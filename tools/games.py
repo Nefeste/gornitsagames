@@ -15,16 +15,17 @@ src/en/index.html) и картинки в site/assets/games/. Из какого 
 
 Нужны PyYAML и Pillow (в workflow — точные версии из .github/workflows/games.yml).
 """
-import argparse, hashlib, html, io, json, pathlib, re, subprocess, sys
+import argparse, hashlib, io, json, pathlib, re, subprocess, sys
 
 import yaml
 from PIL import Image, ImageOps
+
+from md import SITE, attr, body_errors, esc, inline, local, render_body, url_ok
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 CONFIG = ROOT / "tools" / "games.json"
 LOCK = ROOT / "games.lock.json"
 ASSETS = ROOT / "site" / "assets" / "games"
-SITE = "https://gornitsa.games"
 PAPER = (247, 247, 242)  # --paper из brand/tokens.css: фон под прозрачными картинками
 
 # Паспорт игры (facts): поле — подпись ru/en. Строки идут в этом порядке, какие есть.
@@ -52,10 +53,12 @@ T = {
     "ru": {"crumbs_label": "Навигация", "crumbs": "← Все игры студии", "home": "/#games",
            "shots": "Снимки экрана", "privacy": "Политика конфиденциальности",
            "delete": "Удалить профиль", "other": "English", "about": "Об игре",
-           "site_name": "Горница"},
+           "site_name": "Горница", "banner": "Баннер 1024 × 500", "icon": "Значок 192 × 192",
+           "page_shots": "Страница и снимки экрана"},
     "en": {"crumbs_label": "Navigation", "crumbs": "← All games", "home": "/en/#games",
            "shots": "Screenshots", "privacy": "Privacy policy", "delete": "Delete your profile",
-           "other": "По-русски", "about": "About the game", "site_name": "Gornitsa"},
+           "other": "По-русски", "about": "About the game", "site_name": "Gornitsa",
+           "banner": "Banner 1024 × 500", "icon": "Icon 192 × 192", "page_shots": "Page and screenshots"},
 }
 
 # Картинки: размер на сайте, формат, качество.
@@ -73,99 +76,6 @@ SPEC = {
     "cover": ((1920, 640), "WEBP", 82),
     "cover-small": ((960, 320), "WEBP", 82),
 }
-
-esc = lambda s: html.escape(str(s), quote=False)
-attr = lambda s: esc(s).replace('"', "&quot;")  # атрибуты — в двойных кавычках
-
-
-# ---------- Markdown: только то, что разрешает устав ----------
-
-MAIL = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[a-z]{2,}")
-LINK = re.compile(r"\[([^\]\n]+)\]\(([^)\s]+)\)")
-
-
-def url_ok(u):
-    return u.startswith("https://") or u.startswith("mailto:")
-
-
-def local(u):
-    """Ссылки на сам сайт — от корня: так они работают и на тестовой копии сайта."""
-    return u[len(SITE):] or "/" if u.startswith(SITE + "/") or u == SITE else u
-
-
-def inline(text):
-    keep = []
-
-    def link(m):
-        keep.append(f'<a href="{attr(local(m.group(2)))}">{emph(esc(m.group(1)))}</a>')
-        return f"\x00{len(keep) - 1}\x00"
-
-    s = LINK.sub(link, text)
-    s = emph(esc(s))
-    s = MAIL.sub(lambda m: f'<span class="mail-address" style="font-size: inherit">{m.group(0)}</span>', s)
-    return re.sub(r"\x00(\d+)\x00", lambda m: keep[int(m.group(1))], s)
-
-
-def emph(s):
-    s = re.sub(r"\*\*(\S(?:.*?\S)?)\*\*", r"<strong>\1</strong>", s)
-    return re.sub(r"(?<![\*\w])\*(\S(?:.*?\S)?)\*(?![\*\w])", r"<em>\1</em>", s)
-
-
-def body_errors(md, first=1):
-    errs = []
-    for n, line in enumerate(md.splitlines(), first):
-        if re.search(r"<[A-Za-z/!]", line):
-            errs.append(f"строка {n}: HTML не пропускается")
-        if "![" in line:
-            errs.append(f"строка {n}: картинок в тексте нет — снимки идут в shots")
-        if line.lstrip().startswith("|"):
-            errs.append(f"строка {n}: таблиц нет")
-        if re.match(r"#(?!##? )|####", line):
-            errs.append(f"строка {n}: заголовки — только ## и ###")
-        for m in LINK.finditer(line):
-            if not url_ok(m.group(2)):
-                errs.append(f"строка {n}: ссылка {m.group(2)} — только https:// или mailto:")
-    return errs
-
-
-def render_body(md):
-    out, para, items, kind = [], [], [], None
-
-    def flush():
-        nonlocal para, items, kind
-        if para:
-            out.append(f"<p>{inline(' '.join(para))}</p>")
-        if items:
-            out.append(f"<{kind}>")
-            out.extend(f"  <li>{inline(' '.join(i))}</li>" for i in items)
-            out.append(f"</{kind}>")
-        para, items, kind = [], [], None
-
-    for line in md.splitlines():
-        s = line.strip()
-        if not s:
-            flush()
-        elif m := re.match(r"(#{2,3}) (.+)", s):
-            flush()
-            if m.group(1) == "##" and out:
-                out.append("")
-            tag = "h2" if m.group(1) == "##" else "h3"
-            out.append(f"<{tag}>{inline(m.group(2).strip())}</{tag}>")
-        elif m := re.match(r"(-|\d+\.) (.+)", s):
-            k = "ul" if m.group(1) == "-" else "ol"
-            if para or (kind and kind != k):
-                flush()
-            kind = k
-            items.append([m.group(2)])
-        elif items and line.startswith("  "):
-            items[-1].append(s)
-        else:
-            if items:
-                flush()
-            para.append(s)
-    flush()
-    return "\n".join("      " + l if l else "" for l in out)
-
 
 # ---------- store/site/page.*.md ----------
 
@@ -504,6 +414,27 @@ def render_card(slug, lang, meta, img, extra, lazy):
 """
 
 
+def render_press(slug, lang, meta, img):
+    """Карточка игры на странице «Для прессы»: коротко, паспорт и картинки — скачать."""
+    t = T[lang]
+    st = STATUS[meta["status"]]
+    page = page_path(slug, lang)
+    facts = meta.get("facts") or {}
+    rows = "".join(f'<div><dt>{FACTS[k][0 if lang == "ru" else 1]}</dt><dd>{esc(facts[k])}</dd></div>'
+                   for k in FACTS if facts.get(k))
+    passport = f'\n            <dl class="game-facts">{rows}</dl>' if rows else ""
+    return f"""        <article class="press-game">
+          <img class="game-icon" src="/assets/games/{img["icon"]}" width="192" height="192" alt="">
+          <div>
+            <p class="eyebrow">{esc(meta["kind"])} · {(st[3] or "в RuStore") if lang == "ru" else (st[4] or "on RuStore")}</p>
+            <h3><a href="{page}">{esc(meta["name"])}</a></h3>
+            <p>{esc(meta["lead"])}</p>{passport}
+            <p class="press-files"><a href="/assets/games/{img["feature"]}" download>{t["banner"]}</a> <a href="/assets/games/{img["icon"]}" download>{t["icon"]}</a> <a href="{page}">{t["page_shots"]}</a></p>
+          </div>
+        </article>
+"""
+
+
 # ---------- одна игра ----------
 
 class Game:
@@ -556,6 +487,17 @@ def git_head(path):
         return None
 
 
+def put(doc, slug, kind, html):
+    """Вставить html между метками <!-- kind:slug --> и <!-- /kind:slug --> страницы doc."""
+    mark = re.compile(rf"(<!-- {kind}:{slug}\b[^>]*-->\n)(.*?)(^[ \t]*<!-- /{kind}:{slug} -->)", re.S | re.M)
+    m = mark.search(doc["text"])
+    if not m:
+        return f"в {doc['path'].relative_to(ROOT)} нет меток <!-- {kind}:{slug} --> … <!-- /{kind}:{slug} -->"
+    body = html(m.group(2)) if callable(html) else html
+    doc["text"] = doc["text"][:m.start(2)] + body + doc["text"][m.end(2):]
+    return None
+
+
 def sync(cfg, src, lock, index):
     g = Game(cfg, src, lock)
     slug = g.slug
@@ -592,14 +534,11 @@ def sync(cfg, src, lock, index):
         out = ROOT / "src" / ("" if lang == "ru" else "en") / slug / "index.html"
         g.files[out] = render_page(slug, lang, meta, body, img, cfg.get("meta", {}).get(lang, []),
                                    has_delete, anchor, source).encode()
-        home = index[lang]
-        mark = re.compile(rf"(<!-- game:{slug}\b[^>]*-->\n)(.*?)(^[ \t]*<!-- /game:{slug} -->)", re.S | re.M)
-        m = mark.search(home["text"])
-        if not m:
-            g.errors.append(f"в {home['path'].relative_to(ROOT)} нет меток <!-- game:{slug} --> … <!-- /game:{slug} -->")
-            continue
-        card = render_card(slug, lang, meta, img, cfg.get("card", {}).get(lang, []), 'loading="lazy"' in m.group(2))
-        home["text"] = home["text"][:m.start(2)] + card + home["text"][m.end(2):]
+        extra = cfg.get("card", {}).get(lang, [])
+        for err in (put(index[lang], slug, "game", lambda old: render_card(slug, lang, meta, img, extra, 'loading="lazy"' in old)),
+                    put(index["press-" + lang], slug, "press", render_press(slug, lang, meta, img))):
+            if err:
+                g.errors.append(err)
     if g.errors:
         return g, f"✗ {slug}: страница не обновлена —\n" + "\n".join(f"  - {e}" for e in g.errors)
     changed = [p for p, data in g.files.items() if not p.is_file() or p.read_bytes() != data]
@@ -634,8 +573,10 @@ def main():
         ap.error("нужен --src или --check")
     cfg = json.loads(CONFIG.read_text(encoding="utf-8"))["games"]
     lock = json.loads(LOCK.read_text(encoding="utf-8")) if LOCK.is_file() else {}
-    index = {lang: {"path": p, "text": p.read_text(encoding="utf-8")}
-             for lang, p in (("ru", ROOT / "src" / "index.html"), ("en", ROOT / "src" / "en" / "index.html"))}
+    # Страницы, куда игры вставляют свои карточки: главная (метки game:) и «Для прессы» (press:).
+    index = {key: {"path": p, "text": p.read_text(encoding="utf-8")}
+             for key, p in (("ru", ROOT / "src" / "index.html"), ("en", ROOT / "src" / "en" / "index.html"),
+                            ("press-ru", ROOT / "src" / "press.html"), ("press-en", ROOT / "src" / "en" / "press.html"))}
     report, new_lock = [], dict(lock)
     for c in cfg:
         before = {k: v["text"] for k, v in index.items()}
