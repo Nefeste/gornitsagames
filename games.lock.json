@@ -61,7 +61,7 @@
   },
   "anamnez": {
     "repo": "Nefeste/anamnez",
-    "commit": "fcd2f4c9bc232cc492c61927e013d6ae6425267d",
+    "commit": "a58a93f5cade39ead29757ae70cafc2c66b59aaa",
     "images": {
       "anamnez-01-emergency-full.webp": "px4613f4ab0b236fe4:shot-portrait-full:0",
       "anamnez-01-emergency.webp": "px4613f4ab0b236fe4:shot-portrait:0",
