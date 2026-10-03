@@ -51,7 +51,8 @@ render() {   # $1: http | https
   echo "# deploy/nardy/nginx.sh) — правки здесь затрутся."
   echo
   # WebSocket: Connection: upgrade — только когда телефон просит Upgrade; имя своё, чтобы не
-  # столкнуться с чужими map в общем http {}.
+  # столкнуться с чужими map в общем http {}. Переменные nginx — буквально, не bash:
+  # shellcheck disable=SC2016
   echo 'map $http_upgrade $nardy_connection {'
   echo '    default upgrade;'
   echo "    ''      \"\";"

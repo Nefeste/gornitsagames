@@ -5,7 +5,8 @@
 # Когда в репозитории меняется deploy/votchina/, deploy/nardy/, deploy/skazy/ или deploy/uzory/,
 # доводит настройку сервера игры «Вотчина» (deploy/votchina/setup.sh), «Длинные нарды»
 # (deploy/nardy/setup.sh), заставы «Сказов» (deploy/skazy/setup.sh) или закрытой веб-версии
-# «Узоров» (deploy/uzory/setup.sh).
+# «Узоров» (deploy/uzory/setup.sh). Мониторинг ресурсов машины (deploy/monitor/setup.sh) — так же:
+# ставится при первом запуске этой версии и доводится при каждом изменении deploy/monitor/.
 # Сам этот скрипт тоже обновляется из репозитория.
 
 set -euo pipefail
@@ -20,6 +21,7 @@ VOTCHINA_STAMP="/var/lib/gornitsa-votchina-setup"
 NARDY_STAMP="/var/lib/gornitsa-nardy-setup"
 SKAZY_STAMP="/var/lib/gornitsa-skazy-setup"
 UZORY_STAMP="/var/lib/gornitsa-uzory-setup"
+MONITOR_STAMP="/var/lib/gornitsa-monitor-setup"
 NGINX_STAMP="/var/lib/gornitsa-nginx-site"
 LE_STAMP="/var/lib/gornitsa-le-email"
 SELF="/usr/local/bin/gornitsa-update"
@@ -78,6 +80,16 @@ if [[ -n "${UZORY_TREE}" && "${UZORY_TREE}" != "$(cat "${UZORY_STAMP}" 2>/dev/nu
   fi
 fi
 
+# Мониторинг ресурсов машины — так же, при каждом изменении deploy/monitor/.
+MONITOR_TREE="$(git -C "${DIR}" rev-parse -q --verify "HEAD:deploy/monitor" 2>/dev/null || true)"
+if [[ -n "${MONITOR_TREE}" && "${MONITOR_TREE}" != "$(cat "${MONITOR_STAMP}" 2>/dev/null || true)" ]]; then
+  if bash "${DIR}/deploy/monitor/setup.sh"; then
+    echo "${MONITOR_TREE}" > "${MONITOR_STAMP}"
+  else
+    echo "Настройка мониторинга не удалась — повторю через 5 минут" >&2
+  fi
+fi
+
 if [[ ! -d "/etc/letsencrypt/live/${DOMAIN}" ]]; then
   SERVER_IP="$(curl -4 -fsS --max-time 10 https://ifconfig.me 2>/dev/null || hostname -I | awk '{print $1}')"
   APEX_IP="$(getent ahostsv4 "${DOMAIN}" | awk 'NR==1{print $1}' || true)"
@@ -95,7 +107,7 @@ fi
 NGINX_TREE="$(git -C "${DIR}" rev-parse -q --verify "HEAD:deploy/nginx" 2>/dev/null || true)"
 if [[ -n "${NGINX_TREE}" && -d "/etc/letsencrypt/live/${DOMAIN}" ]] \
    && [[ "$(cat "${NGINX_STAMP}" 2>/dev/null || true)" != "${NGINX_TREE}" && "$(cat "${NGINX_STAMP}" 2>/dev/null || true)" != "failed ${NGINX_TREE}" ]]; then
-  if DIR="${DIR}" DOMAIN="${DOMAIN}" bash "${DIR}/deploy/nginx/apply.sh"; then
+  if env DIR="${DIR}" DOMAIN="${DOMAIN}" bash "${DIR}/deploy/nginx/apply.sh"; then
     echo "${NGINX_TREE}" > "${NGINX_STAMP}"
   else
     echo "failed ${NGINX_TREE}" > "${NGINX_STAMP}"

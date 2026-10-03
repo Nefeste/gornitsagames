@@ -2,6 +2,9 @@ import json
 
 BRAND = open(__file__.replace("partials.py", "brandmark.svg")).read().strip()
 SITE = "https://gornitsa.games"
+# Каналы студии (устав, docs/10-channels.md): подвал, страница поддержки, разметка для поисковиков
+TELEGRAM = "https://t.me/gornitsa_games"
+VK = "https://vk.com/gornitsa_games"
 
 T = {
     "ru": {
@@ -10,7 +13,7 @@ T = {
         "docs": "Документы", "studio": "Студия «Горница»", "brandbook": "Брендбук", "other": "English", "other_lang": "en", "fonts": "cyrillic",
         "tagline": "Спокойные, честные и понятные игры для RuStore.", "studio_col": "Студия", "help": "Помощь",
         "mail": "Почта", "mail_hello": "общая", "mail_support": "поддержка", "mail_press": "для прессы",
-        "news": "Новости", "press": "Для прессы", "feed": "Новости «Горницы»",
+        "news": "Новости", "press": "Для прессы", "feed": "Новости «Горницы»", "vk": "ВКонтакте",
         "og_alt": "Знак «Горницы» — ромб из вышитых крестиков — и надпись «Светлая комната для хороших игр»",
     },
     "en": {
@@ -19,7 +22,7 @@ T = {
         "docs": "Documents", "studio": "Gornitsa Studio", "brandbook": "Brand book", "other": "Русский", "other_lang": "ru", "fonts": "latin",
         "tagline": "Calm, honest and clear games for RuStore.", "studio_col": "Studio", "help": "Help",
         "mail": "Email", "mail_hello": "general", "mail_support": "support", "mail_press": "press",
-        "news": "News", "press": "Press", "feed": "Gornitsa news",
+        "news": "News", "press": "Press", "feed": "Gornitsa news", "vk": "VK",
         "og_alt": "The Gornitsa mark, a diamond of cross-stitches, and the words “A bright room for good games”",
     },
 }
@@ -38,7 +41,7 @@ def studio_ld(lang="ru"):
     return ld_json({"@context": "https://schema.org", "@graph": [
         {"@type": "Organization", "@id": f"{SITE}/#studio", "name": t["brand"], "alternateName": other["brand"],
          "url": f"{SITE}/", "logo": f"{SITE}/assets/brand/mark-1024.png", "description": t["tagline"],
-         "email": "hello@gornitsa.games",
+         "email": "hello@gornitsa.games", "sameAs": [TELEGRAM, VK],
          "contactPoint": [
              {"@type": "ContactPoint", "contactType": "customer support", "email": "support@gornitsa.games",
               "availableLanguage": ["ru", "en"]},
@@ -116,6 +119,8 @@ def footer(b, lang="ru", games=(), other=None):
       <ul>
         <li><a href="{p}about.html">{t['about']}</a></li>
         <li><a href="{p}news.html">{t['news']}</a></li>
+        <li><a href="{TELEGRAM}" rel="me">Telegram</a></li>
+        <li><a href="{VK}" rel="me">{t['vk']}</a></li>
         <li><a href="{p}press.html">{t['press']}</a></li>
         <li><a href="{p}brand.html">{t['brandbook']}</a></li>
       </ul>
