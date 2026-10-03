@@ -7,7 +7,8 @@
 # (deploy/nardy/setup.sh), заставы «Сказов» (deploy/skazy/setup.sh) или закрытой веб-версии
 # «Узоров» (deploy/uzory/setup.sh). Мониторинг ресурсов машины (deploy/monitor/setup.sh) — так же:
 # ставится при первом запуске этой версии и доводится при каждом изменении deploy/monitor/.
-# Сам этот скрипт тоже обновляется из репозитория.
+# Журналы systemd — три дня (deploy/journald.conf). Сам этот скрипт тоже обновляется из репозитория:
+# новая версия запускается сразу, в том же проходе.
 
 set -euo pipefail
 
@@ -38,6 +39,26 @@ if [[ "${REMOTE}" != "${DEPLOYED}" ]]; then
   chown -R deploy:www-data "${WEBROOT}" 2>/dev/null || true
   echo "${REMOTE}" > "${STAMP}"
   echo "Выложена версия ${REMOTE:0:7}"
+fi
+
+# Новая версия этого скрипта — сразу, в этом же запуске. Раньше она ставилась в конце и работала
+# только со следующего запуска: шаги, пришедшие в том же коммите (так было с мониторингом),
+# выполнялись на 5 минут позже, чем выкладывался сайт.
+if [[ -f "${SELF}" && "${GORNITSA_UPDATE_REEXEC:-}" != 1 ]] && ! cmp -s "${DIR}/deploy/update-site.sh" "${SELF}"; then
+  install -m 755 "${DIR}/deploy/update-site.sh" "${SELF}"
+  echo "Скрипт автообновления обновлён — запускаю новую версию"
+  exec env GORNITSA_UPDATE_REEXEC=1 "${SELF}"
+fi
+
+# Журналы systemd (journald) — три дня, как журналы nginx: в них есть адреса (sshd, fail2ban).
+# MaxFileSec — чтобы файлы журнала сменялись раз в сутки: старое удаляется только целыми файлами.
+JOURNALD_CONF=/etc/systemd/journald.conf.d/00-gornitsa.conf
+if ! cmp -s "${DIR}/deploy/journald.conf" "${JOURNALD_CONF}"; then
+  install -d -m 755 /etc/systemd/journald.conf.d
+  install -m 644 "${DIR}/deploy/journald.conf" "${JOURNALD_CONF}"
+  systemctl restart systemd-journald
+  journalctl --vacuum-time=3d >/dev/null 2>&1 || true
+  echo "journald: журналы хранятся три дня"
 fi
 
 # Сервер «Вотчины»: настройка машины — при каждом изменении deploy/votchina/ в репозитории.
