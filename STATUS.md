@@ -21,8 +21,8 @@ fail2ban, журналы — три дня (аудит 03.10.2026, раздел 
 - на работающей машине — порядок из README, «Вход на сервер» (`setup-server.sh`,
   `sudo gornitsa-ssh ok`);
 - решение №17 — по неделе сводок (README, «Мониторинг машины»);
-- копии баз: ответ юриста о хранении копий на компьютере владельца (вопрос в PR «Копии баз»),
-  затем ключи — `sudo gornitsa-backup-keys` и забор по [`docs/backup.md`](docs/backup.md);
+- копии баз: компьютер владельца в России (03.10.2026) — ключи `sudo gornitsa-backup-keys` здесь
+  и на машине «Сеней», забор по [`docs/backup.md`](docs/backup.md);
 
 Подробности — [`README.md`](README.md); правила студии — устав
 [`Nefeste/gornitsa`](https://github.com/Nefeste/gornitsa).
