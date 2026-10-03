@@ -30,7 +30,8 @@ for f in "${FILES[@]}"; do
 done
 restore() {
   for f in "${FILES[@]}"; do
-    local b="${BACKUP}/$(basename "$f")"
+    local b
+    b="${BACKUP}/$(basename "$f")"
     if [[ -f "$b" ]]; then cp -p "$b" "$f"; else rm -f "$f"; fi
   done
   if nginx -t -q 2>/dev/null; then systemctl reload nginx; fi
