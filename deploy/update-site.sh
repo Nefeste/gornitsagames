@@ -6,7 +6,8 @@
 # доводит настройку сервера игры «Вотчина» (deploy/votchina/setup.sh), «Длинные нарды»
 # (deploy/nardy/setup.sh), заставы «Сказов» (deploy/skazy/setup.sh) или закрытой веб-версии
 # «Узоров» (deploy/uzory/setup.sh). Мониторинг ресурсов машины (deploy/monitor/setup.sh) — так же:
-# ставится при первом запуске этой версии и доводится при каждом изменении deploy/monitor/.
+# ставится при первом запуске этой версии и доводится при каждом изменении deploy/monitor/;
+# копии баз на компьютер владельца (deploy/backup/setup.sh) — при каждом изменении deploy/backup/.
 # Журналы systemd — три дня (deploy/journald.conf). Сам этот скрипт тоже обновляется из репозитория:
 # новая версия запускается сразу, в том же проходе.
 
@@ -23,6 +24,7 @@ NARDY_STAMP="/var/lib/gornitsa-nardy-setup"
 SKAZY_STAMP="/var/lib/gornitsa-skazy-setup"
 UZORY_STAMP="/var/lib/gornitsa-uzory-setup"
 MONITOR_STAMP="/var/lib/gornitsa-monitor-setup"
+BACKUP_STAMP="/var/lib/gornitsa-backup-setup"
 NGINX_STAMP="/var/lib/gornitsa-nginx-site"
 LE_STAMP="/var/lib/gornitsa-le-email"
 SELF="/usr/local/bin/gornitsa-update"
@@ -108,6 +110,16 @@ if [[ -n "${MONITOR_TREE}" && "${MONITOR_TREE}" != "$(cat "${MONITOR_STAMP}" 2>/
     echo "${MONITOR_TREE}" > "${MONITOR_STAMP}"
   else
     echo "Настройка мониторинга не удалась — повторю через 5 минут" >&2
+  fi
+fi
+
+# Копии баз на компьютер владельца (deploy/backup/) — так же, при каждом изменении deploy/backup/.
+BACKUP_TREE="$(git -C "${DIR}" rev-parse -q --verify "HEAD:deploy/backup" 2>/dev/null || true)"
+if [[ -n "${BACKUP_TREE}" && "${BACKUP_TREE}" != "$(cat "${BACKUP_STAMP}" 2>/dev/null || true)" ]]; then
+  if bash "${DIR}/deploy/backup/setup.sh"; then
+    echo "${BACKUP_TREE}" > "${BACKUP_STAMP}"
+  else
+    echo "Настройка копий баз не удалась — повторю через 5 минут" >&2
   fi
 fi
 
