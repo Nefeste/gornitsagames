@@ -2,6 +2,8 @@
 
 Сайт студии мобильных игр «Горница» на русском и английском: главная, страницы игр студии, новости, страница для прессы, поддержка, политика конфиденциальности и страница 404. Сайт статический: HTML, CSS и немного JavaScript, без сборщиков и зависимостей. Шрифты (Kurale и Onest, лицензия SIL OFL) раздаются с того же сервера, поэтому сайт не обращается к Google и другим внешним сервисам. В репозитории шрифтов и готовых страниц нет: их скачивает `deploy/fetch-fonts.sh` и собирает `build.py`.
 
+Состояние сайта, что дальше и что ждёт владельца — [`STATUS.md`](STATUS.md).
+
 ## Структура
 
 ```
@@ -51,6 +53,7 @@ tools/
 games.lock.json       из какого коммита игры и из каких файлов собраны её страница и картинки
 .github/workflows/games.yml   «Страницы игр»: каждую ночь — PR «Сайт: обновления игр»
 .github/workflows/site.yml    «Проверка сайта»: на каждый PR — build.py, check.py, shellcheck (см. «Проверка PR»)
+.github/CODEOWNERS            весь репозиторий — путь владельца: PR сайта сливает он (ADR студии 0018)
 deploy/
   setup-server.sh     первичная настройка VPS: nginx, HTTPS, файрвол, вход по ключам, fail2ban
   ssh.sh              вход на сервер только по ключам, root — без входа (см. «Вход на сервер»)
@@ -169,7 +172,7 @@ HTML и картинок.
 
 ### 4. Публикация исходников на GitHub
 
-Сервер забирает сайт из репозитория, поэтому сначала отправьте код на GitHub. Репозиторий должен быть публичным (в нём нет паролей и ключей, только сайт): `bootstrap.sh` и автообновление читают его по HTTPS без ключа. Так и есть — репозиторий снова открыт (решение владельца №1); 03.10.2026 проверено, что `git clone https://github.com/Nefeste/gornitsagames.git` и `raw.githubusercontent.com/…/deploy/bootstrap.sh` работают без входа.
+Сервер забирает сайт из репозитория, поэтому сначала отправьте код на GitHub. `bootstrap.sh` и автообновление читают его по HTTPS без ключа, поэтому репозиторий открытый ([ADR студии 0017](https://github.com/Nefeste/gornitsa/blob/main/adr/0017-repo-visibility.md)); 03.10.2026 проверено, что `git clone https://github.com/Nefeste/gornitsagames.git` и `raw.githubusercontent.com/…/deploy/bootstrap.sh` работают без входа.
 
 ```bash
 git remote add origin https://github.com/Nefeste/gornitsagames.git
@@ -188,11 +191,11 @@ curl -fsSL https://raw.githubusercontent.com/Nefeste/gornitsagames/main/deploy/b
 
 ### 6. Обновления сайта
 
-Просто делайте `git push` в ветку `main`: сервер проверяет GitHub каждые 5 минут и выкладывает новую версию сам. Журнал: `journalctl -u gornitsa-update -n 50`. Скрипт автообновления тоже берётся из репозитория (`deploy/update-site.sh`), а при изменении `deploy/votchina/`, `deploy/nardy/`, `deploy/skazy/` или `deploy/uzory/` он доводит настройку сервера этой игры, при изменении `deploy/monitor/` — мониторинга машины.
+Изменения попадают в `main` через PR, а сливает их владелец ([ADR студии 0018](https://github.com/Nefeste/gornitsa/blob/main/adr/0018-change-classes-automerge.md)): сервер проверяет GitHub каждые 5 минут и выкладывает новую версию сам. Журнал: `journalctl -u gornitsa-update -n 50`. Скрипт автообновления тоже берётся из репозитория (`deploy/update-site.sh`), а при изменении `deploy/votchina/`, `deploy/nardy/`, `deploy/skazy/` или `deploy/uzory/` он доводит настройку сервера этой игры, при изменении `deploy/monitor/` — мониторинга машины.
 
 Настройка nginx самого сайта тоже идёт из репозитория: при изменении `deploy/nginx/` (и когда сертификат уже выпущен) `update-site.sh` запускает `deploy/nginx/apply.sh`. Тот сохраняет нынешние файлы, ставит `gornitsa.games.https.conf` как `/etc/nginx/sites-available/gornitsa.games.conf`, заголовки и места — в `/etc/nginx/snippets/gornitsa-site-*.conf` (`server_tokens off` — в самом конфиге сайта: в `http{}` машины он уже задан, второй раз там nginx не пропускает), проверяет `nginx -t`, перезагружает nginx и убеждается, что `https://gornitsa.games/` отвечает 200, а `http://` — 301. Что-то не так — всё возвращается как было, а в `/var/lib/gornitsa-nginx-site` пишется `failed <версия>`: эту версию скрипт больше не пробует, пока `deploy/nginx/` не поменяется снова. Блоки сертификата в конфиге — в том виде, в каком их пишет certbot, поэтому продление работает по-прежнему. Заголовки безопасности — в `headers.conf` и подключаются в каждом `location`: nginx не складывает `add_header` сервера и места, и заголовки на уровне сервера молча пропадали бы.
 
-Если репозиторий нужен закрытым, сайт можно выкладывать со своего компьютера: `./deploy/deploy.sh IP_СЕРВЕРА` (нужен SSH-доступ пользователем deploy, его создаёт `deploy/setup-server.sh`).
+Если репозиторий когда-нибудь закроют (это новое решение владельца вместо [ADR студии 0017](https://github.com/Nefeste/gornitsa/blob/main/adr/0017-repo-visibility.md)), сайт можно выкладывать со своего компьютера: `./deploy/deploy.sh IP_СЕРВЕРА` (нужен SSH-доступ пользователем deploy, его создаёт `deploy/setup-server.sh`).
 
 ## Вход на сервер
 
@@ -251,8 +254,8 @@ fail2ban-client unban --all                             # если забане�
 Workflow «Проверка сайта» (`.github/workflows/site.yml`) на каждый PR и push в `main` на `ubuntu-24.04`
 собирает сайт (`python3 build.py`), проверяет его (`python3 tools/check.py`) и скрипты сервера
 (`shellcheck deploy/**/*.sh`) — то же, что стоит прогнать у себя перед push. Секретов у него нет,
-права — только чтение. Сборка — меньше минуты, а у открытого репозитория минуты Actions не тратятся,
-поэтому правило устава «CI только после слияния» (оно про сборки APK закрытых игр) здесь не мешает.
+права — только чтение. Это быстрые проверки на PR по [ADR студии 0019](https://github.com/Nefeste/gornitsa/blob/main/adr/0019-ci-on-pr.md); APK сайт
+не собирает. Сборка — меньше минуты, а у открытого репозитория минуты Actions не тратятся.
 
 ## Мониторинг машины
 
