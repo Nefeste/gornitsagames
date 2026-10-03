@@ -57,7 +57,8 @@ fi
 if [[ -f "$OFF" ]]; then
   if [[ -f "$CONF" ]]; then
     rm -f "$CONF"
-    sshd -t && { systemctl is-active --quiet ssh && systemctl reload ssh || true; }
+    install -d -m 755 /run/sshd
+    if sshd -t && systemctl is-active --quiet ssh; then systemctl reload ssh; fi
   fi
   echo "SSH: усиление выключено ($OFF) — настройки sshd как у системы"
   exit 0
