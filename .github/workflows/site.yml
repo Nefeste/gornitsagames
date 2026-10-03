@@ -1,0 +1,44 @@
+# Проверка сайта на каждый PR и push в main: сборка, проверка ссылок и разметки, shellcheck
+# скриптов сервера (README, «Проверка PR»). Секретов нет, права — только чтение, поэтому PR из
+# форков запускать безопасно. Репозиторий открытый: минуты Actions не тратятся.
+name: Проверка сайта
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: site-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+
+      # Python — как на машине сайта (Ubuntu 24.04): build.py и check.py без сторонних библиотек.
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Собрать сайт
+        run: python3 build.py > /dev/null
+
+      - name: Проверить сайт
+        run: python3 tools/check.py
+
+      - name: Сборщик мониторинга компилируется
+        run: python3 -m py_compile deploy/monitor/monitor.py
+
+      # shellcheck уже стоит на ubuntu-24.04; globstar — чтобы ** заходил во все папки deploy/
+      - name: shellcheck
+        run: |
+          shopt -s globstar
+          shellcheck --version
+          shellcheck deploy/**/*.sh
