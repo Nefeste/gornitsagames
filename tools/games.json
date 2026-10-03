@@ -12,7 +12,7 @@
     },
     {"slug": "nardy", "repo": "Nefeste/nardy", "private": true},
     {"slug": "anamnez", "repo": "Nefeste/anamnez"},
-    {"slug": "skazy", "repo": "Nefeste/skazy"},
+    {"slug": "skazy", "repo": "Nefeste/skazy", "private": true},
     {
       "slug": "uzory",
       "repo": "Nefeste/uzory",

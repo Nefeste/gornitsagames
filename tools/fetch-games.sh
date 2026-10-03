@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Забирает папку store/ с main каждой игры из tools/games.json в games/<игра>/ (ADR студии 0015).
 # Остальные файлы игр не скачиваются. Закрытые репозитории — токеном из GAMES_READ_TOKEN
-# (fine-grained, только чтение содержимого nardy и votchina); без токена они пропускаются.
+# (fine-grained, только чтение содержимого nardy, votchina и skazy); без токена или без права
+# на репозиторий он пропускается, и страница игры на сайте остаётся прежней.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 rm -rf games
