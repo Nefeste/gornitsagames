@@ -55,12 +55,18 @@ T = {
            "delete": "Удалить профиль", "other": "English", "about": "Об игре",
            "site_name": "Горница", "banner": "Баннер 1024 × 500", "icon": "Значок 192 × 192",
            "rustore": "Скачайте из RuStore",
-           "page_shots": "Страница и снимки экрана"},
+           "page_shots": "Страница и снимки экрана",
+           "glance": "Коротко", "what": "Что это", "where": "Где скачать",
+           "where_dev": "Пока нигде: игра в разработке, готовится к выходу в RuStore",
+           "where_test": "Пока только у участников закрытого теста"},
     "en": {"crumbs_label": "Navigation", "crumbs": "← All games", "home": "/en/#games",
            "shots": "Screenshots", "privacy": "Privacy policy", "delete": "Delete your profile",
            "other": "По-русски", "about": "About the game", "site_name": "Gornitsa",
            "banner": "Banner 1024 × 500", "icon": "Icon 192 × 192", "page_shots": "Page and screenshots",
-           "rustore": "Download from RuStore"},
+           "rustore": "Download from RuStore",
+           "glance": "At a glance", "what": "What it is", "where": "Where to get it",
+           "where_dev": "Not yet: the game is in development for RuStore",
+           "where_test": "Only for closed test participants so far"},
 }
 
 # Картинки: размер на сайте, формат, качество.
@@ -279,6 +285,54 @@ def encode(path, spec, cover_og=False):
 
 # ---------- страница и карточка ----------
 
+# «Коротко» (поручение 06): 4–6 фактов, которые цитируют нейропоиск и ассистенты —
+# что это, на каких устройствах, сколько стоит, нужен ли интернет, возраст, где скачать.
+GLANCE = ("platform", "price", "internet", "age")
+
+# Языки игры (facts.languages) — коды для schema.org inLanguage.
+LANG_CODES = {"русский": "ru", "английский": "en", "russian": "ru", "english": "en"}
+
+
+def glance(meta, lang):
+    t = T[lang]
+    facts = meta.get("facts") or {}
+    rows = [(t["what"], esc(meta["kind"]))]
+    rows += [(FACTS[k][0 if lang == "ru" else 1], esc(facts[k])) for k in GLANCE if facts.get(k)]
+    where = []
+    # Магазин — первым; ссылки на предзаказ у игры в разработке сюда не идут: «скачать» её нельзя.
+    for l in sorted(meta.get("links") or [], key=lambda l: "rustore.ru/" not in l["url"]):
+        if meta["status"] == "live" or "rustore.ru/" not in l["url"]:
+            name = "RuStore" if "rustore.ru/" in l["url"] else l["text"]
+            where.append(f'<a href="{attr(local(l["url"]))}">{esc(name)}</a>')
+    if not where:
+        where = [t["where_test"] if meta["status"] == "test" else t["where_dev"]]
+    rows.append((t["where"], " · ".join(where)))
+    dl = "\n".join(f"        <div><dt>{k}</dt><dd>{v}</dd></div>" for k, v in rows)
+    return (f'    <section class="glance" aria-labelledby="glance-title">\n'
+            f'      <h2 id="glance-title">{t["glance"]}</h2>\n'
+            f'      <dl class="game-facts">\n{dl}\n      </dl>\n    </section>\n')
+
+
+def offers(meta):
+    """schema.org Offer: бесплатная игра (и бесплатное начало) — цена 0 ₽; другой цены сайт не
+    знает — тогда без offers. Описание цены — как в паспорте игры."""
+    price = ((meta.get("facts") or {}).get("price") or "").strip()
+    if not re.search(r"бесплатн|\bfree\b", price, re.I):
+        return None
+    offer = {"@type": "Offer", "price": "0", "priceCurrency": "RUB", "description": price}
+    if meta["status"] == "live":
+        offer["availability"] = "https://schema.org/InStock"
+        store = [l["url"] for l in meta.get("links") or [] if "rustore.ru/" in l["url"]]
+        if store:
+            offer["url"] = store[0]
+    return offer
+
+
+def rating(age):
+    """Одна возрастная категория, как в анкете RuStore: «6+, застава — с 14 лет» → «6+»."""
+    m = re.match(r"\s*(\d{1,2}\+)", age or "")
+    return m.group(1) if m else None
+
 def page_path(slug, lang):
     return f"/{slug}/" if lang == "ru" else f"/en/{slug}/"
 
@@ -327,11 +381,7 @@ def render_page(slug, lang, meta, body, img, extra_meta, has_delete, privacy_anc
                  f'srcset="/assets/games/{img["cover_small"]} 960w, /assets/games/{img["cover"]} 1920w" '
                  f'sizes="(min-width: 1160px) 1072px, 100vw" width="1920" height="640" alt="" fetchpriority="high"></div>\n')
     facts = meta.get("facts") or {}
-    passport = ""
-    if facts:
-        rows = [f'      <div><dt>{FACTS[k][0 if lang == "ru" else 1]}</dt><dd>{esc(facts[k])}</dd></div>'
-                for k in FACTS if facts.get(k)]
-        passport = '    <dl class="game-facts">\n' + "\n".join(rows) + "\n    </dl>\n"
+    passport = glance(meta, lang)
     studio = {"@type": "Organization", "@id": f"{SITE}/#studio", "name": t["site_name"], "url": f"{SITE}/"}
     ld = {"@context": "https://schema.org", "@type": "VideoGame", "name": meta["name"], "url": f"{SITE}{path}",
           "description": meta["description"], "genre": meta["kind"], "image": f"{SITE}/assets/games/{img['og']}",
@@ -340,8 +390,12 @@ def render_page(slug, lang, meta, body, img, extra_meta, has_delete, privacy_anc
           "author": studio, "publisher": studio}
     if facts.get("platform"):
         ld["gamePlatform"] = facts["platform"]
-    if facts.get("age"):
-        ld["contentRating"] = facts["age"]
+    if rating(facts.get("age")):
+        ld["contentRating"] = rating(facts["age"])
+    langs = [LANG_CODES[w] for w in re.split(r"[,\s]+", (facts.get("languages") or "").lower()) if w in LANG_CODES]
+    ld["inLanguage"] = langs or [lang]
+    if offers(meta):
+        ld["offers"] = offers(meta)
     store = [l["url"] for l in meta.get("links") or [] if "rustore.ru/" in l["url"]]
     if meta["status"] == "live" and store:
         ld["installUrl"] = store[0]

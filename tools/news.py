@@ -10,6 +10,9 @@
 
     Дальше — текст в Markdown, как у страниц игр: абзацы, списки, **жирный**, ссылки.
 
+Черновик — поле review: draft (так пишет tools/devlog.py «Дневник разработки», docs/devlog.md):
+сайт его не публикует, пока владелец не поставит review: checked или не уберёт поле.
+
 build.py собирает из них страницу «Новости» (news.html, en/news.html), ленту Atom
 (news.atom, en/news.atom) и три свежие новости на главной. Новость с ошибкой в сайт не
 попадает: build.py пишет причину, tools/check.py считает её ошибкой.
@@ -44,6 +47,16 @@ def human_date(date, lang):
     return f"{d} {MONTHS[lang][m - 1]} {y}"
 
 
+def drafts(lang):
+    """Новости с review: draft — на сайт не идут (check.py напоминает о них)."""
+    out = []
+    for p in sorted(NEWS.glob(f"*.{lang}.md")):
+        m = re.match(r"---\n(.*?)\n---\n", p.read_text(encoding="utf-8"), re.S)
+        if m and re.search(r"^review:\s*draft\s*$", m.group(1), re.M):
+            out.append(p.relative_to(ROOT).as_posix())
+    return out
+
+
 @functools.lru_cache(maxsize=None)
 def load(lang):
     """Новости одного языка, свежие сверху, и ошибки в файлах."""
@@ -60,7 +73,11 @@ def load(lang):
             key, _, value = line.partition(":")
             meta[key.strip()] = value.strip().strip('"')
         date, title, body = meta.get("date", ""), meta.get("title", ""), m.group(2).strip()
+        if meta.get("review") == "draft":
+            continue  # черновик: на сайт не идёт
         errs = []
+        if meta.get("review", "checked") != "checked":
+            errs.append("review — draft (черновик) или checked (одобрено владельцем)")
         if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", date) or not news_id.startswith(date + "-"):
             errs.append("date — ГГГГ-ММ-ДД, та же дата, что в начале имени файла")
         if not re.fullmatch(r"[0-9a-z-]+", news_id):

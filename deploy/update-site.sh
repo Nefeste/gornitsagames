@@ -8,6 +8,7 @@
 # «Узоров» (deploy/uzory/setup.sh). Мониторинг ресурсов машины (deploy/monitor/setup.sh) — так же:
 # ставится при первом запуске этой версии и доводится при каждом изменении deploy/monitor/;
 # копии баз на компьютер владельца (deploy/backup/setup.sh) — при каждом изменении deploy/backup/.
+# Поиск — файлы подтверждения, IndexNow и переадресации /go/<игра> (deploy/seo/apply.sh) — в каждом проходе.
 # Журналы systemd — три дня (deploy/journald.conf). Сам этот скрипт тоже обновляется из репозитория:
 # новая версия запускается сразу, в том же проходе.
 
@@ -146,6 +147,14 @@ if [[ -n "${NGINX_TREE}" && -d "/etc/letsencrypt/live/${DOMAIN}" ]] \
     echo "failed ${NGINX_TREE}" > "${NGINX_STAMP}"
     echo "Настройки nginx сайта не применились — прежние оставлены; подробности выше" >&2
   fi
+fi
+
+# Поиск (deploy/seo/apply.sh) — в каждом проходе: файлы подтверждения Вебмастера и Search Console
+# из /etc/gornitsa-site/verification/ (rsync выше их стирает — здесь они возвращаются), файл ключа
+# IndexNow, переадресации /go/<игра> в nginx и отправка изменённых страниц в IndexNow.
+if [[ -f "${DIR}/deploy/seo/apply.sh" ]]; then
+  env DIR="${DIR}" DOMAIN="${DOMAIN}" bash "${DIR}/deploy/seo/apply.sh" \
+    || echo "Поиск (deploy/seo/apply.sh) не доделан — повторю через 5 минут" >&2
 fi
 
 # Почта аккаунта Let's Encrypt — одного на все сертификаты машины. Меняется один раз после смены

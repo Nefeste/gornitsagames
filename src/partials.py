@@ -1,7 +1,9 @@
-import json
+import html, json, pathlib, re
 
 BRAND = open(__file__.replace("partials.py", "brandmark.svg")).read().strip()
 SITE = "https://gornitsa.games"
+# Настройки, которые знает только сайт: реквизиты продавца, страница разработчика в RuStore
+CONFIG = json.loads((pathlib.Path(__file__).resolve().parent.parent / "tools" / "site.json").read_text(encoding="utf-8"))
 # Каналы студии (устав, docs/10-channels.md): подвал, страница поддержки, разметка для поисковиков
 TELEGRAM = "https://t.me/gornitsa_games"
 VK = "https://vk.com/gornitsa_games"
@@ -15,6 +17,8 @@ T = {
         "mail": "Почта", "mail_hello": "общая", "mail_support": "поддержка", "mail_press": "для прессы",
         "news": "Новости", "press": "Для прессы", "feed": "Новости «Горницы»", "vk": "ВКонтакте",
         "og_alt": "Знак «Горницы» — ромб из вышитых крестиков — и надпись «Светлая комната для хороших игр»",
+        "seller": "Продавец", "seller_inn": "ИНН", "seller_ogrnip": "ОГРНИП",
+        "seller_address": "Адрес для претензий", "seller_email": "Почта для претензий",
     },
     "en": {
         "skip": "Skip to content", "brand": "Gornitsa", "home": "Gornitsa, home page", "sections": "Sections",
@@ -24,8 +28,49 @@ T = {
         "mail": "Email", "mail_hello": "general", "mail_support": "support", "mail_press": "press",
         "news": "News", "press": "Press", "feed": "Gornitsa news", "vk": "VK",
         "og_alt": "The Gornitsa mark, a diamond of cross-stitches, and the words “A bright room for good games”",
+        "seller": "Seller", "seller_inn": "INN (taxpayer number)", "seller_ogrnip": "OGRNIP (state registration)",
+        "seller_address": "Address for claims", "seller_email": "Email for claims",
     },
 }
+
+
+def seller_errors():
+    """Включённые реквизиты должны быть полными: ИНН ИП — 12 цифр, ОГРНИП — 15. Выдуманных нет:
+    пока ИП не зарегистрировано, enabled — false и поля пустые (tools/site.json)."""
+    s = CONFIG["seller"]
+    if not s.get("enabled"):
+        return []
+    errs = [f"tools/site.json: seller.{k} пустое, а enabled — true" for k in ("name", "inn", "ogrnip", "address", "email") if not s.get(k)]
+    if s.get("inn") and not re.fullmatch(r"\d{12}", s["inn"]):
+        errs.append("tools/site.json: seller.inn — 12 цифр (ИНН индивидуального предпринимателя)")
+    if s.get("ogrnip") and not re.fullmatch(r"\d{15}", s["ogrnip"]):
+        errs.append("tools/site.json: seller.ogrnip — 15 цифр")
+    return errs
+
+
+def seller(lang="ru", kind="block"):
+    """Реквизиты продавца — в подвале (kind="line"), на поддержке (kind="block") и в политике (kind="para").
+    Выключены в tools/site.json — пустая строка: на сайте ничего не меняется."""
+    s, t = CONFIG["seller"], T[lang]
+    if not s.get("enabled") or seller_errors():
+        return ""
+    e = html.escape
+    if kind == "para":
+        return (f'\n      <p>{t["seller"]}: {e(s["name"])}, {t["seller_inn"]} {e(s["inn"])}, {t["seller_ogrnip"]} {e(s["ogrnip"])}. '
+                f'{t["seller_address"]}: {e(s["address"])}; {t["seller_email"].lower()}: {e(s["email"])}.</p>')
+    if kind == "line":
+        return (f'\n  <div class="wrap footer-seller"><p class="meta">{e(s["name"])} · {t["seller_inn"]} {e(s["inn"])} · '
+                f'{t["seller_ogrnip"]} {e(s["ogrnip"])} · {t["seller_address"]}: {e(s["address"])}</p></div>')
+    rows = [(t["seller"], s["name"]), (t["seller_inn"], s["inn"]), (t["seller_ogrnip"], s["ogrnip"]),
+            (t["seller_address"], s["address"]), (t["seller_email"], s["email"])]
+    dl = "\n".join(f"        <div><dt>{k}</dt><dd>{e(v)}</dd></div>" for k, v in rows)
+    return f"""    <section class="seller" id="seller" aria-labelledby="seller-title">
+      <h2 id="seller-title">{t["seller"]}</h2>
+      <dl class="game-facts">
+{dl}
+      </dl>
+    </section>
+"""
 
 
 def ld_json(data):
@@ -41,7 +86,7 @@ def studio_ld(lang="ru"):
     return ld_json({"@context": "https://schema.org", "@graph": [
         {"@type": "Organization", "@id": f"{SITE}/#studio", "name": t["brand"], "alternateName": other["brand"],
          "url": f"{SITE}/", "logo": f"{SITE}/assets/brand/mark-1024.png", "description": t["tagline"],
-         "email": "hello@gornitsa.games", "sameAs": [TELEGRAM, VK],
+         "email": "hello@gornitsa.games", "sameAs": [TELEGRAM, VK] + ([CONFIG["rustore_developer"]["url"]] if CONFIG["rustore_developer"].get("url") else []),
          "contactPoint": [
              {"@type": "ContactPoint", "contactType": "customer support", "email": "support@gornitsa.games",
               "availableLanguage": ["ru", "en"]},
@@ -143,5 +188,5 @@ def footer(b, lang="ru", games=(), other=None):
   </div>
   <div class="wrap footer-bottom">
     <span>© <span data-year>2026</span> {t['studio']}</span>{switch}
-  </div>
+  </div>{seller(lang, "line")}
 </footer>"""

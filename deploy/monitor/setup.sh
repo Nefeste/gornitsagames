@@ -14,7 +14,10 @@
 #   - gornitsa-monitor-daily.timer в 00:05: сводка за сутки в /var/lib/gornitsa-monitor/daily/
 #     ГГГГ-ММ-ДД.json и latest.json — год;
 #   - https://gornitsa.games/.well-known/monitor/latest.json (и сводки по датам) — только по HTTPS
-#     и только с именем и паролем владельца: sudo gornitsa-monitor-password (deploy/monitor/nginx.sh).
+#     и только с именем и паролем владельца: sudo gornitsa-monitor-password (deploy/monitor/nginx.sh);
+#   - gornitsa-sitestats.timer в 00:20: посещаемость сайта без IP из журнала nginx — суммы за сутки
+#     и неделя в site-week.json, открыто: .well-known/monitor/site-week.json (deploy/monitor/sitestats.py,
+#     поручение 06, решение №30).
 
 set -euo pipefail
 
@@ -37,6 +40,7 @@ install -d -m 2750 -o "$USER_" -g www-data "$BASE/daily"
 install -d -m 750 -o root -g www-data /etc/gornitsa-monitor
 install -d -m 755 "$LIB"
 install -m 755 "$SRC/monitor.py" "$LIB/monitor.py"
+install -m 755 "$SRC/sitestats.py" "$LIB/sitestats.py"
 install -m 755 "$SRC/nginx.sh" /usr/local/sbin/gornitsa-monitor-nginx
 install -m 755 "$SRC/password.sh" /usr/local/sbin/gornitsa-monitor-password
 
@@ -100,8 +104,43 @@ Persistent=true
 WantedBy=timers.target
 UNIT
 
+# Посещаемость сайта: журнал nginx читает группа adm; пишет — только в свою папку, сеть не нужна.
+cat > /etc/systemd/system/gornitsa-sitestats.service <<UNIT
+[Unit]
+Description=Посещаемость сайта без IP: суммы за сутки и неделя
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 ${LIB}/sitestats.py daily
+ExecStart=/usr/bin/python3 ${LIB}/sitestats.py week
+User=gornitsa-monitor
+Group=gornitsa-monitor
+SupplementaryGroups=adm www-data
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateNetwork=yes
+ReadOnlyPaths=/var/log/nginx /var/www
+ReadWritePaths=/var/lib/gornitsa-monitor
+Nice=10
+MemoryMax=128M
+UNIT
+
+cat > /etc/systemd/system/gornitsa-sitestats.timer <<'UNIT'
+[Unit]
+Description=Посещаемость сайта раз в сутки
+
+[Timer]
+OnCalendar=*-*-* 00:20:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+UNIT
+
 systemctl daemon-reload
-systemctl enable --now gornitsa-monitor.timer gornitsa-monitor-daily.timer
+systemctl enable --now gornitsa-monitor.timer gornitsa-monitor-daily.timer gornitsa-sitestats.timer
 
 echo "==> Мониторинг: сводки по адресу .well-known/monitor/"
 /usr/local/sbin/gornitsa-monitor-nginx
