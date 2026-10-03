@@ -4,7 +4,8 @@
 # Ставит deploy/monitor/setup.sh; вызывает gornitsa-monitor-password после смены пароля.
 #
 # Пишет /etc/nginx/snippets/gornitsa.games-monitor.conf: только по HTTPS и только с именем и паролем
-# из /etc/gornitsa-monitor/htpasswd; пока файла нет — 403 всем. Без пароля открыт один status.json —
+# из /etc/gornitsa-monitor/htpasswd; пока файла нет — 403 всем. Без пароля открыты site-week.json —
+# посещаемость сайта за неделю, только суммы (sitestats.py) — и status.json —
 # тревоги копий баз для регламентной задачи «Сторож»: только время и «ok», без чисел машины. Конфиг сайта подключает такие файлы
 # строкой `include /etc/nginx/snippets/gornitsa.games-*.conf;` (deploy/nginx/*.conf; в старый конфиг
 # на машине её добавляет uzory-nginx). Новый файл не прошёл `nginx -t` — возвращается прежний.
@@ -24,6 +25,18 @@ render() {
 # Тревоги сторожа — открыто: время снимка и чтения копий, integrity_check, список тревог.
 location = /.well-known/monitor/status.json {
     alias /var/lib/gornitsa-monitor/daily/status.json;
+    default_type application/json;
+    charset utf-8;
+    charset_types application/json;
+    add_header Cache-Control "no-store" always;
+    add_header X-Robots-Tag "noindex, nofollow" always;
+    include /etc/nginx/snippets/gornitsa-site-headers.conf;
+}
+
+# Посещаемость сайта за неделю — открыто: только суммы, без IP и браузеров (deploy/monitor/sitestats.py).
+# Её читает утренняя сводка по понедельникам (Nefeste/uprava, routines/morning-brief.md).
+location = /.well-known/monitor/site-week.json {
+    alias /var/lib/gornitsa-monitor/daily/site-week.json;
     default_type application/json;
     charset utf-8;
     charset_types application/json;

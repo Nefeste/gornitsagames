@@ -536,3 +536,13 @@ details.faq .answer { display: grid; gap: 10px; padding-top: 10px; color: var(--
 @media (prefers-reduced-motion: reduce) {
   .cell.pop::before, .cell.pop::after, .cell.miss { animation: none; }
 }
+
+/* Реквизиты продавца (tools/site.json, seller): подвал, поддержка, политика */
+.footer-seller { padding-bottom: 24px; }
+.seller { margin-top: 32px; display: grid; gap: 12px; }
+.seller h2 { font-size: var(--step-2); }
+
+/* «Коротко» на странице игры (tools/games.py, glance): заголовок над паспортом игры */
+.glance { display: grid; gap: 10px; }
+.glance h2 { font-size: var(--step-1); }
+.game-facts dd a { color: inherit; }

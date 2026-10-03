@@ -4,7 +4,7 @@ import hashlib, json, pathlib, re, sys
 root = pathlib.Path(__file__).parent
 sys.path.insert(0, str(root / "src"))
 sys.path.insert(0, str(root / "tools"))
-import news, partials
+import news, partials, seo
 
 SITE = "https://gornitsa.games"
 
@@ -88,6 +88,13 @@ def og_defaults(html, lang):
     return html.replace("</head>", "\n".join(add) + "\n</head>", 1) if add else html
 
 
+# Реквизиты продавца включены, но неполные — сайт не собирается (tools/site.json, partials.seller_errors).
+if partials.seller_errors():
+    sys.exit("\n".join(partials.seller_errors()))
+
+# /go/<игра> — переходы на RuStore (tools/seo.py): куда ведёт каждый.
+GO = seo.go_targets()
+
 # Старые адреса: страница копируется как есть и сразу переадресует на новый адрес.
 raw = ["votchina/privacy.html"]
 
@@ -119,12 +126,15 @@ for name, (key, base, lang, pair) in pages.items():
                 .replace("{{HEADER}}", partials.header(key, base, lang, url(pair)))
                 .replace("{{FOOTER}}", partials.footer(base, lang, GAMES[lang], url(pair)))
                 .replace("{{MARK}}", partials.BRAND)
+                .replace("{{SELLER}}", partials.seller(lang, "block"))
+                .replace("{{SELLER_PARA}}", partials.seller(lang, "para"))
                 .replace("{{NEWS}}", news.page(lang))
                 .replace("{{NEWS_LATEST}}\n", news.latest(lang, base)))
     if key != "404":
         html = og_defaults(html, lang)
     if key == "home":
         html = html.replace("</head>", partials.studio_ld(lang) + "\n</head>", 1)
+    html = seo.enrich(name, key, lang, html, GAMES[lang], GO)
     write(name, html)
 
 for name in raw:
@@ -136,3 +146,14 @@ for lang, name in (("ru", "news.atom"), ("en", "en/news.atom")):
     print("site/" + name)
     for err in news.load(lang)[1]:
         print("Новость пропущена — " + err, file=sys.stderr)
+
+# /go/<игра>: запасные страницы и сниппет nginx (ставит deploy/seo/apply.sh); /llms.txt — для ассистентов.
+for slug, target in GO.items():
+    write(f"go/{slug}.html", seo.go_page(slug, target))
+(root / "build").mkdir(exist_ok=True)
+(root / "build" / "go.conf").write_text(seo.go_nginx(GO), encoding="utf-8")
+print("build/go.conf")
+dev = partials.CONFIG["rustore_developer"].get("url", "")
+for lang, name in (("ru", "llms.txt"), ("en", "en/llms.txt")):
+    (root / "site" / name).write_text(seo.llms(lang, dev, partials.TELEGRAM, partials.VK), encoding="utf-8")
+    print("site/" + name)
