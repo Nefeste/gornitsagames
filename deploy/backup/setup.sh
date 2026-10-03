@@ -14,7 +14,9 @@
 #     /srv/backup/out/ГГГГ-ММ-ДД/, 14 дней (deploy/backup/snapshot.sh);
 #   - пользователь backup: без пароля и shell, только SFTP на чтение в chroot /srv/backup,
 #     только по ключу владельца (deploy/backup/sftp.sh); журнал чтений — через /srv/backup/dev/log;
-#   - sudo gornitsa-backup-keys — владелец вставляет свои открытые ключи SSH и age (keys.sh).
+#   - sudo gornitsa-backup-keys — владелец вставляет свои открытые ключи SSH и age (keys.sh);
+#   - gornitsa-backup-status.timer раз в 10 минут: тревоги для «Сторожа» в
+#     /var/lib/gornitsa-backup/public/status.json (status.py), без данных о людях.
 
 set -euo pipefail
 
@@ -60,6 +62,8 @@ echo "==> Копии баз: скрипты и таймер"
 install -m 755 "$SRC/snapshot.sh" /usr/local/sbin/gornitsa-backup
 install -m 755 "$SRC/keys.sh" /usr/local/sbin/gornitsa-backup-keys
 install -m 755 "$SRC/sftp.sh" /usr/local/sbin/gornitsa-backup-sftp
+install -d -m 755 /usr/local/lib/gornitsa-backup /var/lib/gornitsa-backup/public
+install -m 755 "$SRC/status.py" /usr/local/lib/gornitsa-backup/status.py
 
 cat > /etc/systemd/system/gornitsa-backup.service <<'UNIT'
 [Unit]
@@ -73,6 +77,31 @@ ProtectHome=yes
 PrivateTmp=yes
 Nice=10
 IOSchedulingClass=idle
+UNIT
+
+cat > /etc/systemd/system/gornitsa-backup-status.service <<'UNIT'
+[Unit]
+Description=Копии баз: тревоги для «Сторожа» (status.json без данных о людях)
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /usr/local/lib/gornitsa-backup/status.py
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ReadWritePaths=/var/lib/gornitsa-backup
+UNIT
+
+cat > /etc/systemd/system/gornitsa-backup-status.timer <<'UNIT'
+[Unit]
+Description=Тревоги копий баз раз в 10 минут
+
+[Timer]
+OnCalendar=*:0/10
+OnBootSec=2min
+
+[Install]
+WantedBy=timers.target
 UNIT
 
 cat > /etc/systemd/system/gornitsa-backup.timer <<'UNIT'
@@ -108,7 +137,8 @@ WantedBy=multi-user.target
 UNIT
 
 systemctl daemon-reload
-systemctl enable --now gornitsa-backup.timer srv-backup-dev-log.mount
+systemctl enable --now gornitsa-backup.timer gornitsa-backup-status.timer srv-backup-dev-log.mount
+systemctl start gornitsa-backup-status.service || true
 
 echo "==> Копии баз: SFTP только для чтения"
 /usr/local/sbin/gornitsa-backup-sftp
