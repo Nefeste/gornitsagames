@@ -100,6 +100,7 @@ deploy/
     keys.sh           открытые ключи владельца SSH и age: sudo gornitsa-backup-keys
     sftp.sh           backup — только SFTP на чтение, chroot /srv/backup
     targets.conf.example   какие базы снимать (на машине — /etc/gornitsa-backup/targets.conf)
+    status.py         тревоги копий для «Сторожа» раз в 10 минут — и здесь, и на машине «Сеней»
     check-backup.py   проверка восстановления — запускает владелец у себя раз в месяц
     owner/            забор копий на компьютер владельца: Windows (pull-backup.ps1), macOS
                       (pull-backup.sh и задание launchd)
@@ -304,7 +305,9 @@ Workflow «Проверка сайта» (`.github/workflows/site.yml`) на к�
 превышают службы со своим пределом памяти (`nardy`, `skazy` — 300 МБ), видно по `services`: тогда
 сначала смотрят предел службы, а не машину.
 
-Раздел `backup` в `latest.json` обновляется каждые 10 минут:
+Раздел `backup` в `latest.json` обновляется каждые 10 минут. Тревоги считает не мониторинг, а
+`gornitsa-backup-status` (`deploy/backup/status.py`, та же логика на машине «Сеней»); мониторинг
+переносит их сюда и добавляет свою тревогу, если они не обновлялись больше 30 минут. В разделе:
 - время последнего снимка копий баз;
 - `integrity_check` каждой базы;
 - время последнего чтения копий по SFTP — из журнала `internal-sftp`, сохраняется только время;
@@ -348,21 +351,19 @@ Workflow «Проверка сайта» (`.github/workflows/site.yml`) на к�
 - **Прежние копии.** Остаются как были: `/var/backups/<игра>/`, без шифрования, семь дней, на этой же
   машине — от ошибок, а не от потери машины.
 
+- **Тревоги для «Сторожа».** `gornitsa-backup-status.timer` раз в 10 минут пишет
+  `/var/lib/gornitsa-backup/public/status.json`. Пока владелец не вставил ключи —
+  `"configured": false`, это не тревога. Здесь файл отдаёт мониторинг (`/.well-known/monitor/status.json`),
+  на машине «Сеней» — их nginx (`/.well-known/backup-status.json`).
+
 Вручную: `sudo systemctl start gornitsa-backup`. Журнал: `journalctl -u gornitsa-backup -n 30`.
 Состояние: `cat /var/lib/gornitsa-backup/status.json`.
 
 **Машина «Сеней»** (`seni.gornitsa.games`, база `/var/lib/seni/seni.db`) — отдельная. Тот же набор
-ставится туда из клона этого репозитория:
-
-```bash
-sudo git clone https://github.com/Nefeste/gornitsagames.git /opt/gornitsa-backup-src
-sudo bash /opt/gornitsa-backup-src/deploy/backup/setup.sh   # список баз сам выберет seni
-sudo gornitsa-backup-keys
-```
-
-Само там ничего не обновляется: обновление — `git -C /opt/gornitsa-backup-src pull` и тот же
-`setup.sh`. Мониторинга и `status.json` на той машине нет. Включить набор в установщик «Сеней» —
-отдельный PR в `Nefeste/seni`.
+ставит её установщик: `deploy/gornitsa-backup.sh` в `Nefeste/seni` берёт `deploy/backup/` отсюда,
+с закреплённого там коммита. Поэтому новая версия `deploy/backup/` доходит до «Сеней» только PR-ом
+в `Nefeste/seni`, который меняет этот коммит. Ключи там — тоже `sudo gornitsa-backup-keys`;
+тревоги — https://seni.gornitsa.games/.well-known/backup-status.json.
 
 ## Сени — шлюз студии (отдельная машина)
 

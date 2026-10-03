@@ -11,7 +11,8 @@
 # Открытого снимка нигде не остаётся: он живёт во временной папке root и удаляется сразу.
 # Без открытого ключа владельца (recipients.txt) копии не делаются вовсе — незашифрованных нет.
 # manifest.json рядом: имя, размеры и sha256 снимка и файла, результат проверки. Копии — 14 дней.
-# Состояние для мониторинга (без данных о людях) — /var/lib/gornitsa-backup/status.json.
+# Состояние (без данных о людях) — /var/lib/gornitsa-backup/status.json; из него и журнала SFTP
+# gornitsa-backup-status (status.py) раз в 10 минут считает тревоги для «Сторожа».
 
 set -euo pipefail
 umask 077
@@ -27,7 +28,7 @@ DAY="$(TZ=Europe/Moscow date +%F)"
 NOW="$(date -Iseconds)"
 DEST="${OUT}/${DAY}"
 
-status() {   # $1: ok | error, $2: пояснение
+status() {   # $1: ok | error | nokeys (копии не включены: нет ключа владельца), $2: пояснение
   python3 - "$1" "$2" "${STATE}/status.json" "${DEST}/manifest.json" "$NOW" <<'PY'
 import json, os, sys
 result, note, path, manifest, now = sys.argv[1:]
@@ -50,7 +51,7 @@ install -d -m 755 "$STATE"
 
 if ! grep -q '^age1' "$RECIPIENTS" 2>/dev/null; then
   echo "Нет открытого ключа age владельца в ${RECIPIENTS} — копии не делаю (sudo gornitsa-backup-keys)" >&2
-  status error "нет открытого ключа age владельца"
+  status nokeys "нет открытого ключа age владельца"
   exit 1
 fi
 if [[ ! -s "$TARGETS" ]]; then

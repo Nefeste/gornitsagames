@@ -9,8 +9,8 @@
 Замеры — в SQLite /var/lib/gornitsa-monitor/monitor.db, хранятся 30 дней. Сводки —
 /var/lib/gornitsa-monitor/daily/ГГГГ-ММ-ДД.json и latest.json (последняя сводка и неделя для
 решения №17), хранятся год. Каждые 10 минут в latest.json обновляется раздел backup — копии баз
-(deploy/backup/): время последнего снимка, integrity_check каждой базы, время последнего чтения
-копий по SFTP; тревоги сторожа — ещё и в открытом status.json (без данных о людях). Ни адресов, ни имён, ни других данных о людях здесь нет: только числа
+(deploy/backup/, тревоги считает status.py оттуда): время последнего снимка, integrity_check
+каждой базы, время последнего чтения копий по SFTP; тревоги — ещё и в открытом status.json. Ни адресов, ни имён, ни других данных о людях здесь нет: только числа
 машины и служб; у событий OOM — только время и служба.
 """
 import datetime as dt
@@ -36,11 +36,10 @@ RAM_P95_LIMIT = 80.0
 CPU_P95_LIMIT = 70.0
 WEEK = 7
 
-# Копии баз (deploy/backup/, docs/backup.md): состояние пишет gornitsa-backup, чтения — журнал SFTP.
-BACKUP_STATUS = os.environ.get("BACKUP_STATUS", "/var/lib/gornitsa-backup/status.json")
-SNAPSHOT_MAX_HOURS = 26
-READ_MAX_DAYS = 3
-SFTP_READ = re.compile(r'^close "/out/\d{4}-\d{2}-\d{2}/[^"]+\.age" bytes read ([1-9]\d*)')
+# Копии баз (deploy/backup/, docs/backup.md): тревоги считает gornitsa-backup-status (status.py) —
+# одна логика и здесь, и на машине «Сеней»; мониторинг только переносит их в latest.json и status.json.
+BACKUP_PUBLIC = os.environ.get("BACKUP_PUBLIC", "/var/lib/gornitsa-backup/public/status.json")
+BACKUP_STALE_MINUTES = 30
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS host (
@@ -171,67 +170,23 @@ def journal_text(e):
     return msg
 
 
-def read_sftp(con):
-    """Время последнего чтения копии по SFTP (internal-sftp -l INFO, deploy/backup/sftp.sh).
-    Из строки берётся только время: адрес и имя файла не сохраняются."""
-    cursor = get_state(con, "sftp_cursor")
-    base = ["journalctl", "-o", "json", "-q", "--no-pager", "SYSLOG_IDENTIFIER=internal-sftp"]
-    p = run(base + (["--after-cursor", cursor] if cursor else ["--since", "-4d"]))
-    if p.returncode != 0 and cursor:
-        p = run(base + ["--since", "-4d"])
-    last = get_state(con, "sftp_last_read") or 0
-    for line in p.stdout.splitlines():
-        try:
-            e = json.loads(line)
-        except ValueError:
-            continue
-        cursor = e.get("__CURSOR", cursor)
-        if SFTP_READ.match(journal_text(e)):
-            last = max(last, int(e.get("__REALTIME_TIMESTAMP", time.time() * 1e6)) // 1_000_000)
-    if cursor:
-        set_state(con, "sftp_cursor", cursor)
-    if last:
-        set_state(con, "sftp_last_read", last)
-    return last
-
-
-def iso(ts):
-    return dt.datetime.fromtimestamp(ts).astimezone().isoformat(timespec="seconds") if ts else None
-
-
-def backup_state(con, now):
-    """Раздел backup для latest.json и тревоги для сторожа."""
-    last_read = get_state(con, "sftp_last_read") or 0
+def backup_state(now):
+    """Раздел backup для latest.json: файл gornitsa-backup-status как есть, плюс тревога, если он
+    давно не обновлялся (таймер встал)."""
     try:
-        with open(BACKUP_STATUS) as f:
+        with open(BACKUP_PUBLIC) as f:
             st = json.load(f)
     except (OSError, ValueError):
-        st = None
-    alarms = []
-    if st is None:
         return {"configured": False, "alarms": []}
-    snap_ts = dt.datetime.fromisoformat(st["time"]).timestamp()
-    age_h = round((now - snap_ts) / 3600, 1)
-    if age_h > SNAPSHOT_MAX_HOURS:
-        alarms.append(f"снимок старше {SNAPSHOT_MAX_HOURS} ч")
-    if st.get("result") != "ok":
-        alarms.append(f"снимок с ошибкой: {st.get('note') or 'см. manifest.json'}")
-    bad = [d["name"] for d in st.get("dbs", []) if d.get("integrity") not in ("ok", "нет файла")]
-    if bad:
-        alarms.append("integrity_check не ok: " + ", ".join(bad))
-    read_age_d = round((now - last_read) / 86400, 1) if last_read else None
-    if read_age_d is None or read_age_d > READ_MAX_DAYS:
-        alarms.append(f"копии не забирали по SFTP больше {READ_MAX_DAYS} суток")
-    return {
-        "configured": True,
-        "last_snapshot": st["time"],
-        "snapshot_age_hours": age_h,
-        "result": st.get("result"),
-        "integrity": {d["name"]: d.get("integrity") for d in st.get("dbs", [])},
-        "last_sftp_read": iso(last_read),
-        "sftp_read_age_days": read_age_d,
-        "alarms": alarms,
-    }
+    st = {k: v for k, v in st.items() if k not in ("ok", "host")}
+    st["alarms"] = list(st.get("alarms", []))
+    try:
+        gen = dt.datetime.fromisoformat(st.get("generated")).timestamp()
+    except (TypeError, ValueError):
+        gen = 0
+    if st.get("configured") and now - gen > BACKUP_STALE_MINUTES * 60:
+        st["alarms"].append(f"тревоги копий не обновлялись больше {BACKUP_STALE_MINUTES} минут")
+    return st
 
 
 def collect():
@@ -283,9 +238,7 @@ def collect():
     con.executemany("INSERT INTO oom VALUES (?, ?)", read_oom(con))
 
     if ts % 600 == 0 or not os.path.exists(os.path.join(DAILY, "status.json")):   # раз в 10 минут
-        read_sftp(con)
-        con.commit()
-        write_latest(backup_state(con, now))
+        write_latest(backup_state(now))
 
     old = ts - KEEP_SAMPLES
     for table in ("host", "svc", "oom"):
@@ -402,9 +355,7 @@ DAY_FILE = re.compile(r"^(\d{4}-\d{2}-\d{2})\.json$")
 def write_latest(backup=None):
     os.makedirs(DAILY, exist_ok=True)
     if backup is None:
-        con = connect()
-        backup = backup_state(con, time.time())
-        con.close()
+        backup = backup_state(time.time())
     # Открытый файл для сторожа: только тревоги и время, без чисел машины и данных о людях.
     write_json(os.path.join(DAILY, "status.json"), {
         "generated": dt.datetime.now().astimezone().isoformat(timespec="seconds"),
