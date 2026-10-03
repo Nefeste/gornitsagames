@@ -94,6 +94,16 @@ deploy/
     monitor.py        замеры в SQLite и сводки за сутки — только стандартная библиотека Python
     nginx.sh          /.well-known/monitor/ в nginx сайта: только HTTPS и по паролю
     password.sh       имя и пароль владельца: sudo gornitsa-monitor-password
+  backup/             копии баз на компьютер владельца по SFTP (см. «Копии баз»)
+    setup.sh          настройка: sqlite3, age, таймер в 03:30 по Москве, пользователь backup
+    snapshot.sh       снимок, integrity_check, gzip и age, manifest.json: sudo gornitsa-backup
+    keys.sh           открытые ключи владельца SSH и age: sudo gornitsa-backup-keys
+    sftp.sh           backup — только SFTP на чтение, chroot /srv/backup
+    targets.conf.example   какие базы снимать (на машине — /etc/gornitsa-backup/targets.conf)
+    check-backup.py   проверка восстановления — запускает владелец у себя раз в месяц
+    owner/            забор копий на компьютер владельца: Windows (pull-backup.ps1), macOS
+                      (pull-backup.sh и задание launchd)
+docs/backup.md        инструкция владельцу: ключи, забор копий, где хранить, проверка восстановления
 ```
 
 ## Как посмотреть локально
@@ -294,7 +304,65 @@ Workflow «Проверка сайта» (`.github/workflows/site.yml`) на к�
 превышают службы со своим пределом памяти (`nardy`, `skazy` — 300 МБ), видно по `services`: тогда
 сначала смотрят предел службы, а не машину.
 
+Раздел `backup` в `latest.json` обновляется каждые 10 минут:
+- время последнего снимка копий баз;
+- `integrity_check` каждой базы;
+- время последнего чтения копий по SFTP — из журнала `internal-sftp`, сохраняется только время;
+- тревоги.
+
+Те же тревоги, без чисел машины, — в **открытом** https://gornitsa.games/.well-known/monitor/status.json
+(`"ok": true` или список `alarms`). Его читает регламентная задача «Сторож» в `Nefeste/uprava`.
+Тревога, если:
+- снимок старше 26 часов;
+- снимок с ошибкой или `integrity_check` не `ok`;
+- копии не забирали больше 3 суток.
+
 Журнал: `journalctl -u gornitsa-monitor -u gornitsa-monitor-daily -n 30`.
+
+## Копии баз
+
+Решение владельца №15: копии баз хранятся на личном компьютере владельца и забираются по SFTP.
+Инструкция владельцу — [`docs/backup.md`](docs/backup.md). Всё ставит `deploy/backup/setup.sh`; его
+запускает автообновление сайта при каждом изменении `deploy/backup/`.
+
+- **Снимок.** `gornitsa-backup.timer` в 03:30 по Москве снимает каждую базу из
+  `/etc/gornitsa-backup/targets.conf` («имя путь», пример — `deploy/backup/targets.conf.example`).
+  На этой машине это `votchina`, `nardy` и `skazy`, база `/var/lib/<игра>/<игра>.db`.
+  - Снимок — `sqlite3 ".backup"` от имени владельца файла базы: согласованный, без остановки
+    службы и без файлов root рядом с базой.
+  - Затем `PRAGMA integrity_check`, `gzip` и `age -R /etc/gornitsa-backup/recipients.txt` — открытый
+    ключ владельца. Результат — `/srv/backup/out/ГГГГ-ММ-ДД/<имя>.db.gz.age` и `manifest.json`
+    (имя, размеры и sha256 снимка и файла, итог проверки). Хранится 14 дней.
+  - Открытый снимок живёт только во временной папке root и сразу удаляется.
+  - Без ключа age копии не делаются вовсе: незашифрованных копий вне машины нет.
+- **Выдача по SFTP.** Пользователь `backup` (системный пользователь Debian, без пароля и shell)
+  входит только по ключу владельца из `/etc/gornitsa-backup/owner-ssh.pub`, с `restrict`.
+  - `/etc/ssh/sshd_config.d/backup.conf`: chroot `/srv/backup`, `ForceCommand internal-sftp -R -l INFO`,
+    без пересылки портов, агента, X11 и tty.
+  - `out/` принадлежит `root:backup`: `backup` читает, писать не может.
+  - Журнал чтений идёт в journald через `/srv/backup/dev/log` (`srv-backup-dev-log.mount`): изнутри
+    chroot `internal-sftp` иначе не пишет журнал.
+- **Ключи владельца** — только открытые, только на машине, в репозитории их нет:
+  `sudo gornitsa-backup-keys`. Пока ключей нет, копии не делаются и не выдаются, а сторож
+  показывает тревогу.
+- **Прежние копии.** Остаются как были: `/var/backups/<игра>/`, без шифрования, семь дней, на этой же
+  машине — от ошибок, а не от потери машины.
+
+Вручную: `sudo systemctl start gornitsa-backup`. Журнал: `journalctl -u gornitsa-backup -n 30`.
+Состояние: `cat /var/lib/gornitsa-backup/status.json`.
+
+**Машина «Сеней»** (`seni.gornitsa.games`, база `/var/lib/seni/seni.db`) — отдельная. Тот же набор
+ставится туда из клона этого репозитория:
+
+```bash
+sudo git clone https://github.com/Nefeste/gornitsagames.git /opt/gornitsa-backup-src
+sudo bash /opt/gornitsa-backup-src/deploy/backup/setup.sh   # список баз сам выберет seni
+sudo gornitsa-backup-keys
+```
+
+Само там ничего не обновляется: обновление — `git -C /opt/gornitsa-backup-src pull` и тот же
+`setup.sh`. Мониторинга и `status.json` на той машине нет. Включить набор в установщик «Сеней» —
+отдельный PR в `Nefeste/seni`.
 
 ## Сени — шлюз студии (отдельная машина)
 

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Забор копий баз «Горницы» раз в сутки в 10:00 — macOS, launchd (docs/backup.md, шаг 4).
+     Положить в ~/Library/LaunchAgents/ и заменить ИМЯ на своё имя пользователя macOS.
+     Компьютер спал в 10:00 — launchd запустит задание, когда он проснётся. -->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>games.gornitsa.backup</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>/Users/ИМЯ/Gornitsa/pull-backup.sh</string>
+  </array>
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key>
+    <integer>10</integer>
+    <key>Minute</key>
+    <integer>0</integer>
+  </dict>
+  <key>StandardErrorPath</key>
+  <string>/Users/ИМЯ/GornitsaBackup/launchd.err</string>
+</dict>
+</plist>

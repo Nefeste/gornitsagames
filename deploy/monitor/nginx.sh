@@ -4,7 +4,8 @@
 # Ставит deploy/monitor/setup.sh; вызывает gornitsa-monitor-password после смены пароля.
 #
 # Пишет /etc/nginx/snippets/gornitsa.games-monitor.conf: только по HTTPS и только с именем и паролем
-# из /etc/gornitsa-monitor/htpasswd; пока файла нет — 403 всем. Конфиг сайта подключает такие файлы
+# из /etc/gornitsa-monitor/htpasswd; пока файла нет — 403 всем. Без пароля открыт один status.json —
+# тревоги копий баз для регламентной задачи «Сторож»: только время и «ok», без чисел машины. Конфиг сайта подключает такие файлы
 # строкой `include /etc/nginx/snippets/gornitsa.games-*.conf;` (deploy/nginx/*.conf; в старый конфиг
 # на машине её добавляет uzory-nginx). Новый файл не прошёл `nginx -t` — возвращается прежний.
 
@@ -19,6 +20,17 @@ render() {
   cat <<'CONF'
 # Мониторинг машины: сводки по паролю. Файл пишет /usr/local/sbin/gornitsa-monitor-nginx
 # (репозиторий gornitsagames, deploy/monitor/nginx.sh) — правки здесь затрутся.
+
+# Тревоги сторожа — открыто: время снимка и чтения копий, integrity_check, список тревог.
+location = /.well-known/monitor/status.json {
+    alias /var/lib/gornitsa-monitor/daily/status.json;
+    default_type application/json;
+    charset utf-8;
+    charset_types application/json;
+    add_header Cache-Control "no-store" always;
+    add_header X-Robots-Tag "noindex, nofollow" always;
+    include /etc/nginx/snippets/gornitsa-site-headers.conf;
+}
 CONF
   if [[ ! -s "$PASSWD" ]]; then
     cat <<'CONF'

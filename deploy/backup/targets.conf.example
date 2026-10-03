@@ -1,0 +1,12 @@
+# Базы SQLite, которые gornitsa-backup снимает раз в сутки: «имя путь», по строке на базу.
+# На машине: /etc/gornitsa-backup/targets.conf (setup.sh кладёт этот пример, если файла нет;
+# дальше файл правится только на машине). Имя — латиница, цифры, - и _; оно же имя файла копии.
+# Базы, которой ещё нет на диске, пропускаются без ошибки.
+
+# Машина сайта и игр (gornitsa.games):
+votchina /var/lib/votchina/votchina.db
+nardy    /var/lib/nardy/nardy.db
+skazy    /var/lib/skazy/skazy.db
+
+# Машина «Сеней» (seni.gornitsa.games) — там вместо строк выше одна:
+# seni     /var/lib/seni/seni.db
