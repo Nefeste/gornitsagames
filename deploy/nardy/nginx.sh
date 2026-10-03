@@ -90,6 +90,14 @@ CONF
       echo "    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;"
     fi
     echo
+    # HSTS: браузер ходит сюда только по HTTPS (год). Заголовок сервера игры, если он есть,
+    # скрываем, чтобы он не пришёл дважды; место ключей со своим add_header его не наследует,
+    # но браузеру хватает одного ответа.
+    cat <<'CONF'
+    add_header Strict-Transport-Security "max-age=31536000" always;
+    proxy_hide_header Strict-Transport-Security;
+
+CONF
     common
     echo "}"
   else
