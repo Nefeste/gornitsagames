@@ -50,6 +50,7 @@ tools/
   brand-assets.mjs    рисует картинку для ссылок и значки из знака и шрифтов сайта (Playwright)
 games.lock.json       из какого коммита игры и из каких файлов собраны её страница и картинки
 .github/workflows/games.yml   «Страницы игр»: каждую ночь — PR «Сайт: обновления игр»
+.github/workflows/site.yml    «Проверка сайта»: на каждый PR — build.py, check.py, shellcheck (см. «Проверка PR»)
 deploy/
   setup-server.sh     первичная настройка VPS: nginx, HTTPS, файрвол
   deploy.sh           выкладка сайта со своего компьютера
@@ -83,6 +84,11 @@ deploy/
     pull.sh           сборка из ветки vps (каждые 5 минут)
     nginx.sh          /uzory/test/ в nginx сайта: только HTTPS и по паролю
     password.sh       имя и пароль владельца: sudo uzory-password
+  monitor/            мониторинг ресурсов машины (см. «Мониторинг машины»)
+    setup.sh          настройка: пользователь, таймеры раз в минуту и раз в сутки
+    monitor.py        замеры в SQLite и сводки за сутки — только стандартная библиотека Python
+    nginx.sh          /.well-known/monitor/ в nginx сайта: только HTTPS и по паролю
+    password.sh       имя и пароль владельца: sudo gornitsa-monitor-password
 ```
 
 ## Как посмотреть локально
@@ -161,7 +167,7 @@ HTML и картинок.
 
 ### 4. Публикация исходников на GitHub
 
-Сервер забирает сайт из репозитория, поэтому сначала отправьте код на GitHub. Репозиторий должен быть публичным (в нём нет паролей и ключей, только сайт):
+Сервер забирает сайт из репозитория, поэтому сначала отправьте код на GitHub. Репозиторий должен быть публичным (в нём нет паролей и ключей, только сайт): `bootstrap.sh` и автообновление читают его по HTTPS без ключа. Так и есть — репозиторий снова открыт (решение владельца №1); 03.10.2026 проверено, что `git clone https://github.com/Nefeste/gornitsagames.git` и `raw.githubusercontent.com/…/deploy/bootstrap.sh` работают без входа.
 
 ```bash
 git remote add origin https://github.com/Nefeste/gornitsagames.git
@@ -180,11 +186,58 @@ curl -fsSL https://raw.githubusercontent.com/Nefeste/gornitsagames/main/deploy/b
 
 ### 6. Обновления сайта
 
-Просто делайте `git push` в ветку `main`: сервер проверяет GitHub каждые 5 минут и выкладывает новую версию сам. Журнал: `journalctl -u gornitsa-update -n 50`. Скрипт автообновления тоже берётся из репозитория (`deploy/update-site.sh`), а при изменении `deploy/votchina/`, `deploy/nardy/`, `deploy/skazy/` или `deploy/uzory/` он доводит настройку сервера этой игры.
+Просто делайте `git push` в ветку `main`: сервер проверяет GitHub каждые 5 минут и выкладывает новую версию сам. Журнал: `journalctl -u gornitsa-update -n 50`. Скрипт автообновления тоже берётся из репозитория (`deploy/update-site.sh`), а при изменении `deploy/votchina/`, `deploy/nardy/`, `deploy/skazy/` или `deploy/uzory/` он доводит настройку сервера этой игры, при изменении `deploy/monitor/` — мониторинга машины.
 
 Настройка nginx самого сайта тоже идёт из репозитория: при изменении `deploy/nginx/` (и когда сертификат уже выпущен) `update-site.sh` запускает `deploy/nginx/apply.sh`. Тот сохраняет нынешние файлы, ставит `gornitsa.games.https.conf` как `/etc/nginx/sites-available/gornitsa.games.conf`, заголовки и места — в `/etc/nginx/snippets/gornitsa-site-*.conf` (`server_tokens off` — в самом конфиге сайта: в `http{}` машины он уже задан, второй раз там nginx не пропускает), проверяет `nginx -t`, перезагружает nginx и убеждается, что `https://gornitsa.games/` отвечает 200, а `http://` — 301. Что-то не так — всё возвращается как было, а в `/var/lib/gornitsa-nginx-site` пишется `failed <версия>`: эту версию скрипт больше не пробует, пока `deploy/nginx/` не поменяется снова. Блоки сертификата в конфиге — в том виде, в каком их пишет certbot, поэтому продление работает по-прежнему. Заголовки безопасности — в `headers.conf` и подключаются в каждом `location`: nginx не складывает `add_header` сервера и места, и заголовки на уровне сервера молча пропадали бы.
 
 Если репозиторий нужен закрытым, сайт можно выкладывать со своего компьютера: `./deploy/deploy.sh IP_СЕРВЕРА` (нужен SSH-доступ пользователем deploy, его создаёт `deploy/setup-server.sh`).
+
+## Проверка PR
+
+Workflow «Проверка сайта» (`.github/workflows/site.yml`) на каждый PR и push в `main` на `ubuntu-24.04`
+собирает сайт (`python3 build.py`), проверяет его (`python3 tools/check.py`) и скрипты сервера
+(`shellcheck deploy/**/*.sh`) — то же, что стоит прогнать у себя перед push. Секретов у него нет,
+права — только чтение. Сборка — меньше минуты, а у открытого репозитория минуты Actions не тратятся,
+поэтому правило устава «CI только после слияния» (оно про сборки APK закрытых игр) здесь не мешает.
+
+## Мониторинг машины
+
+Одна машина держит сайт и серверы игр. Мониторинг (решение владельца №16) показывает, хватает ли ей
+ресурсов: по нему владелец решает, нужна ли машине память или процессор (решение №17 ждёт этих данных).
+
+Всё ставит `deploy/monitor/setup.sh` (его запускает автообновление сайта при каждом изменении
+`deploy/monitor/`), код — `deploy/monitor/monitor.py`, без сторонних библиотек:
+
+- `gornitsa-monitor.timer` раз в минуту пишет в SQLite `/var/lib/gornitsa-monitor/monitor.db`:
+  загрузку CPU (и доли iowait и steal — время, которое у машины забирает провайдер), load average,
+  RAM used и available, swap (занято и сколько страниц ушло и вернулось за минуту), диск `/`,
+  для служб `votchina`, `nardy`, `skazy`, `nginx` — `MemoryCurrent` и `CPUUsageNSec` из systemd
+  (CPU службы — доля всей машины за минуту), события OOM из журнала ядра — время и служба. Хранится
+  30 дней. Адресов, имён, запросов и других данных о людях там нет.
+- `gornitsa-monitor-daily.timer` в 00:05 пишет сводку за прошедшие сутки (по часам машины)
+  в `/var/lib/gornitsa-monitor/daily/ГГГГ-ММ-ДД.json`: p50, p95 и max каждого числа, число OOM и
+  swap-событий (минут, когда страницы уходили в swap или возвращались), и `latest.json` — последнюю
+  сводку и неделю для решения №17. Сводки хранятся год. Пропущенные сутки (машина была выключена)
+  он досчитывает сам; вручную: `sudo systemctl start gornitsa-monitor-daily`.
+- Сводки — по адресу https://gornitsa.games/.well-known/monitor/latest.json (и `…/monitor/ГГГГ-ММ-ДД.json`):
+  только по HTTPS и только с именем и паролем, как `/uzory/test/`. Пароль задаёт владелец на сервере:
+  `sudo gornitsa-monitor-password` (не короче 12 знаков; в `/etc/gornitsa-monitor/htpasswd` — только
+  хеш). Пока пароля нет — 403 всем. Посмотреть: `curl -u ИМЯ https://gornitsa.games/.well-known/monitor/latest.json`.
+
+**Порог для решения №17.** Машине нужны ресурсы, если **неделю подряд** (семь сводок подряд) каждый
+день выполнено хотя бы одно:
+
+- RAM p95 выше 80 %;
+- был swap (хотя бы одно swap-событие) или OOM;
+- CPU p95 выше 70 %.
+
+`latest.json` считает это сам: у каждой сводки `over_threshold` и `reasons`, а в `decision17` —
+сколько дней подряд порог превышен (`days_in_a_row`) и выполнено ли условие (`met`). Пропущенный
+день прерывает счёт. Сутки с неполными замерами видны по `samples` (полные — 1440). Если порог
+превышают службы со своим пределом памяти (`nardy`, `skazy` — 300 МБ), видно по `services`: тогда
+сначала смотрят предел службы, а не машину.
+
+Журнал: `journalctl -u gornitsa-monitor -u gornitsa-monitor-daily -n 30`.
 
 ## Сени — шлюз студии (отдельная машина)
 
@@ -246,11 +299,13 @@ curl -fsSL https://raw.githubusercontent.com/Nefeste/gornitsagames/main/deploy/s
   — validator.schema.org или «Валидатор микроразметки» Яндекс Вебмастера.
 - Игра без `store/site/page.ru.md` не трогается; игра с ошибками в папке пропускается, причина —
   в описании PR. Без `page.en.md` английская страница не меняется.
-- Закрытые `nardy` и `votchina` workflow читает токеном из секрета `GAMES_READ_TOKEN`:
-  fine-grained, только чтение содержимого этих двух репозиториев, действует до 28.09.2027.
-  Продлевает владелец: новый токен с теми же правами (github.com → Settings → Developer settings →
-  Fine-grained tokens) — и новое значение секрета в Settings → Secrets and variables → Actions.
-  Без токена закрытые игры пропускаются.
+- Закрытые `nardy`, `votchina` и `skazy` (`"private": true` в `tools/games.json`) workflow читает
+  токеном из секрета `GAMES_READ_TOKEN`: fine-grained, только чтение содержимого (Contents: Read)
+  этих репозиториев, действует до 28.09.2027. Права и срок меняет владелец: github.com → Settings →
+  Developer settings → Fine-grained tokens → токен → Repository access — добавить репозиторий (так
+  в него добавляется `Nefeste/skazy`); новый токен — новое значение секрета в Settings → Secrets and
+  variables → Actions. Без токена или без права на репозиторий игра пропускается (предупреждение
+  в журнале запуска), а её страница на сайте остаётся прежней.
 - Чтобы workflow мог открыть PR, в Settings → Actions → General → Workflow permissions включено
   «Allow GitHub Actions to create and approve pull requests».
 - В открытом репозитории без коммитов 60 дней GitHub выключает расписание; тогда — Actions →
