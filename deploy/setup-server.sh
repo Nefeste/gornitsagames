@@ -11,6 +11,10 @@
 #      сертификата настройку с HTTPS ставит deploy/nginx/apply.sh из update-site.sh.
 #   4. Открывает в файрволе только SSH, 80 и 443.
 #   5. Если DNS уже указывает на этот сервер — выпускает бесплатный сертификат Let's Encrypt.
+#   6. Вход на сервер (аудит 03.10.2026, раздел 4): пользователь ADMIN_USER (по умолчанию gornitsa)
+#      с ключами root и sudo; SSH только по ключам; root входит только по ключу, а после проверки
+#      владельцем (sudo gornitsa-ssh ok) — не входит совсем (deploy/ssh.sh); fail2ban на SSH.
+#      Порядок для владельца, чтобы не потерять доступ, — README, «Вход на сервер».
 # Скрипт можно запускать повторно: он ничего не ломает, а просто доводит настройку.
 
 set -euo pipefail
@@ -18,6 +22,8 @@ set -euo pipefail
 DOMAIN="${DOMAIN:-gornitsa.games}"
 EMAIL="${EMAIL:-dev@gornitsa.games}"   # почта аккаунта Let's Encrypt — ящик разработчика студии (устав, docs/03-team.md)
 DEPLOY_USER="${DEPLOY_USER:-deploy}"
+# Имя запоминается в /etc/gornitsa/ssh-admin: повторный запуск без ADMIN_USER берёт его оттуда.
+ADMIN_USER="${ADMIN_USER:-$(cat /etc/gornitsa/ssh-admin 2>/dev/null || echo gornitsa)}"
 WEBROOT="/var/www/${DOMAIN}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
@@ -30,7 +36,7 @@ echo "==> Обновляю систему и ставлю пакеты"
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -q
 apt-get -y -q upgrade
-apt-get -y -q install nginx certbot python3-certbot-nginx ufw rsync unattended-upgrades curl
+apt-get -y -q install nginx certbot python3-certbot-nginx ufw rsync unattended-upgrades curl fail2ban python3-systemd
 
 echo "==> Включаю автоматические обновления безопасности"
 cat > /etc/apt/apt.conf.d/20auto-upgrades <<'CONF'
@@ -38,24 +44,49 @@ APT::Periodic::Update-Package-Lists "1";
 APT::Periodic::Unattended-Upgrade "1";
 CONF
 
+# Ключи root — пользователю $1 (только те, которых у него ещё нет). Ключи с ограничениями
+# (command=… — так некоторые провайдеры пишут «войдите как ubuntu») не переносятся.
+copy_root_keys() {
+  local user="$1" home
+  home="$(getent passwd "$user" | cut -d: -f6)"
+  install -d -m 700 -o "$user" -g "$user" "$home/.ssh"
+  if [[ ! -f /root/.ssh/authorized_keys ]]; then
+    echo "   ВНИМАНИЕ: у root нет SSH-ключей, добавьте свой ключ в $home/.ssh/authorized_keys вручную."
+    return 0
+  fi
+  touch "$home/.ssh/authorized_keys"
+  while IFS= read -r key; do
+    [[ -z "$key" || "$key" == \#* ]] && continue
+    if [[ "$key" == *command=* ]]; then
+      echo "   Ключ root с command=… пользователю $user не переношу"
+      continue
+    fi
+    grep -qxF "$key" "$home/.ssh/authorized_keys" || echo "$key" >> "$home/.ssh/authorized_keys"
+  done < /root/.ssh/authorized_keys
+  chown "$user:$user" "$home/.ssh/authorized_keys"
+  chmod 600 "$home/.ssh/authorized_keys"
+}
+
 echo "==> Пользователь ${DEPLOY_USER} для выкладки сайта"
 if ! id -u "${DEPLOY_USER}" >/dev/null 2>&1; then
   adduser --disabled-password --gecos "" "${DEPLOY_USER}"
 fi
-install -d -m 700 -o "${DEPLOY_USER}" -g "${DEPLOY_USER}" "/home/${DEPLOY_USER}/.ssh"
-if [[ -f /root/.ssh/authorized_keys ]]; then
-  # Копируем ключи root, если у deploy их ещё нет. Дополнительные ключи (например, для GitHub Actions)
-  # можно дописать в /home/deploy/.ssh/authorized_keys вручную.
-  touch "/home/${DEPLOY_USER}/.ssh/authorized_keys"
-  while IFS= read -r key; do
-    [[ -z "$key" ]] && continue
-    grep -qxF "$key" "/home/${DEPLOY_USER}/.ssh/authorized_keys" || echo "$key" >> "/home/${DEPLOY_USER}/.ssh/authorized_keys"
-  done < /root/.ssh/authorized_keys
-  chown "${DEPLOY_USER}:${DEPLOY_USER}" "/home/${DEPLOY_USER}/.ssh/authorized_keys"
-  chmod 600 "/home/${DEPLOY_USER}/.ssh/authorized_keys"
-else
-  echo "   ВНИМАНИЕ: у root нет SSH-ключей, добавьте свой ключ в /home/${DEPLOY_USER}/.ssh/authorized_keys вручную."
+# Дополнительные ключи (например, для GitHub Actions) можно дописать в /home/deploy/.ssh/authorized_keys.
+copy_root_keys "${DEPLOY_USER}"
+
+echo "==> Пользователь ${ADMIN_USER} для входа владельца (sudo)"
+if ! id -u "${ADMIN_USER}" >/dev/null 2>&1; then
+  adduser --disabled-password --gecos "" "${ADMIN_USER}"
 fi
+usermod -aG sudo "${ADMIN_USER}"
+copy_root_keys "${ADMIN_USER}"
+# Пароля у пользователя нет (вход только по ключу), поэтому sudo — без пароля.
+SUDOERS=/etc/sudoers.d/90-gornitsa-admin
+printf '%s ALL=(ALL:ALL) NOPASSWD: ALL\n' "${ADMIN_USER}" > "${SUDOERS}.tmp"
+chmod 440 "${SUDOERS}.tmp"
+if visudo -cqf "${SUDOERS}.tmp"; then mv -f "${SUDOERS}.tmp" "${SUDOERS}"; else rm -f "${SUDOERS}.tmp"; echo "   sudoers не прошёл проверку — sudo для ${ADMIN_USER} не настроен" >&2; fi
+install -d -m 755 /etc/gornitsa
+echo "${ADMIN_USER}" > /etc/gornitsa/ssh-admin
 
 echo "==> Папка сайта ${WEBROOT}"
 install -d -m 755 -o "${DEPLOY_USER}" -g www-data "${WEBROOT}"
@@ -86,6 +117,42 @@ echo "==> Файрвол: только SSH, HTTP и HTTPS"
 ufw allow OpenSSH
 ufw allow 'Nginx Full'
 ufw --force enable
+
+echo "==> Вход на сервер: только по ключам"
+install -m 755 "${SCRIPT_DIR}/ssh.sh" /usr/local/sbin/gornitsa-ssh
+ADMIN_USER="${ADMIN_USER}" /usr/local/sbin/gornitsa-ssh || echo "   Настройка SSH не удалась — вход остался прежним" >&2
+
+echo "==> fail2ban: бан адресов, которые подбирают вход по SSH"
+# Адреса в базе fail2ban — не дольше трёх дней, как журналы nginx (устав, docs/07-privacy.md);
+# свой журнал fail2ban пишет в journald, а не в /var/log/fail2ban.log на четыре недели.
+cat > /etc/fail2ban/fail2ban.d/gornitsa.local <<'CONF'
+# Пишет deploy/setup-server.sh (репозиторий gornitsagames) — правки здесь затрутся.
+[DEFAULT]
+logtarget = SYSTEMD-JOURNAL
+dbpurgeage = 3d
+CONF
+cat > /etc/fail2ban/jail.d/gornitsa.local <<'CONF'
+# Пишет deploy/setup-server.sh (репозиторий gornitsagames) — правки здесь затрутся.
+[DEFAULT]
+banaction = ufw
+bantime = 1h
+bantime.increment = true
+bantime.maxtime = 3d
+findtime = 10m
+maxretry = 5
+
+[sshd]
+enabled = true
+backend = systemd
+CONF
+if fail2ban-client -t >/dev/null; then
+  systemctl enable fail2ban >/dev/null 2>&1 || true
+  systemctl restart fail2ban
+  echo "   fail2ban: SSH — пять неудачных попыток за 10 минут, бан от часа до трёх дней"
+else
+  fail2ban-client -t || true
+  echo "   fail2ban: настройка не прошла проверку — посмотрите вывод выше" >&2
+fi
 
 echo "==> Проверяю DNS"
 SERVER_IP="$(curl -4 -fsS --max-time 10 https://ifconfig.me 2>/dev/null || hostname -I | awk '{print $1}')"
