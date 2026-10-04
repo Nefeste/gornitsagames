@@ -8,8 +8,9 @@
 #
 # Что настраивает:
 #   - пакеты sqlite3 и age;
-#   - /etc/gornitsa-backup/targets.conf — список баз (из targets.conf.example: только те, чья
-#     папка есть на этой машине; дальше файл правится на машине);
+#   - /etc/gornitsa-backup/targets.conf — что снимать: базы и архив настроек машины с секретами
+#     служб (из targets.conf.example: только то, что есть на этой машине; дальше файл правится
+#     на машине, архив настроек дописывается и в старый список);
 #   - gornitsa-backup.timer в 03:30 по Москве: снимок, проверка, gzip и age в
 #     /srv/backup/out/ГГГГ-ММ-ДД/, 14 дней (deploy/backup/snapshot.sh);
 #   - пользователь backup: без пароля и shell, только SFTP на чтение в chroot /srv/backup,
@@ -46,16 +47,34 @@ install -d -m 755 -o root -g root /srv /srv/backup
 install -d -m 750 -o root -g backup /srv/backup/out
 install -d -m 755 -o root -g root "$ETC" /var/lib/gornitsa-backup
 
+# Строки примера, подходящие этой машине: база — если есть её папка, архив файлов — если есть
+# первый путь (/etc/votchina на машине сайта, /etc/seni у «Сеней»).
+fitting() {
+  sed -E 's/^# (seni(-config)?[[:space:]])/\1/' "$SRC/targets.conf.example" | while read -r name first rest; do
+    [[ -z "$name" || "$name" == \#* ]] && continue
+    if [[ -z "$rest" && "$first" == *.db ]]; then
+      if [[ -d "$(dirname "$first")" ]]; then printf 'db %s %s\n' "$name" "$first"; fi
+    elif [[ -e "$first" ]]; then
+      printf 'files %s %s %s\n' "$name" "$first" "$rest"
+    fi
+  done
+}
 if [[ ! -f "$ETC/targets.conf" ]]; then
   {
-    echo "# Базы для gornitsa-backup: «имя путь». Пример и пояснения — deploy/backup/targets.conf.example."
-    sed -E 's/^# (seni[[:space:]])/\1/' "$SRC/targets.conf.example" | while read -r name path _; do
-      [[ -z "$name" || "$name" == \#* ]] && continue
-      if [[ -d "$(dirname "$path")" ]]; then printf '%-9s %s\n' "$name" "$path"; fi
-    done
+    echo "# Что снимает gornitsa-backup. Пример и пояснения — deploy/backup/targets.conf.example."
+    fitting | cut -d' ' -f2-
   } > "$ETC/targets.conf"
   chmod 644 "$ETC/targets.conf"
-  echo "   Список баз: $(grep -cv '^#' "$ETC/targets.conf" || true) — $ETC/targets.conf"
+  echo "   Список копий: $(grep -cv '^#' "$ETC/targets.conf" || true) — $ETC/targets.conf"
+else
+  # Архивы настроек появились позже баз: в уже заведённый список дописываются, если их там нет.
+  while read -r kind name line; do
+    [[ "$kind" == files ]] || continue
+    if ! awk -v n="$name" '$1 == n { found = 1 } END { exit !found }' "$ETC/targets.conf"; then
+      echo "$name $line" >> "$ETC/targets.conf"
+      echo "   В список копий добавлен архив настроек: $name"
+    fi
+  done < <(fitting)
 fi
 
 echo "==> Копии баз: скрипты и таймер"

@@ -34,7 +34,7 @@ jobs:
         run: python3 tools/check.py
 
       - name: Сборщик мониторинга компилируется
-        run: python3 -m py_compile deploy/monitor/monitor.py deploy/monitor/sitestats.py deploy/seo/indexnow.py deploy/backup/check-backup.py deploy/backup/status.py
+        run: python3 -m py_compile deploy/monitor/monitor.py deploy/monitor/sitestats.py deploy/seo/indexnow.py deploy/backup/check-backup.py deploy/backup/status.py deploy/backup/owner/backup-github.py
 
       # shellcheck уже стоит на ubuntu-24.04; globstar — чтобы ** заходил во все папки deploy/
       - name: shellcheck

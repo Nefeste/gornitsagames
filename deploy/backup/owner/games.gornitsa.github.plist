@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Копия репозиториев студии с GitHub раз в неделю, в воскресенье в 11:00 — macOS, launchd
+     (docs/backup.md, «Копия GitHub»). Положить в ~/Library/LaunchAgents/ и заменить ИМЯ на своё
+     имя пользователя macOS. Mac спал — launchd запустит задание, когда он проснётся. -->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>games.gornitsa.github</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>-c</string>
+    <string>export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"; python3 /Users/ИМЯ/Gornitsa/backup-github.py /Users/ИМЯ/GornitsaBackup/github >> /Users/ИМЯ/GornitsaBackup/github.log 2>&amp;1</string>
+  </array>
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Weekday</key>
+    <integer>0</integer>
+    <key>Hour</key>
+    <integer>11</integer>
+    <key>Minute</key>
+    <integer>0</integer>
+  </dict>
+</dict>
+</plist>

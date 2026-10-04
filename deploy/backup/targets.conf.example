@@ -1,12 +1,17 @@
-# Базы SQLite, которые gornitsa-backup снимает раз в сутки: «имя путь», по строке на базу.
-# На машине: /etc/gornitsa-backup/targets.conf (setup.sh кладёт этот пример, если файла нет;
-# дальше файл правится только на машине). Имя — латиница, цифры, - и _; оно же имя файла копии.
-# Базы, которой ещё нет на диске, пропускаются без ошибки.
+# Что gornitsa-backup снимает раз в сутки, по строке на копию:
+#   «имя путь.db»        — база SQLite (согласованный снимок, integrity_check);
+#   «имя путь путь …»    — архив файлов: настройки машины и секреты служб (можно с *), чтобы поднять
+#                          машину заново (docs/restore.md). Всё шифруется открытым ключом владельца.
+# На машине: /etc/gornitsa-backup/targets.conf (setup.sh кладёт сюда подходящие строки этого примера,
+# если файла нет, а архивы файлов дописывает и в старый список; дальше файл правится на машине).
+# Имя — латиница, цифры, - и _; оно же имя файла копии. Чего нет на диске — пропускается.
 
 # Машина сайта и игр (gornitsa.games):
 votchina /var/lib/votchina/votchina.db
 nardy    /var/lib/nardy/nardy.db
 skazy    /var/lib/skazy/skazy.db
+site-config /etc/votchina /etc/nardy /etc/skazy /etc/uzory /etc/gornitsa /etc/gornitsa-monitor /etc/gornitsa-backup /etc/letsencrypt /etc/nginx/sites-available /etc/nginx/snippets /etc/ssh/ssh_host_* /etc/ssh/sshd_config.d /etc/sudoers.d/90-gornitsa-admin /etc/fail2ban/jail.d/gornitsa.local /etc/fail2ban/fail2ban.d/gornitsa.local /home/gornitsa/.ssh /home/deploy/.ssh /root/.ssh /var/lib/gornitsa-monitor/daily
 
-# Машина «Сеней» (seni.gornitsa.games) — там вместо строк выше одна:
+# Машина «Сеней» (seni.gornitsa.games) — там вместо строк выше эти две:
 # seni     /var/lib/seni/seni.db
+# seni-config /etc/seni /etc/gornitsa-backup /etc/letsencrypt /etc/ssh/ssh_host_* /etc/ssh/sshd_config.d /root/.ssh

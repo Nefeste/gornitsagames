@@ -2,7 +2,9 @@
 """check-backup — проверка восстановления копий баз на компьютере владельца (docs/backup.md, шаг 6).
 Раз в месяц: берёт самую свежую папку копий, расшифровывает каждую базу закрытым ключом age во
 временную папку, сверяет sha256 с manifest.json, делает PRAGMA integrity_check, считает строки
-в таблицах и удаляет расшифрованное. Нужны Python 3.8+ и программа age; больше ничего.
+в таблицах и удаляет расшифрованное. Архив настроек машины (*.tar.gz.age) расшифровывается так же,
+сверяется по sha256 и читается целиком; показывается только число файлов и верхние папки — не
+содержимое (там секреты служб). Нужны Python 3.8+ и программа age; больше ничего.
 
   python3 check-backup.py --key <файл ключа age> <папка с копиями>
   python3 check-backup.py --key ~/gornitsa-age.txt ~/GornitsaBackup/out
@@ -19,6 +21,7 @@ import shutil
 import sqlite3
 import subprocess
 import sys
+import tarfile
 import tempfile
 
 
@@ -38,6 +41,29 @@ def newest_day(root):
     return os.path.join(root, days[-1])
 
 
+def check_files(entry, enc, key, tmp):
+    name = entry["name"]
+    arc = os.path.join(tmp, name + ".tar.gz")
+    p = subprocess.run(["age", "-d", "-i", key, "-o", arc, enc], capture_output=True, text=True)
+    if p.returncode != 0:
+        print(f"{name}: age не расшифровал: {p.stderr.strip()}")
+        return False
+    if entry.get("archive_sha256") and sha256(arc) != entry["archive_sha256"]:
+        print(f"{name}: sha256 архива не совпал с manifest.json")
+        return False
+    try:
+        with tarfile.open(arc, "r:gz") as t:
+            members = t.getmembers()   # читает архив до конца: битый — исключение
+    except (tarfile.TarError, OSError, EOFError) as e:
+        print(f"{name}: архив не читается: {e}")
+        return False
+    tops = sorted({"/" + "/".join(m.name.split("/")[:2]) for m in members})
+    print(f"{name}: архив настроек читается; файлов и папок {len(members)}"
+          + (f" (на сервере было {entry['files']})" if entry.get("files") is not None else ""))
+    print("    " + ", ".join(tops))
+    return entry.get("files") in (None, len(members))
+
+
 def check_db(entry, day_dir, key, tmp):
     name = entry["name"]
     if entry.get("missing"):
@@ -50,6 +76,8 @@ def check_db(entry, day_dir, key, tmp):
     if entry.get("file_sha256") and sha256(enc) != entry["file_sha256"]:
         print(f"{name}: sha256 файла не совпал с manifest.json — файл повреждён при передаче")
         return False
+    if entry.get("kind") == "files":
+        return check_files(entry, enc, key, tmp)
     gz = os.path.join(tmp, name + ".db.gz")
     db = os.path.join(tmp, name + ".db")
     p = subprocess.run(["age", "-d", "-i", key, "-o", gz, enc], capture_output=True, text=True)
