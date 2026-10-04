@@ -107,15 +107,16 @@ deploy/
     snapshot.sh       снимок, integrity_check, gzip и age, manifest.json: sudo gornitsa-backup
     keys.sh           открытые ключи владельца SSH и age: sudo gornitsa-backup-keys
     sftp.sh           backup — только SFTP на чтение, chroot /srv/backup
-    targets.conf.example   какие базы снимать (на машине — /etc/gornitsa-backup/targets.conf)
+    targets.conf.example   что снимать: базы и архив настроек машины (на машине — /etc/gornitsa-backup/targets.conf)
     status.py         тревоги копий для «Сторожа» раз в 10 минут — и здесь, и на машине «Сеней»
     check-backup.py   проверка восстановления — запускает владелец у себя раз в месяц
     owner/            забор копий на компьютер владельца: Windows (pull-backup.ps1), macOS
-                      (pull-backup.sh и задание launchd)
+                      (pull-backup.sh и задание launchd); копия GitHub раз в неделю (backup-github.py)
   seo/                поиск: файлы подтверждения, IndexNow, /go/ в nginx (см. «Поиск…»)
     apply.sh          ставит всё это в каждом проходе автообновления
     indexnow.py       изменённые страницы из sitemap.xml — в yandex.com/indexnow
-docs/backup.md        инструкция владельцу: ключи, забор копий, где хранить, проверка восстановления
+docs/backup.md        инструкция владельцу: ключи, забор копий, где хранить, проверка восстановления, копия GitHub
+docs/restore.md       восстановление с нуля: машина сайта, машина «Сеней», доступ к GitHub, компьютер владельца
 docs/devlog.md        «Дневник разработки»: шаблон, порядок, правила
 
 ## Как посмотреть локально
@@ -406,6 +407,12 @@ IP-адреса, браузеры и адреса страниц-источни�
   На этой машине это `votchina`, `nardy` и `skazy`, база `/var/lib/<игра>/<игра>.db`.
   - Снимок — `sqlite3 ".backup"` от имени владельца файла базы: согласованный, без остановки
     службы и без файлов root рядом с базой.
+  - **Архив настроек машины** (`site-config`, у «Сеней» — `seni-config`): `/etc` служб с их секретами,
+    ключи доступа к репозиториям, ключ шифрования «Узоров», сертификаты, ключи SSH машины, настройки
+    nginx, sshd и fail2ban, `~/.ssh`, сводки мониторинга — `tar` с правами и владельцами, проверка
+    чтением, `age` → `site-config.tar.gz.age`. Нужен, чтобы поднять машину с теми же ключами
+    ([`docs/restore.md`](docs/restore.md)). Строка архива дописывается и в уже заведённый
+    `targets.conf`.
   - Затем `PRAGMA integrity_check`, `gzip` и `age -R /etc/gornitsa-backup/recipients.txt` — открытый
     ключ владельца. Результат — `/srv/backup/out/ГГГГ-ММ-ДД/<имя>.db.gz.age` и `manifest.json`
     (имя, размеры и sha256 снимка и файла, итог проверки). Хранится 14 дней.
