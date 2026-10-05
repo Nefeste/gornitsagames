@@ -503,6 +503,11 @@ curl -fsSL https://raw.githubusercontent.com/Nefeste/gornitsagames/main/deploy/s
   картинка, снимки, возраст и платформа из `facts`, у вышедшей игры — ссылка на RuStore),
   главная — `Organization` и `WebSite` студии (`src/partials.py`, `studio_ld`). Проверить разметку
   — validator.schema.org или «Валидатор микроразметки» Яндекс Вебмастера.
+- Игра, которой ещё нет в работе («В планах»), в `tools/games.json` не добавляется, даже если
+  репозиторий с документами уже есть: её карточка написана руками в `src/index.html`
+  и `src/en/index.html` под подзаголовком «В планах» (плашка `status-plan`). Когда игра
+  начинается (первая сборка, `store/site/` с картинками), её добавляют в `tools/games.json`,
+  а карточку «В планах» убирают.
 - Игра без `store/site/page.ru.md` не трогается; игра с ошибками в папке пропускается, причина —
   в описании PR. Без `page.en.md` английская страница не меняется.
 - Закрытые `nardy`, `votchina` и `skazy` (`"private": true` в `tools/games.json`) workflow читает

@@ -528,6 +528,8 @@ details.faq .answer { display: grid; gap: 10px; padding-top: 10px; color: var(--
     margin-inline: calc(-1 * var(--gutter)); padding: 0 var(--gutter) 10px; scroll-padding-inline: var(--gutter);
   }
   .games > .game { scroll-snap-align: start; }
+  /* одна карточка «В планах» — обычным столбцом, не лентой */
+  .games-planned { grid-auto-flow: row; grid-auto-columns: auto; overflow: visible; margin-inline: 0; padding: 0; scroll-snap-type: none; }
   /* узор-пример на телефоне свёрнут в кнопку (site.js), чтобы игры были ближе */
   .hoop.is-folded { display: none; }
   .brand-tiles { grid-template-columns: minmax(0, 1fr); }
