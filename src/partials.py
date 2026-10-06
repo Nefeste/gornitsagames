@@ -59,7 +59,8 @@ def seller(lang="ru", kind="block"):
         return (f'\n      <p>{t["seller"]}: {e(s["name"])}, {t["seller_inn"]} {e(s["inn"])}, {t["seller_ogrnip"]} {e(s["ogrnip"])}. '
                 f'{t["seller_address"]}: {e(s["address"])}; {t["seller_email"].lower()}: {e(s["email"])}.</p>')
     if kind == "line":
-        return (f'\n  <div class="wrap footer-seller"><p class="meta">{e(s["name"])} · {t["seller_inn"]} {e(s["inn"])} · '
+        # в подвале — короткое имя («ИП Фамилия И. О.»), если оно есть; полное — на поддержке и в политике
+        return (f'\n  <div class="wrap footer-seller"><p class="meta">{e(s.get("short") or s["name"])} · {t["seller_inn"]} {e(s["inn"])} · '
                 f'{t["seller_ogrnip"]} {e(s["ogrnip"])} · {t["seller_address"]}: {e(s["address"])}</p></div>')
     rows = [(t["seller"], s["name"]), (t["seller_inn"], s["inn"]), (t["seller_ogrnip"], s["ogrnip"]),
             (t["seller_address"], s["address"]), (t["seller_email"], s["email"])]
