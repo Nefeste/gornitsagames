@@ -20,7 +20,8 @@ src/                  шаблоны страниц (редактировать 
   votchina/, nardy/,  страницы игр: index.html собирает tools/games.py из store/site/ игры —
   anamnez/, skazy/,   здесь не правится (см. «Страницы игр»); рядом — страницы сайта: удаление
   uzory/              профиля (delete.html у «Вотчины» и «Сказов»), турниры «Вотчины»,
-                      votchina/privacy.html — переадресация на общую политику
+                      votchina/privacy.html — запасная переадресация на общую политику (на машине
+                      адрес /votchina/privacy отдаёт nginx: 301, deploy/nginx/locations.conf)
   en/                 английская версия тех же страниц
   partials.py         общая шапка, подвал и <head> на обоих языках (игры в подвале build.py берёт
                       из tools/games.json и <h1> их страниц — новая игра появится там сама)
