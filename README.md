@@ -52,6 +52,7 @@ tools/
   fetch-games.sh      забирает store/ с main игр в games/ (закрытые — токеном GAMES_READ_TOKEN)
   games.py            собирает страницы, карточки на главной и для прессы и картинки игр из
                       games/*/store/site/
+  games-pr.sh         открывает или обновляет PR «Сайт: обновления игр» (workflow games.yml)
   md.py               Markdown страниц игр и новостей — без сторонних библиотек
   news.py             новости: страница, лента Atom (news.atom) и три свежие на главной
   check.py            проверяет собранный сайт: ссылки, якоря, размеры картинок игр, разметку
@@ -147,8 +148,7 @@ HTML и картинок.
 
 `build.py` собирает из папки страницу «Новости», ленты `news.atom` и `en/news.atom` и три свежие
 новости на главной; новость с ошибкой в сайт не попадает, а `tools/check.py` называет ошибку.
-О чём пишем — устав студии, `docs/10-channels.md`: выход игр и заметные версии, закрытые тесты,
-новые страницы игр. Текст готовит «PR и сообщество», публикует владелец — слиянием PR.
+О чём пишем, кто готовит новость и кто публикует — устав студии, [`docs/10-channels.md`](https://github.com/Nefeste/gornitsa/blob/main/docs/10-channels.md).
 
 Поле `review: draft` — черновик: такую новость сайт не показывает (ни на странице, ни в ленте,
 ни на главной), а `tools/check.py` напоминает о ней. Одобряет владелец: `review: checked` или
@@ -208,12 +208,12 @@ HTML и картинок.
 
 Стили и скрипты редактируются прямо в `site/assets/`, кроме `brand.css`: это копия
 `brand/tokens.css` из устава студии [`Nefeste/gornitsa`](https://github.com/Nefeste/gornitsa)
-с пометкой источника в первой строке. Цвета, шрифты и скругления меняются сначала там, потом
-копия переносится сюда.
+с пометкой источника в первой строке; порядок обновления копий —
+[`brand/README.md`](https://github.com/Nefeste/gornitsa/blob/main/brand/README.md#как-пользоваться-этими-файлами).
 
 Страницы «О студии» и «Брендбук» пересказывают устав студии (`docs/01-mission.md`,
-`docs/02-values.md`, `brand/README.md`). Меняется обещание или правило бренда — сначала
-в уставе, потом здесь, в том же заходе.
+`docs/02-values.md`, `brand/README.md`) по порядку из устава:
+[`docs/02-values.md`](https://github.com/Nefeste/gornitsa/blob/main/docs/02-values.md) (сначала устав, потом сайт, в том же заходе).
 
 У каждой страницы есть пара на другом языке: русская `src/support.html` и английская `src/en/support.html`. Правьте обе, а новую страницу добавьте в список `pages` в `build.py` — тогда в шапке появится переключатель языка, а в `<head>` — ссылки `hreflang`. Надписи, которые рисует скрипт (подсказки на пяльцах, кнопка «Скопировать»), — в начале `site/assets/site.js`.
 
@@ -245,7 +245,7 @@ HTML и картинок.
 
 ### 4. Публикация исходников на GitHub
 
-Сервер забирает сайт из репозитория, поэтому сначала отправьте код на GitHub. `bootstrap.sh` и автообновление читают его по HTTPS без ключа, поэтому репозиторий открытый ([ADR студии 0017](https://github.com/Nefeste/gornitsa/blob/main/adr/0017-repo-visibility.md)); 03.10.2026 проверено, что `git clone https://github.com/Nefeste/gornitsagames.git` и `raw.githubusercontent.com/…/deploy/bootstrap.sh` работают без входа.
+Сервер забирает сайт из репозитория, поэтому сначала отправьте код на GitHub. `bootstrap.sh` и автообновление читают его по HTTPS без ключа, поэтому репозиторий открытый ([ADR студии 0017](https://github.com/Nefeste/gornitsa/blob/main/adr/0017-repo-visibility.md)); проверка доступа без входа — в [журнале](docs/journal/2026-10.md).
 
 ```bash
 git remote add origin https://github.com/Nefeste/gornitsagames.git
@@ -463,7 +463,7 @@ curl -fsSL https://raw.githubusercontent.com/Nefeste/gornitsagames/main/deploy/s
 
 ## Перед публикацией игр в RuStore
 
-- Перед выходом каждой игры добавьте в политику её раздел, как у «Вотчины»: перечень сервисов (реклама, аналитика) должен совпадать с тем, что реально встроено в игру.
+- Раздел игры в политике — до выпуска, как у «Вотчины»: [`docs/04-process.md`](https://github.com/Nefeste/gornitsa/blob/main/docs/04-process.md#выпуск), п. 4, и [`docs/07-privacy.md`](https://github.com/Nefeste/gornitsa/blob/main/docs/07-privacy.md#политика-конфиденциальности).
 - В консоли RuStore укажите ссылки: политика — https://gornitsa.games/privacy.html (для «Вотчины» можно сразу на её раздел: https://gornitsa.games/privacy.html#votchina), поддержка — https://gornitsa.games/support.html.
 - Ссылка на предзаказ или карточку RuStore на странице игры и в её карточке на главной — поле `links` (и `card.links`) в `store/site/page.*.md` игры.
 - У вышедшей игры (`status: live`) ссылка на карточку RuStore из `links` показывается официальной кнопкой «Скачайте из RuStore» — `site/assets/stores/rustore.svg`, файл с rustore.ru/help (раздел для разработчиков «Кнопка „Скачайте из RuStore“», двухцветный логотип на тёмной кнопке, 30.09.2026). Файл не перерисовываем и не перекрашиваем; у игр в разработке ссылка остаётся обычной кнопкой: надпись «Скачайте» для предзаказа неверна.
@@ -542,8 +542,7 @@ python3 tools/games.py --check ../skazy    # только проверить sto
   главной, адреса в `site/sitemap.xml` и строка в `.gitignore`; дальше страница собирается сама.
 - Раздел игры в политике конфиденциальности (`src/privacy.html`, `src/en/privacy.html`): есть раздел
   с `id` игры — страница ссылается на него, нет — на «Игры в разработке» (`#upcoming`). Текст раздела
-  готовит игра (`store/privacy.*.md`), но живёт раздел только здесь; перед выходом игры в RuStore
-  раздел должен быть.
+  готовит игра (`store/privacy.*.md`), но живёт раздел только здесь ([`docs/07-privacy.md`](https://github.com/Nefeste/gornitsa/blob/main/docs/07-privacy.md#политика-конфиденциальности)).
 - Страницы удаления профиля (`src/skazy/delete.html`, `src/votchina/delete.html` и английские): есть
   такая страница — на странице игры появляется ссылка «Удалить профиль». Что удаляется и сколько
   хранятся журналы и копии, сверено с серверами игр («Сказы» — `server/src/profiles.ts`,
@@ -567,7 +566,7 @@ Cloudflare у части российских провайдеров работ�
 
 Настройки службы — `/etc/votchina/env` (там же секрет `ADMIN_TOKEN` для `server/tools/delete-by-tag.sh`). Журналы: `journalctl -u votchina -u votchina-pull -n 50`.
 
-Переезд выполнен 27 сентября 2026 года заданием «Переезд на свой сервер» в репозитории votchina: база на этой машине, версии приложения с 2.10.2 ходят сюда. Старый адрес на Cloudflare отключён, копия базы в Cloudflare D1 удалена.
+Переезд выполнен 27 сентября 2026 года; запись — [`docs/journal/2026-09.md`](docs/journal/2026-09.md).
 
 ## Сервер игры «Длинные нарды»
 
