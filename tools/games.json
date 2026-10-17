@@ -1,5 +1,5 @@
 {
-  "_": "Игры, чьи страницы сайт собирает из store/site/ (ADR студии 0015). Порядок карточек задаёт src/index.html. card — ссылки карточки на главной, которые знает только сайт; meta — ссылки внизу страницы перед политикой.",
+  "_": "Игры, чьи страницы сайт собирает из store/site/ (ADR студии 0015). Порядок карточек задаёт src/index.html. card — ссылки карточки на главной, которые знает только сайт; meta — ссылки внизу страницы перед политикой; veil — снимки за шторкой «Мне есть 16» (медицинские сцены).",
   "games": [
     {
       "slug": "votchina",
@@ -11,7 +11,7 @@
       }
     },
     {"slug": "nardy", "repo": "Nefeste/nardy", "private": true},
-    {"slug": "anamnez", "repo": "Nefeste/anamnez"},
+    {"slug": "anamnez", "repo": "Nefeste/anamnez", "veil": true},
     {"slug": "skazy", "repo": "Nefeste/skazy", "private": true},
     {
       "slug": "uzory",
