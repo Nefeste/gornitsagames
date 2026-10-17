@@ -356,6 +356,15 @@ p { margin: 0; }
   .shots-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 
+/* Шторка перед снимками с медицинскими сценами (tools/games.json, "veil"): <details>, открытое — без шторки. */
+details.veil > summary {
+  list-style: none; cursor: pointer; display: grid; gap: 14px; justify-items: start;
+  padding: 20px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); color: var(--ink-soft);
+}
+details.veil > summary::-webkit-details-marker { display: none; }
+details.veil > summary:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+details.veil[open] > summary { display: none; }
+
 /* ---------- Снимок крупно (site.js, buildZoom) ---------- */
 .shots a.shot { position: relative; display: block; border-radius: 12px; cursor: zoom-in; }
 .shots a.shot:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }

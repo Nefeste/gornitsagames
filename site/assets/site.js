@@ -377,7 +377,17 @@
     if (location.hash === "#" + hoop.id) unfold(true);
   }
 
+  // Шторка перед снимками «Анамнеза»: ответ «Мне есть 16» помнит этот браузер; без хранилища — спросит снова.
+  function buildVeil(veil) {
+    var key = "veil:" + veil.getAttribute("data-veil");
+    try { if (localStorage.getItem(key) === "1") veil.open = true; } catch (e) {}
+    veil.addEventListener("toggle", function () {
+      if (veil.open) { try { localStorage.setItem(key, "1"); } catch (e) {} }
+    });
+  }
+
   function init() {
+    document.querySelectorAll("details.veil").forEach(buildVeil);
     document.querySelectorAll(".shots").forEach(buildZoom);
     var hoop = document.getElementById("hoop");
     if (hoop) foldHoop(hoop);

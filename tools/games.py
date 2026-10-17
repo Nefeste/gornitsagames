@@ -58,7 +58,10 @@ T = {
            "page_shots": "Страница и снимки экрана",
            "glance": "Коротко", "what": "Что это", "where": "Где скачать",
            "where_dev": "Пока нигде: игра в разработке, готовится к выходу в RuStore",
-           "where_test": "Пока только у участников закрытого теста"},
+           "where_test": "Пока только у участников закрытого теста",
+           "veil": "На снимках — медицинские сцены: раны, кровь, ожоги, снимки внутренних органов. "
+                   "Игра — для тех, кому исполнилось 16 лет.",
+           "veil_btn": "Мне есть 16 — показать снимки"},
     "en": {"crumbs_label": "Navigation", "crumbs": "← All games", "home": "/en/#games",
            "shots": "Screenshots", "privacy": "Privacy policy", "delete": "Delete your profile",
            "other": "По-русски", "about": "About the game", "site_name": "Gornitsa",
@@ -66,7 +69,10 @@ T = {
            "rustore": "Download from RuStore",
            "glance": "At a glance", "what": "What it is", "where": "Where to get it",
            "where_dev": "Not yet: the game is in development for RuStore",
-           "where_test": "Only for closed test participants so far"},
+           "where_test": "Only for closed test participants so far",
+           "veil": "The screenshots show medical scenes: wounds, blood, burns, scans of internal organs. "
+                   "The game is for ages 16 and up.",
+           "veil_btn": "I’m 16 or older — show the screenshots"},
 }
 
 # Картинки: размер на сайте, формат, качество.
@@ -337,7 +343,7 @@ def page_path(slug, lang):
     return f"/{slug}/" if lang == "ru" else f"/en/{slug}/"
 
 
-def render_page(slug, lang, meta, body, img, extra_meta, has_delete, privacy_anchor, source):
+def render_page(slug, lang, meta, body, img, extra_meta, has_delete, privacy_anchor, source, veil=False):
     t = T[lang]
     st = STATUS[meta["status"]]
     eyebrow = meta["kind"] + (f" · {st[3] if lang == 'ru' else st[4]}" if st[3] else "")
@@ -354,6 +360,13 @@ def render_page(slug, lang, meta, body, img, extra_meta, has_delete, privacy_anc
                    f'<img src="/assets/games/{s["name"]}" '
                    f'width="{s["w"]}" height="{s["h"]}" alt="{attr(s["alt"])}"{lazy}></a>'
                    f'<figcaption>{esc(s["caption"])}</figcaption></figure>')
+    gallery = (f'    <section class="{cls}" aria-label="{t["shots"]}">\n' + "\n".join(fig) + "\n    </section>\n")
+    if veil:
+        # Снимки с медицинскими сценами (tools/games.json, "veil") — за шторкой «Мне есть 16»: <details>
+        # работает и без JS, а site.js запоминает ответ в этом браузере.
+        gallery = (f'    <details class="veil" data-veil="{slug}">\n'
+                   f'      <summary><span>{esc(t["veil"])}</span> <span class="btn btn-primary">{esc(t["veil_btn"])}</span></summary>\n'
+                   + gallery.replace("\n    ", "\n      ").replace("    <section", "      <section", 1) + "    </details>\n")
     actions = ""
     if meta.get("links"):
         btns = []
@@ -436,10 +449,7 @@ def render_page(slug, lang, meta, body, img, extra_meta, has_delete, privacy_anc
       </div>
     </header>
 {actions}{passport}
-    <section class="{cls}" aria-label="{t["shots"]}">
-{chr(10).join(fig)}
-    </section>
-
+{gallery}
     <article class="doc-body">
 {render_body(body)}
 {note}      <p class="meta">{" · ".join(links)}</p>
@@ -596,7 +606,7 @@ def sync(cfg, src, lock, index):
         source = f"store/site/page.{lang}.md репозитория {repo}"  # коммит — в games.lock.json
         out = ROOT / "src" / ("" if lang == "ru" else "en") / slug / "index.html"
         g.files[out] = render_page(slug, lang, meta, body, img, cfg.get("meta", {}).get(lang, []),
-                                   has_delete, anchor, source).encode()
+                                   has_delete, anchor, source, veil=bool(cfg.get("veil"))).encode()
         extra = cfg.get("card", {}).get(lang, [])
         for err in (put(index[lang], slug, "game", lambda old: render_card(slug, lang, meta, img, extra, 'loading="lazy"' in old)),
                     put(index["press-" + lang], slug, "press", render_press(slug, lang, meta, img))):
