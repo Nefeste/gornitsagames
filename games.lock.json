@@ -36,7 +36,7 @@
   },
   "nardy": {
     "repo": "Nefeste/nardy",
-    "commit": "16647a473b15751fdb1d53b9ac01c46df9cb1633",
+    "commit": "08df8f1bbfc1de971a1681636bd08001844e79b4",
     "images": {
       "nardy-01-game-full.webp": "px390881424b2b0662:shot-landscape-full:0",
       "nardy-01-game.webp": "px390881424b2b0662:shot-landscape:0",
