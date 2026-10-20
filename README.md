@@ -19,7 +19,7 @@ src/                  шаблоны страниц (редактировать 
   404.html
   votchina/, nardy/,  страницы игр: index.html собирает tools/games.py из store/site/ игры —
   anamnez/, skazy/,   здесь не правится (см. «Страницы игр»); рядом — страницы сайта: удаление
-  uzory/              профиля (delete.html у «Вотчины» и «Сказов»), турниры «Вотчины»,
+  uzory/              профиля (delete.html у «Вотчины», «Сказов» и нард), турниры «Вотчины»,
                       votchina/privacy.html — запасная переадресация на общую политику (на машине
                       адрес /votchina/privacy отдаёт nginx: 301, deploy/nginx/locations.conf)
   en/                 английская версия тех же страниц
@@ -554,10 +554,12 @@ python3 tools/games.py --check ../skazy    # только проверить sto
 
   После переноса черновик в игре удаляется: правильным остаётся только текст на сайте. Правка
   должна выйти до версии игры, которая меняет собираемые данные.
-- Страницы удаления профиля (`src/skazy/delete.html`, `src/votchina/delete.html` и английские): есть
-  такая страница — на странице игры появляется ссылка «Удалить профиль». Что удаляется и сколько
-  хранятся журналы и копии, сверено с серверами игр («Сказы» — `server/src/profiles.ts`,
-  `retention.ts` и `docs/05-process.md`); поменялось там — поправьте здесь.
+- Страницы удаления профиля (`src/skazy/delete.html`, `src/votchina/delete.html`, `src/nardy/delete.html`
+  и английские): есть такая страница — на странице игры появляется ссылка «Удалить профиль». Что
+  удаляется и сколько хранятся журналы и копии, сверено с серверами игр («Сказы» — `server/src/profiles.ts`,
+  `retention.ts` и `docs/05-process.md`; нарды — `server/src/core.ts`, `deletePlayer`, и
+  `docs/04-data-model.md`, «Сроки хранения»); поменялось там — поправьте здесь. У нард такая же
+  страница есть и на их сервере (`nardy.gornitsa.games/delete`); адрес по уставу — `gornitsa.games/nardy/delete`.
 - У «Вотчины» — страница турниров `src/votchina/tournaments.html` и переадресация
   `src/votchina/privacy.html`. Онлайн-сервер, веб-версия (`/play/`) и ссылки на ход (`/g/`) с 27 сентября
   2026 года работают на https://votchina.gornitsa.games (раздел ниже); старый адрес на Cloudflare
