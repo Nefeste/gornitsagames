@@ -36,7 +36,7 @@
   },
   "nardy": {
     "repo": "Nefeste/nardy",
-    "commit": "4366ecd70915851e6dfbc0985b6e590047f08069",
+    "commit": "63e8ee94e786b857fab059404992e58ba9aa33bd",
     "images": {
       "nardy-01-game-full.webp": "px95439038fb6737ca:shot-landscape-full:0",
       "nardy-01-game.webp": "px95439038fb6737ca:shot-landscape:0",
@@ -61,7 +61,7 @@
   },
   "anamnez": {
     "repo": "Nefeste/anamnez",
-    "commit": "1581ec79e9b4c0a3cd3adc91f61ecf57bf453480",
+    "commit": "64b47ca763f21e546b7eaf8bbe67563188a85f82",
     "images": {
       "anamnez-01-emergency-full.webp": "pxfb78f6b1b399e7a5:shot-portrait-full:0",
       "anamnez-01-emergency.webp": "pxfb78f6b1b399e7a5:shot-portrait:0",
@@ -88,7 +88,7 @@
   },
   "skazy": {
     "repo": "Nefeste/skazy",
-    "commit": "f8a4720ffa7b77361ad845d001d41d82577f3ac0",
+    "commit": "165ea3dfbe6bb231c88c8b5fee079a00120cad42",
     "images": {
       "skazy-01-path-full.webp": "px8579bfed378cea2b:shot-portrait-full:0",
       "skazy-01-path.webp": "px8579bfed378cea2b:shot-portrait:0",
