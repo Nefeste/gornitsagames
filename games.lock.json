@@ -61,7 +61,7 @@
   },
   "anamnez": {
     "repo": "Nefeste/anamnez",
-    "commit": "64b47ca763f21e546b7eaf8bbe67563188a85f82",
+    "commit": "edd117bb6183b4d916746b676eabe3f951c1bd8b",
     "images": {
       "anamnez-01-emergency-full.webp": "pxfb78f6b1b399e7a5:shot-portrait-full:0",
       "anamnez-01-emergency.webp": "pxfb78f6b1b399e7a5:shot-portrait:0",
@@ -73,8 +73,8 @@
       "anamnez-04-ecg.webp": "px2c1d48b7345f82cd:shot-portrait:0",
       "anamnez-05-egd-full.webp": "px29a18e14bc6e03c1:shot-portrait-full:0",
       "anamnez-05-egd.webp": "px29a18e14bc6e03c1:shot-portrait:0",
-      "anamnez-06-plan-full.webp": "px691080a5ee64652f:shot-portrait-full:0",
-      "anamnez-06-plan.webp": "px691080a5ee64652f:shot-portrait:0",
+      "anamnez-06-plan-full.webp": "px478382ed1071ba21:shot-portrait-full:0",
+      "anamnez-06-plan.webp": "px478382ed1071ba21:shot-portrait:0",
       "anamnez-07-outcome-full.webp": "px72252aa5bc0d527c:shot-portrait-full:0",
       "anamnez-07-outcome.webp": "px72252aa5bc0d527c:shot-portrait:0",
       "anamnez-08-build-full.webp": "px7c6026af60470e59:shot-portrait-full:0",
