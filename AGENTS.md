@@ -19,9 +19,10 @@ the charter, replace it with a link or report the contradiction to the owner.
 
 ## Read before changing anything
 
-- `README.md` (Russian) — structure, how to change text, news, search, the machine, game
-  pages built from `store/site/` of the games; `docs/backup.md`, `docs/restore.md`,
-  `docs/devlog.md`; the journal is `docs/journal/YYYY-MM.md`.
+- `README.md` (Russian) — structure, how to change text, news, search; `docs/README.md` is the
+  index: `docs/machine.md` (the machine and game servers), `docs/game-pages.md` (game pages built
+  from `store/site/` of the games), `docs/backup.md`, `docs/restore.md`, `docs/devlog.md`; the
+  journal is `docs/journal/YYYY-MM.md`.
 - This repository is **public** (studio ADR 0017): never put secrets, personal data, private
   repository details or unapproved drafts into a commit, PR or Issue.
 - **All PRs are merged by the owner** (`.github/CODEOWNERS` is `*`): a merge publishes the site.
