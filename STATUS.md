@@ -13,9 +13,9 @@
 **Ждёт владельца:**
 
 - защита `main` с «Require review from Code Owners» и обязательной проверкой «Проверка сайта»;
-- на работающей машине — порядок из README, «Вход на сервер» (`setup-server.sh`,
+- на работающей машине — порядок из [`docs/machine.md`](docs/machine.md), «Вход на сервер» (`setup-server.sh`,
   `sudo gornitsa-ssh ok`);
-- решение №17 — по неделе сводок (README, «Мониторинг машины»);
+- решение №17 — по неделе сводок (`docs/machine.md`, «Мониторинг машины»);
 - копии баз: компьютер владельца в России (03.10.2026) — ключи `sudo gornitsa-backup-keys` здесь
   и на машине «Сеней», забор по [`docs/backup.md`](docs/backup.md);
 - поиск (решение №29): сайт в Яндекс Вебмастере и Google Search Console, файлы подтверждения —
@@ -26,5 +26,5 @@
 - страница разработчика в RuStore — `rustore_developer` в `tools/site.json`, когда «Вотчина»
   переедет на аккаунт ИП (решение №3);
 
-Подробности — [`README.md`](README.md), журнал — [`docs/journal/`](docs/journal/); правила студии — устав
+Подробности — [`README.md`](README.md), [`docs/machine.md`](docs/machine.md), журнал — [`docs/journal/`](docs/journal/); правила студии — устав
 [`Nefeste/gornitsa`](https://github.com/Nefeste/gornitsa).
