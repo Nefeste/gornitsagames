@@ -61,10 +61,10 @@
   },
   "anamnez": {
     "repo": "Nefeste/anamnez",
-    "commit": "9d6f8d6dac068b3ed07bea590b55bfaae54f6e47",
+    "commit": "3e86fd02395f21e898ff8d9b5c4204b3203dab25",
     "images": {
-      "anamnez-01-emergency-full.webp": "pxc5e8fb6d3c45dbb5:shot-portrait-full:0",
-      "anamnez-01-emergency.webp": "pxc5e8fb6d3c45dbb5:shot-portrait:0",
+      "anamnez-01-emergency-full.webp": "pxd51284691068149f:shot-portrait-full:0",
+      "anamnez-01-emergency.webp": "pxd51284691068149f:shot-portrait:0",
       "anamnez-02-xray-full.webp": "px86bd2cacdacd4d55:shot-portrait-full:0",
       "anamnez-02-xray.webp": "px86bd2cacdacd4d55:shot-portrait:0",
       "anamnez-03-ct-full.webp": "pxc64353ab77d77fba:shot-portrait-full:0",
@@ -77,10 +77,10 @@
       "anamnez-06-plan.webp": "px478382ed1071ba21:shot-portrait:0",
       "anamnez-07-outcome-full.webp": "px72252aa5bc0d527c:shot-portrait-full:0",
       "anamnez-07-outcome.webp": "px72252aa5bc0d527c:shot-portrait:0",
-      "anamnez-08-build-full.webp": "px7c6026af60470e59:shot-portrait-full:0",
-      "anamnez-08-build.webp": "px7c6026af60470e59:shot-portrait:0",
-      "anamnez-cover-960.webp": "pxd24596d82e099f77:cover-small:0",
-      "anamnez-cover.webp": "pxd24596d82e099f77:cover:0",
+      "anamnez-08-build-full.webp": "pxcf60f22f91dc24fa:shot-portrait-full:0",
+      "anamnez-08-build.webp": "pxcf60f22f91dc24fa:shot-portrait:0",
+      "anamnez-cover-960.webp": "pxc724bef0388fb5e2:cover-small:0",
+      "anamnez-cover.webp": "pxc724bef0388fb5e2:cover:0",
       "anamnez-feature.webp": "pxbb3da1340a5f17ba:feature:0",
       "anamnez-icon.webp": "px4c667f821aadd000:icon:0",
       "anamnez-og.png": "px40b7590fc3970692:og:1"
