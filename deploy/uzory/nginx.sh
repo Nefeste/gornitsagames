@@ -6,7 +6,14 @@
 # Пишет /etc/nginx/snippets/gornitsa.games-uzory.conf:
 #   - /uzory/test/ — из /opt/uzory/current/test/, только по HTTPS и только с именем и паролем
 #     из /etc/uzory/test.htpasswd; пока файла паролей нет — 403 всем;
-#   - /.well-known/uzory-age.pub — открытый ключ машины: им CI «Узоров» шифрует сборку в ветке vps.
+#   - /.well-known/uzory-age.pub — открытый ключ машины: им CI «Узоров» шифрует сборку в ветке vps;
+#   - /uzory/v1/ — новые картинки по сети (наборы, подписанный каталог; кладёт их uzory-packs): каталог и
+#     подпись — без кэша, наборы — навсегда (в имени набора — отпечаток содержимого). Запросы каталога —
+#     в отдельный журнал без адресов /var/log/uzory/catalog.log: из него счётчики (uzory-stats). Не в
+#     /var/log/nginx: его ротирует logrotate, а этот журнал ведёт сама свёртка (хранит строки семь дней).
+#     Подпись и наборы в журналы запросов не пишутся вовсе (так в docs/specs/2026-09-packs.md «Узоров»):
+#     адресов игроков в журналах нет;
+# И /etc/nginx/conf.d/uzory-stats.conf — формат этого журнала (log_format живёт только на уровне http).
 # Конфиг сайта подключает такие файлы строкой `include /etc/nginx/snippets/gornitsa.games-*.conf;`
 # (deploy/nginx/gornitsa.games.conf). В конфиг на сервере, который уже поправил certbot, строку
 # добавляет этот скрипт — один раз, сразу после `root /var/www/gornitsa.games;`.
@@ -18,6 +25,7 @@ SITE=/etc/nginx/sites-available/gornitsa.games.conf
 SNIPPET=/etc/nginx/snippets/gornitsa.games-uzory.conf
 INCLUDE='include /etc/nginx/snippets/gornitsa.games-*.conf;'
 PASSWD=/etc/uzory/test.htpasswd
+STATS_CONF=/etc/nginx/conf.d/uzory-stats.conf
 
 # Правила безопасности — как у сайта, плюс 'wasm-unsafe-eval' (CanvasKit — это WebAssembly)
 # и blob: для картинок. Те же правила отдаёт сборке сценарий Playwright «Узоров» (tools/e2e/smoke.ts):
@@ -37,6 +45,39 @@ location = /.well-known/uzory-age.pub {
     alias /var/www/uzory-meta/uzory-age.pub;
     default_type text/plain;
     add_header Cache-Control "no-cache" always;
+}
+
+# Новые картинки по сети (docs/03-server-api.md «Узоров»). Файлы кладёт uzory-packs из ветки packs.
+location = /uzory/v1/catalog.json {
+    alias /srv/gornitsa/uzory/v1/catalog.json;
+    default_type application/json;
+    # счётчики: время, строка запроса и код — без адресов (ADR 0012 «Узоров»)
+    access_log /var/log/uzory/catalog.log uzory_stats;
+    add_header Cache-Control "no-cache" always;
+    add_header X-Content-Type-Options "nosniff" always;
+}
+
+location = /uzory/v1/catalog.sig {
+    alias /srv/gornitsa/uzory/v1/catalog.sig;
+    default_type text/plain;
+    # второй запрос той же проверки: не считается и не пишется вовсе — ни с адресом, ни без
+    access_log off;
+    add_header Cache-Control "no-cache" always;
+    add_header X-Content-Type-Options "nosniff" always;
+}
+
+location ^~ /uzory/v1/packs/ {
+    alias /srv/gornitsa/uzory/v1/packs/;
+    default_type application/octet-stream;
+    access_log off;
+    gzip on;
+    gzip_types application/octet-stream;
+    add_header Cache-Control "public, max-age=31536000, immutable" always;
+    add_header X-Content-Type-Options "nosniff" always;
+}
+
+location ^~ /uzory/v1/ {
+    return 404;
 }
 
 CONF
@@ -94,12 +135,14 @@ CONF
 
 BACKUP_SNIPPET=""
 BACKUP_SITE=""
+BACKUP_STATS=""
 restore() {
   if [[ -n "$BACKUP_SNIPPET" ]]; then mv -f "$BACKUP_SNIPPET" "$SNIPPET"; elif [[ -n "${NEW_SNIPPET:-}" ]]; then rm -f "$SNIPPET"; fi
   if [[ -n "$BACKUP_SITE" ]]; then mv -f "$BACKUP_SITE" "$SITE"; fi
+  if [[ -n "$BACKUP_STATS" ]]; then mv -f "$BACKUP_STATS" "$STATS_CONF"; elif [[ -n "${NEW_STATS:-}" ]]; then rm -f "$STATS_CONF"; fi
 }
 
-install -d -m 755 /etc/nginx/snippets /var/www/uzory-meta
+install -d -m 755 /etc/nginx/snippets /var/www/uzory-meta /var/log/uzory
 CHANGED=0
 
 # 1. Файл с местами «Узоров»
@@ -108,6 +151,21 @@ render > "$tmp"
 if [[ ! -f "$SNIPPET" ]] || ! cmp -s "$tmp" "$SNIPPET"; then
   if [[ -f "$SNIPPET" ]]; then BACKUP_SNIPPET="$(mktemp)"; cp "$SNIPPET" "$BACKUP_SNIPPET"; else NEW_SNIPPET=1; fi
   install -m 644 "$tmp" "$SNIPPET"
+  CHANGED=1
+fi
+rm -f "$tmp"
+
+# 1а. Формат журнала каталога — на уровне http (conf.d подключён в nginx.conf Ubuntu)
+tmp="$(mktemp)"
+cat > "$tmp" <<'CONF'
+# «Узоры»: журнал запросов каталога без адресов — счётчики (server/stats в репозитории Nefeste/uzory).
+# Файл пишет /usr/local/sbin/uzory-nginx (репозиторий gornitsagames, deploy/uzory/nginx.sh).
+log_format uzory_stats '$time_iso8601 "$request_uri" $status';
+CONF
+if [[ ! -f "$STATS_CONF" ]] || ! cmp -s "$tmp" "$STATS_CONF"; then
+  if [[ -f "$STATS_CONF" ]]; then BACKUP_STATS="$(mktemp)"; cp "$STATS_CONF" "$BACKUP_STATS"; else NEW_STATS=1; fi
+  install -d -m 755 "$(dirname "$STATS_CONF")"
+  install -m 644 "$tmp" "$STATS_CONF"
   CHANGED=1
 fi
 rm -f "$tmp"
@@ -138,7 +196,7 @@ fi
 if nginx -t -q 2>/dev/null; then
   systemctl reload nginx
   if [[ -s "$PASSWD" ]]; then echo "nginx: /uzory/test/ — по паролю"; else echo "nginx: /uzory/test/ — закрыто, пока нет пароля (sudo uzory-password)"; fi
-  rm -f "$BACKUP_SNIPPET" "$BACKUP_SITE"
+  rm -f "$BACKUP_SNIPPET" "$BACKUP_SITE" "$BACKUP_STATS"
 else
   nginx -t || true
   restore
