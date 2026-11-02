@@ -7,6 +7,9 @@
 
 - Раздел игры в политике — до выпуска, как у «Вотчины»: [`docs/04-process.md`](https://github.com/Nefeste/gornitsa/blob/main/docs/04-process.md#выпуск), п. 4, и [`docs/07-privacy.md`](https://github.com/Nefeste/gornitsa/blob/main/docs/07-privacy.md#политика-конфиденциальности).
 - В консоли RuStore укажите ссылки: политика — https://gornitsa.games/privacy.html (для «Вотчины» можно сразу на её раздел: https://gornitsa.games/privacy.html#votchina), поддержка — https://gornitsa.games/support.html.
+- Условия подписки «Узоры+» — `src/uzory/terms.html`, https://gornitsa.games/uzory/terms.html (с 02.11.2026): текст — из
+  `store/site/terms-uzory.ru.html` репозитория `Nefeste/uzory`, правится в обоих местах; реквизиты продавца ставит
+  сайт (`{{SELLER_PARA}}`, `seller` в `tools/site.json`). Ссылку на страницу показывает экран «Узоры+» игры.
 - Ссылка на предзаказ или карточку RuStore на странице игры и в её карточке на главной — поле `links` (и `card.links`) в `store/site/page.*.md` игры.
 - У вышедшей игры (`status: live`) ссылка на карточку RuStore из `links` показывается официальной кнопкой «Скачайте из RuStore» — `site/assets/stores/rustore.svg`, файл с rustore.ru/help (раздел для разработчиков «Кнопка „Скачайте из RuStore“», двухцветный логотип на тёмной кнопке, 30.09.2026). Файл не перерисовываем и не перекрашиваем; у игр в разработке ссылка остаётся обычной кнопкой: надпись «Скачайте» для предзаказа неверна.
 
