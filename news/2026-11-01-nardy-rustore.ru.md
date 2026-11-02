@@ -1,7 +1,7 @@
 ---
 date: 2026-11-01
 title: «Длинные нарды» вышли в RuStore
-review: draft
+review: checked
 ---
 «Длинные нарды» вышли в RuStore для Android: [скачать](https://www.rustore.ru/catalog/app/games.gornitsa.nardy).
 Классические длинные нарды — с ботом, вдвоём на одном телефоне и онлайн.
