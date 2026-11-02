@@ -317,3 +317,11 @@ sudo uzory-password
 
 Журнал: `journalctl -u uzory-pull -n 50`. Проверка: `curl -sI https://gornitsa.games/uzory/test/` — `401` (просит пароль); пока пароля нет — `403`.
 
+**Новые картинки «Узоров» по сети** (с 02.11.2026, В9 «Узоров»: без входа CI на машину) — https://gornitsa.games/uzory/v1/, протокол — `docs/03-server-api.md` в репозитории Nefeste/uzory. CI «Узоров» (`content.yml`) кладёт в открытую ветку `packs` все выложенные наборы, подписанный каталог и `stats/fold.ts` — одним коммитом без истории; машина забирает ветку сама:
+
+- `uzory-packs` каждые 5 минут: ветка `packs` → `/var/lib/uzory-packs/repo`; подпись каталога сверяется ключами из `/etc/uzory/catalog.pub` (копия `deploy/uzory/catalog.pub`, те же, что в игре), каждый набор — по размеру и SHA-256 из каталога; уже выложенный набор с другими байтами — ошибка. Потом в `/srv/gornitsa/uzory/v1/` — сначала новые наборы, затем подпись и каталог; что-то не сошлось — не трогается ничего;
+- `uzory-nginx` отдаёт `/uzory/v1/`: каталог и подпись — без кэша, наборы — навсегда и со сжатием. Запросы каталога — только в журнал без адресов `/var/log/uzory/catalog.log` (формат `uzory_stats`, `/etc/nginx/conf.d/uzory-stats.conf`), не в общий журнал сайта; подпись и наборы не пишутся ни в какой журнал;
+- `uzory-stats` раз в сутки в 00:20 по Москве сворачивает этот журнал в `/srv/gornitsa/uzory/stats/stats.csv` (нужен bun «Нард», `/opt/bun/<версия>/bun`); строки старше семи дней удаляет сама свёртка, поэтому журнал — не в `/var/log/nginx` (его ротирует logrotate).
+
+Журнал: `journalctl -u uzory-packs -n 50`, `journalctl -u uzory-stats -n 20`. Проверка: `curl -sI https://gornitsa.games/uzory/v1/catalog.json` — `200` после первого каталога (до него — `404`).
+
