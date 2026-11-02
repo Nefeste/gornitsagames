@@ -29,6 +29,8 @@ pages = {
     "skazy/delete.html": ("games", "/", "ru", "en/skazy/delete.html"),
     "anamnez/index.html": ("games", "/", "ru", "en/anamnez/index.html"),
     "uzory/index.html": ("games", "/", "ru", "en/uzory/index.html"),
+    # условия подписки «Узоры+» — только по-русски: подписка продаётся в RuStore, в России
+    "uzory/terms.html": ("games", "/", "ru", "en/uzory/index.html"),
     "en/index.html": ("home", "/", "en", "index.html"),
     "en/about.html": ("about", "/", "en", "about.html"),
     "en/brand.html": ("brand", "/", "en", "brand.html"),
