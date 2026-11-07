@@ -109,6 +109,7 @@ def head(b, lang="ru", alternates=""):
 <link rel="icon" href="{b}favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#111816" media="(prefers-color-scheme: dark)">
 <link rel="alternate" type="application/atom+xml" title="{T[lang]['feed']}" href="{feed}">
 <link rel="preload" href="{b}assets/fonts/kurale-{f}-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="{b}assets/fonts/onest-{f}-400-normal.woff2" as="font" type="font/woff2" crossorigin>

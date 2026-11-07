@@ -157,7 +157,7 @@ p { margin: 0; }
 /* Шапка остаётся наверху; пока страница не сдвинута — сливается с фоном, при прокрутке
    становится полупрозрачной бумагой с тонкой линией и едва заметной тенью. */
 .site-header {
-  position: sticky; top: 0; z-index: 20;
+  position: relative; z-index: 20;
   border-bottom: 1px solid transparent;
   background: var(--linen);
   transition: background var(--t-slow), border-color var(--t-slow), box-shadow var(--t-slow);
@@ -426,6 +426,13 @@ p { margin: 0; }
 .news-item li::marker { color: var(--kumach); }
 .news-item:target h2 { color: var(--kumach); }
 .news-date { font-weight: 500; letter-spacing: 0.02em; }
+/* на широком экране дата стоит в своей колонке слева от заголовка — как в журнале */
+@media (min-width: 900px) {
+  .news { max-width: 56rem; }
+  .news-item { grid-template-columns: 10rem minmax(0, 44rem); column-gap: clamp(16px, 3vw, 32px); }
+  .news-item > * { grid-column: 2; }
+  .news-item > .news-date { grid-column: 1; grid-row: 1; padding-top: 0.45em; }
+}
 /* Для прессы: карточки игр — значок слева, текст и файлы справа */
 .press-title { font-size: var(--step-2); margin-bottom: 14px; }
 .press-games { display: grid; gap: 16px; }
@@ -693,12 +700,16 @@ details.faq .answer { display: grid; gap: 10px; padding-bottom: 18px; color: var
   .hoop { max-width: 520px; }
   .hero::before { background: radial-gradient(60% 40% at 50% 80%, var(--paper) 0%, transparent 100%); }
 }
+@media (min-width: 641px) {
+  .site-header { position: sticky; top: 0; }
+}
 @media (max-width: 1000px) {
   .footer-main { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .footer-about { grid-column: 1 / -1; max-width: none; }
 }
 @media (max-width: 640px) {
-  /* на телефоне разделы — одной строкой, которая при нужде листается вбок, а не ломается */
+  /* на телефоне шапка в две строки — она не прилипает, чтобы не отнимать треть экрана;
+     разделы — одной строкой, которая при нужде листается вбок, а не ломается */
   .site-header .wrap { padding-block: 6px 4px; }
   .nav { width: 100%; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-inline: calc(-1 * var(--gutter)); padding-inline: calc(var(--gutter) - 10px); }
   .nav::-webkit-scrollbar { display: none; }
