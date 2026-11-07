@@ -22,11 +22,12 @@ const LIGHT = { linen: '#ecede6', paper: '#f7f7f2', line: '#cfd1c6', cell: '#d9d
 const DARK = { linen: '#111816', paper: '#18211e', line: '#2c3833', cell: '#1f2a26', kumach: '#e5566a', spruce: '#7fb3a3', flax: '#d2bd84' };
 const K = 'kumach', S = 'spruce', F = 'flax';
 
-// Полотно: клетка s, середина клетки (0, 0) — в точке (cx, cy) экрана. Стежки — в карте «i,j» → нить.
+// Полотно: клетка s, середина клетки (0, 0) — в точке (cx, cy) экрана. Стежки — в карте «i,j» → нить;
+// plain — клетки знака: там крестик ровно как в brand/mark.svg, две целые линии без просвета.
 function scene(w, h, s, cy, k) {
-  return { w, h, s, cx: w / 2, cy, k, st: new Map(), extra: '' };
+  return { w, h, s, cx: w / 2, cy, k, st: new Map(), plain: new Set(), extra: '' };
 }
-const put = (sc, i, j, t) => { if (t) sc.st.set(i + ',' + j, t); };
+const put = (sc, i, j, t) => { if (t) { sc.st.set(i + ',' + j, t); sc.plain.delete(i + ',' + j); } };
 const cellX = (sc, i) => sc.cx + (i - 0.5) * sc.s; // левый верхний угол клетки
 const cellY = (sc, j) => sc.cy + (j - 0.5) * sc.s;
 // Сколько клеток помещается от середины до края (с запасом на обрезанные)
@@ -50,9 +51,11 @@ function strip(sc, j0, rows, period, fn, phase = 0) {
   const i0 = -Math.floor(n / 2) * period + phase;
   for (let c = 0; c < n * period; c++) for (let r = 0; r < rows; r++) put(sc, i0 + c, j0 + r, fn(r, c % period));
 }
-// Знак: ромб на сетке 7 × 7 — внешний ромб и середина кумачом, внутренний ромб елью (brand/mark.svg)
+// Знак: ромб на сетке 7 × 7 — внешний ромб и середина кумачом, внутренний ромб елью (brand/mark.svg).
+// Крестики знака — без нитяного просвета: брендбук не велит рисовать крестики знака другой формы.
 function mark(sc, i0 = -3, j0 = -3) {
   fill(sc, i0, j0, 7, 7, (r, c) => { const d = Math.abs(r - 3) + Math.abs(c - 3); return d === 3 || d === 0 ? K : d === 2 ? S : null; });
+  for (const [key, t] of sc.st) { const [i, j] = key.split(',').map(Number); if (i >= i0 && i < i0 + 7 && j >= j0 && j < j0 + 7) sc.plain.add(key); }
 }
 // Полоса-рушник — тот же рисунок, что на сайте (site.js, BAND); период 16 клеток, 5 строк
 const BAND = ['..x.....x.....x.', '.x.x...xox...x.x', 'x.o.x.xo.ox.x.o.', '.x.x...xox...x.x', '..x.....x.....x.'];
@@ -102,7 +105,8 @@ function cross(sc, i, j, t, arm = 1) {
   for (let a = 1; a <= arm; a++) { put(sc, i + a, j, t); put(sc, i - a, j, t); put(sc, i, j + a, t); put(sc, i, j - a, t); }
 }
 
-// Рисунок в SVG: дырочки канвы, затем нижние нити всех стежков, затем просветы и верхние нити
+// Рисунок в SVG: дырочки канвы, затем нижние нити всех стежков, затем просветы и верхние нити.
+// У орнамента верхняя нить лежит поверх нижней (просвет цвета ткани); у знака — обе линии целиком.
 function render(sc) {
   const { w, h, s, k } = sc, p = s * 0.225, wd = s * 0.325; // поля и толщина — как в знаке (mark.svg)
   let g = `<rect width="${w}" height="${h}" fill="${k.linen}"/>` + sc.extra;
@@ -117,6 +121,7 @@ function render(sc) {
     const c = k[t];
     (under[c] = under[c] || []).push(`M${(x + p).toFixed(1)} ${(y + s - p).toFixed(1)}L${(x + s - p).toFixed(1)} ${(y + p).toFixed(1)}`);
     const o = `M${(x + p).toFixed(1)} ${(y + p).toFixed(1)}L${(x + s - p).toFixed(1)} ${(y + s - p).toFixed(1)}`;
+    if (sc.plain.has(key)) { under[c].push(o); continue; }
     halo.push(o);
     (over[c] = over[c] || []).push(o);
   }
