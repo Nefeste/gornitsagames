@@ -40,8 +40,13 @@ FACTS = {
 
 # Сколько знаков можно в полях (docs/08-publishing.md устава).
 LIMITS = {"name": 40, "title": 60, "description": 220, "kind": 40, "lead": 160, "caption": 30,
-          "alt": 160, "card.text": 240, "card.points": 80, "links.text": 40, "note": 200,
+          "alt": 160, "videos.title": 60, "card.text": 240, "card.points": 80, "links.text": 40, "note": 200,
           **{f"facts.{k}": 40 for k in FACTS}}
+
+# Ролик игры (поле videos): страница ролика в VK Видео — там же группа студии (решение владельца
+# 07.11.2026). Сайт показывает обложку и ссылку, сам плеер ВКонтакте не встраивает: страница не
+# обращается к чужим сервисам, пока человек сам не нажмёт.
+VIDEO_URL = re.compile(r"https://(?:vkvideo\.ru|vk\.com|vk\.ru)/(?:video|clip)-?\d+_\d+(?:\?[\w=&%-]*)?")
 
 STATUS = {  # класс плашки, плашка ru/en, приписка к жанру ru/en
     "dev": ("dev", "В разработке", "In development", "в разработке", "in development"),
@@ -56,6 +61,7 @@ T = {
            "site_name": "Горница", "banner": "Баннер 1024 × 500", "icon": "Значок 192 × 192",
            "rustore": "Скачайте из RuStore",
            "page_shots": "Страница и снимки экрана",
+           "videos": "Видео", "watch": "Смотреть в VK Видео",
            "glance": "Коротко", "what": "Что это", "where": "Где скачать",
            "where_dev": "Пока нигде: игра в разработке, готовится к выходу в RuStore",
            "where_test": "Пока только у участников закрытого теста",
@@ -66,6 +72,7 @@ T = {
            "shots": "Screenshots", "privacy": "Privacy policy", "delete": "Delete your profile",
            "other": "По-русски", "about": "About the game", "site_name": "Gornitsa",
            "banner": "Banner 1024 × 500", "icon": "Icon 192 × 192", "page_shots": "Page and screenshots",
+           "videos": "Videos", "watch": "Watch on VK Video",
            "rustore": "Download from RuStore",
            "glance": "At a glance", "what": "What it is", "where": "Where to get it",
            "where_dev": "Not yet: the game is in development for RuStore",
@@ -89,6 +96,8 @@ SPEC = {
     # Обложка над названием: 3 : 1, на телефоне края срезаются до 2 : 1.
     "cover": ((1920, 640), "WEBP", 82),
     "cover-small": ((960, 320), "WEBP", 82),
+    # Обложка ролика (videos.poster): 16 : 9; нет своей — первый альбомный снимок или баннер.
+    "video-poster": ((1280, 720), "WEBP", 84),
 }
 
 # ---------- store/site/page.*.md ----------
@@ -210,6 +219,22 @@ def validate(meta, body, store):
         image(f"снимок {i}", s.get("file"), shape)
     if len(forms) > 1:
         errs.append("shots: снимки разной формы — нужны все 9 : 16 или все 16 : 9")
+
+    videos = meta.get("videos")
+    if videos is not None:
+        if not isinstance(videos, list) or not 1 <= len(videos) <= 3:
+            errs.append("videos: нужно от 1 до 3 роликов")
+            videos = videos if isinstance(videos, list) else []
+        for i, v in enumerate(videos, 1):
+            if not isinstance(v, dict) or not v.get("url"):
+                errs.append(f"ролик {i}: нужны url и title")
+                continue
+            text("videos.title", v.get("title"))
+            if not VIDEO_URL.fullmatch(str(v["url"])):
+                errs.append(f"ролик {i}: {v['url']} — нужна ссылка на ролик VK Видео: https://vkvideo.ru/video-<группа>_<ролик>")
+            if v.get("poster"):
+                image(f"ролик {i}, poster", v["poster"],
+                      lambda w, h: None if near(w / h, 16 / 9) and w >= 1280 else "нужно 16 : 9 от 1280 × 720")
 
     card = meta.get("card")
     if not isinstance(card, dict):
@@ -361,6 +386,16 @@ def render_page(slug, lang, meta, body, img, extra_meta, has_delete, privacy_anc
                    f'width="{s["w"]}" height="{s["h"]}" alt="{attr(s["alt"])}"{lazy}></a>'
                    f'<figcaption>{esc(s["caption"])}</figcaption></figure>')
     gallery = (f'    <section class="{cls}" aria-label="{t["shots"]}">\n' + "\n".join(fig) + "\n    </section>\n")
+    if img.get("videos"):
+        # Ролики — обложкой со ссылкой на VK Видео; плеер ВКонтакте на страницу не встраивается
+        vids = []
+        for v in img["videos"]:
+            link = f'href="{attr(v["url"])}" target="_blank" rel="noopener"'
+            vids.append(f'      <figure class="video"><a class="video-link" {link} aria-label="{attr(t["watch"] + ": " + v["title"])}">'
+                        f'<img src="/assets/games/{v["poster"]}" width="{v["w"]}" height="{v["h"]}" alt="" loading="lazy">'
+                        f'<span class="video-play" aria-hidden="true"></span></a>'
+                        f'<figcaption>{esc(v["title"])} · <a {link}>{t["watch"]} ↗</a></figcaption></figure>')
+        gallery = (f'    <section class="videos" aria-label="{t["videos"]}">\n' + "\n".join(vids) + "\n    </section>\n") + gallery
     if veil:
         # Снимки с медицинскими сценами (tools/games.json, "veil") — за шторкой «Мне есть 16»: <details>
         # работает и без JS, а site.js запоминает ответ в этом браузере.
@@ -603,6 +638,16 @@ def sync(cfg, src, lock, index):
             (sw, sh), _, _ = SPEC[spec]
             img["shots"].append({"name": name, "full": full, "full_size": target_size(spec + "-full", (w, h)),
                                  "w": sw, "h": sh, "alt": s["alt"], "caption": s["caption"]})
+        img["videos"] = []
+        for v in meta.get("videos") or []:
+            if v.get("poster"):
+                pw, ph = SPEC["video-poster"][0]
+                poster = g.image(v["poster"], "video-poster", None, lang, taken)
+            elif img["shots"] and img["shots"][0]["w"] > img["shots"][0]["h"]:
+                poster, pw, ph = img["shots"][0]["name"], img["shots"][0]["w"], img["shots"][0]["h"]
+            else:
+                poster, pw, ph = img["feature"], 1024, 500
+            img["videos"].append({"url": v["url"], "title": v["title"], "poster": poster, "w": pw, "h": ph})
         source = f"store/site/page.{lang}.md репозитория {repo}"  # коммит — в games.lock.json
         out = ROOT / "src" / ("" if lang == "ru" else "en") / slug / "index.html"
         g.files[out] = render_page(slug, lang, meta, body, img, cfg.get("meta", {}).get(lang, []),
