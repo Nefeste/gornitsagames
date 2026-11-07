@@ -410,7 +410,7 @@
   function reveal() {
     if (!("IntersectionObserver" in window) || !window.matchMedia ||
         !window.matchMedia("(prefers-reduced-motion: no-preference)").matches) return;
-    var sel = ".section-head, .game, .principle, .news-list li, .promises li, .press-game, .wallpaper, .brand-tile, " +
+    var sel = ".section-head, .game, .principle, .news-list li, .promises li, .press-game, .wallpaper, .more-tile, .timeline li, .brand-tile, " +
               ".swatch-card, .specimen, .news-item, .contact, .shots figure, .glance, .doc-body > h2";
     var vh = window.innerHeight, counts = [], parents = [];
     var io = new IntersectionObserver(function (entries) {
