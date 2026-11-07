@@ -323,7 +323,7 @@ p { margin: 0; }
 .section-head p { color: var(--ink-soft); }
 
 /* Поверхности: бумага с тонкой линией; ниже — один светлый пиксель и мягкая тень от стола */
-.card, .game, .contact, .press-game, .game-facts, .swatch-card, .brand-tile, details.veil > summary, .table-wrap {
+.card, .game, .contact, .press-game, .wallpaper, .game-facts, .swatch-card, .brand-tile, details.veil > summary, .table-wrap {
   box-shadow: var(--shadow-rest), var(--sheen);
 }
 
@@ -445,6 +445,23 @@ p { margin: 0; }
 .press-game > div > p:not([class]) { color: var(--ink-soft); }
 .press-game .game-facts { background: transparent; box-shadow: none; }
 .press-files { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: var(--step--1); font-weight: 500; }
+
+/* Обои: карточка — превью для телефона и компьютера рядом, подпись и ссылки на файлы */
+.wallpapers { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 30rem), 1fr)); gap: 16px; }
+.wallpaper { display: grid; gap: 16px; align-content: start; padding: clamp(16px, 3vw, 24px); background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius-card); }
+.wallpaper-shots { display: grid; grid-template-columns: 3fr 7fr; align-items: end; gap: 14px; max-width: 480px; }
+.wallpaper-shots img { display: block; width: 100%; height: auto; border: 1px solid var(--line); box-shadow: var(--shadow-rest); background: var(--linen); }
+.wp-phone { border-radius: 14px; }
+.wp-desktop { border-radius: 6px; }
+.wallpaper-text { display: grid; gap: 6px; }
+.wallpaper-text h2 { font-size: var(--step-2); }
+.wallpaper-text > p:not([class]) { color: var(--ink-soft); }
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .wallpaper-shots img { transition: transform var(--t) var(--ease), box-shadow var(--t); }
+  .wallpaper:hover .wallpaper-shots img { transform: translateY(-3px); box-shadow: var(--shadow-lift); }
+}
+/* Блогерам: короткие ссылки на игры */
+.go-list .go-link { font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .doc { padding-block: clamp(36px, 6vw, 72px) clamp(48px, 7vw, 96px); }
 /* одна колонка не шире экрана: широкая таблица прокручивается внутри .table-wrap, а не двигает страницу */
 .doc .wrap { display: grid; grid-template-columns: minmax(0, 1fr); gap: 28px; }

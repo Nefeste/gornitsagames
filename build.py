@@ -17,6 +17,8 @@ pages = {
     "brand.html": ("brand", "", "ru", "en/brand.html"),
     "news.html": ("news", "", "ru", "en/news.html"),
     "press.html": ("press", "", "ru", "en/press.html"),
+    "creators.html": ("creators", "", "ru", "en/creators.html"),
+    "wallpapers.html": ("wallpapers", "", "ru", "en/wallpapers.html"),
     "support.html": ("support", "", "ru", "en/support.html"),
     "privacy.html": ("privacy", "", "ru", "en/privacy.html"),
     "404.html": ("404", "/", "ru", "en/index.html"),
@@ -36,6 +38,8 @@ pages = {
     "en/brand.html": ("brand", "/", "en", "brand.html"),
     "en/news.html": ("news", "/", "en", "news.html"),
     "en/press.html": ("press", "/", "en", "press.html"),
+    "en/creators.html": ("creators", "/", "en", "creators.html"),
+    "en/wallpapers.html": ("wallpapers", "/", "en", "wallpapers.html"),
     "en/support.html": ("support", "/", "en", "support.html"),
     "en/privacy.html": ("privacy", "/", "en", "privacy.html"),
     "en/votchina/index.html": ("games", "/", "en", "votchina/index.html"),
@@ -99,6 +103,14 @@ if partials.seller_errors():
 # /go/<игра> — переходы на RuStore (tools/seo.py): куда ведёт каждый.
 GO = seo.go_targets()
 
+
+def go_list(lang):
+    """«Блогерам»: короткие ссылки /go/<игра> для описания ролика — по играм из подвала, новая игра появится сама."""
+    pre = "/en" if lang == "en" else ""
+    return "\n".join(f'        <li><a href="{pre}/{slug}/">{name}</a> — <a class="go-link" href="/go/{slug}">gornitsa.games/go/{slug}</a></li>'
+                     for slug, name in GAMES[lang] if slug in GO)
+
+
 # Старые адреса: страница копируется как есть и сразу переадресует на новый адрес.
 raw = ["votchina/privacy.html"]
 
@@ -132,6 +144,7 @@ for name, (key, base, lang, pair) in pages.items():
                 .replace("{{MARK}}", partials.BRAND)
                 .replace("{{SELLER}}", partials.seller(lang, "block"))
                 .replace("{{SELLER_PARA}}", partials.seller(lang, "para"))
+                .replace("{{GO_LIST}}", go_list(lang))
                 .replace("{{NEWS}}", news.page(lang))
                 .replace("{{NEWS_LATEST}}\n", news.latest(lang, base)))
     if key != "404":
