@@ -19,6 +19,7 @@ pages = {
     "press.html": ("press", "", "ru", "en/press.html"),
     "creators.html": ("creators", "", "ru", "en/creators.html"),
     "wallpapers.html": ("wallpapers", "", "ru", "en/wallpapers.html"),
+    "testers.html": ("testers", "", "ru", "en/testers.html"),
     "support.html": ("support", "", "ru", "en/support.html"),
     "privacy.html": ("privacy", "", "ru", "en/privacy.html"),
     "404.html": ("404", "/", "ru", "en/index.html"),
@@ -40,6 +41,7 @@ pages = {
     "en/press.html": ("press", "/", "en", "press.html"),
     "en/creators.html": ("creators", "/", "en", "creators.html"),
     "en/wallpapers.html": ("wallpapers", "/", "en", "wallpapers.html"),
+    "en/testers.html": ("testers", "/", "en", "testers.html"),
     "en/support.html": ("support", "/", "en", "support.html"),
     "en/privacy.html": ("privacy", "/", "en", "privacy.html"),
     "en/votchina/index.html": ("games", "/", "en", "votchina/index.html"),
@@ -145,6 +147,7 @@ for name, (key, base, lang, pair) in pages.items():
                 .replace("{{SELLER}}", partials.seller(lang, "block"))
                 .replace("{{SELLER_PARA}}", partials.seller(lang, "para"))
                 .replace("{{GO_LIST}}", go_list(lang))
+                .replace("{{MILESTONES}}", news.milestones(lang, base, partials.CONFIG["milestones"]["news"]))
                 .replace("{{NEWS}}", news.page(lang))
                 .replace("{{NEWS_LATEST}}\n", news.latest(lang, base)))
     if key != "404":
