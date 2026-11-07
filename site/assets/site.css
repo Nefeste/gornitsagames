@@ -445,6 +445,7 @@ p { margin: 0; }
 .press-game > div > p:not([class]) { color: var(--ink-soft); }
 .press-game .game-facts { background: transparent; box-shadow: none; }
 .press-files { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: var(--step--1); font-weight: 500; }
+.wp-theme { color: var(--ink-soft); font-weight: 400; }
 
 /* Обои: карточка — превью для телефона и компьютера рядом, подпись и ссылки на файлы */
 .wallpapers { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 30rem), 1fr)); gap: 16px; }

@@ -66,8 +66,8 @@ tools/
                       для поисковиков (ld+json), срок security.txt, title и описания (длины,
                       повторы), sitemap.xml, ссылки llms.txt, реквизиты продавца
   brand-assets.mjs    рисует картинку для ссылок и значки из знака и шрифтов сайта (Playwright)
-  wallpapers.mjs      рисует обои из знака, полосы-рушника и узора главной кодом по сетке (Playwright):
-                      node tools/wallpapers.mjs site/assets/wallpapers
+  wallpapers.mjs      рисует обои — знак, рушник, канву и скатерть, светлые и тёмные — крестиками по
+                      одной сетке на всё полотно (Playwright): node tools/wallpapers.mjs site/assets/wallpapers
 games.lock.json       из какого коммита игры и из каких файлов собраны её страница и картинки
 .github/workflows/games.yml   «Страницы игр»: каждую ночь — PR «Сайт: обновления игр»
 .github/workflows/site.yml    «Проверка сайта»: на каждый PR — build.py, check.py, shellcheck (см. «Проверка PR»)
