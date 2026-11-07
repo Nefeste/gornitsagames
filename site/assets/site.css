@@ -461,6 +461,30 @@ p { margin: 0; }
   .wallpaper-shots img { transition: transform var(--t) var(--ease), box-shadow var(--t); }
   .wallpaper:hover .wallpaper-shots img { transform: translateY(-3px); box-shadow: var(--shadow-lift); }
 }
+/* Главная: «Ещё в „Горнице“» — плитки-ссылки на обои, тесты, блогерам и каналы */
+.more-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.more-tile { position: relative; display: grid; align-content: start; gap: 8px; padding: clamp(18px, 3vw, 24px); padding-bottom: 44px; background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius-card); color: inherit; text-decoration: none; }
+.more-tile h3 { font-family: var(--body); font-weight: 600; font-size: var(--step-1); line-height: 1.3; }
+.more-tile p { color: var(--ink-soft); }
+.more-tile .press-files { position: absolute; left: clamp(18px, 3vw, 24px); bottom: 16px; }
+.more-go { position: absolute; left: clamp(18px, 3vw, 24px); bottom: 14px; color: var(--kumach); font-weight: 600; transition: transform var(--t) var(--ease); }
+a.more-tile:hover h3 { color: var(--kumach); }
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  a.more-tile { transition: transform var(--t) var(--ease), box-shadow var(--t), border-color var(--t); }
+  a.more-tile:hover, a.more-tile:focus-visible { transform: translateY(-3px); box-shadow: var(--shadow-lift), var(--sheen); }
+  a.more-tile:hover .more-go { transform: translateX(4px); }
+}
+@media (max-width: 900px) { .more-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .more-tiles { grid-template-columns: minmax(0, 1fr); } }
+/* «О студии»: путь студии — вехи на нити, крестик у каждой */
+.timeline { list-style: none; margin: 0; padding: 0 0 0 28px; display: grid; gap: 18px; max-width: 44rem; position: relative; }
+.timeline::before { content: ""; position: absolute; left: 7px; top: 8px; bottom: 8px; border-left: 2px dashed var(--line); }
+.timeline li { position: relative; display: grid; gap: 2px; }
+.timeline li::before { content: "×"; position: absolute; left: -28px; top: -1px; width: 16px; text-align: center; font-weight: 700; line-height: 1.4; color: var(--kumach); background: var(--linen); }
+.timeline li:nth-child(even)::before { color: var(--spruce); }
+.timeline time { font-size: var(--step--1); color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+.timeline a { font-weight: 500; color: inherit; text-decoration: none; }
+.timeline a:hover { color: var(--kumach); text-decoration: underline; }
 /* Блогерам: короткие ссылки на игры */
 .go-list .go-link { font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .doc { padding-block: clamp(36px, 6vw, 72px) clamp(48px, 7vw, 96px); }
