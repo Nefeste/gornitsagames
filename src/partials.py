@@ -14,7 +14,7 @@ T = {
         "games": "Игры", "about": "О студии", "support": "Поддержка", "privacy": "Политика конфиденциальности",
         "docs": "Документы", "studio": "Студия «Горница»", "brandbook": "Брендбук", "other": "English", "other_lang": "en", "fonts": "cyrillic",
         "tagline": "Спокойные, честные и понятные игры для RuStore.", "studio_col": "Студия", "help": "Помощь",
-        "mail": "Почта", "mail_hello": "общая", "mail_support": "поддержка", "mail_press": "для прессы",
+        "mail": "Почта", "mail_hello": "общая", "mail_support": "поддержка", "mail_press": "для прессы", "mail_qa": "тестирование", "testers": "Тестерам",
         "news": "Новости", "press": "Для прессы", "feed": "Новости «Горницы»", "vk": "ВКонтакте", "wallpapers": "Обои", "creators": "Блогерам",
         "og_alt": "Знак «Горницы» — ромб из вышитых крестиков — и надпись «Светлая комната для хороших игр»",
         "seller": "Продавец", "seller_inn": "ИНН", "seller_ogrnip": "ОГРНИП",
@@ -25,7 +25,7 @@ T = {
         "games": "Games", "about": "About", "support": "Support", "privacy": "Privacy policy",
         "docs": "Documents", "studio": "Gornitsa Studio", "brandbook": "Brand book", "other": "Русский", "other_lang": "ru", "fonts": "latin",
         "tagline": "Calm, honest and clear games for RuStore.", "studio_col": "Studio", "help": "Help",
-        "mail": "Email", "mail_hello": "general", "mail_support": "support", "mail_press": "press",
+        "mail": "Email", "mail_hello": "general", "mail_support": "support", "mail_press": "press", "mail_qa": "testing", "testers": "Testers",
         "news": "News", "press": "Press", "feed": "Gornitsa news", "vk": "VK", "wallpapers": "Wallpapers", "creators": "Creators",
         "og_alt": "The Gornitsa mark, a diamond of cross-stitches, and the words “A bright room for good games”",
         "seller": "Seller", "seller_inn": "INN (taxpayer number)", "seller_ogrnip": "OGRNIP (state registration)",
@@ -170,6 +170,7 @@ def footer(b, lang="ru", games=(), other=None):
         <li><a href="{VK}" rel="me">{t['vk']}</a></li>
         <li><a href="{p}press.html">{t['press']}</a></li>
         <li><a href="{p}creators.html">{t['creators']}</a></li>
+        <li><a href="{p}testers.html">{t['testers']}</a></li>
         <li><a href="{p}brand.html">{t['brandbook']}</a></li>
         <li><a href="{p}wallpapers.html">{t['wallpapers']}</a></li>
       </ul>
@@ -187,6 +188,7 @@ def footer(b, lang="ru", games=(), other=None):
         <li>hello@gornitsa.games<span>{t['mail_hello']}</span></li>
         <li>support@gornitsa.games<span>{t['mail_support']}</span></li>
         <li>press@gornitsa.games<span>{t['mail_press']}</span></li>
+        <li>qa@gornitsa.games<span>{t['mail_qa']}</span></li>
       </ul>
     </div>
   </div>

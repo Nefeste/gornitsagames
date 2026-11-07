@@ -116,6 +116,20 @@ def page(lang):
     return "\n".join(out)
 
 
+def milestones(lang, base, ids):
+    """«Путь студии» на «О студии»: новости-вехи из tools/site.json, от первой к последней.
+    Черновик и новость без перевода не показываются; вех нет — нет и блока."""
+    items = {i["id"]: i for i in load(lang)[0]}
+    rows = sorted((items[i] for i in ids if i in items), key=lambda i: (i["date"], i["id"]))
+    if not rows:
+        return ""
+    href = "news.html" if (lang == "ru" and base == "") else T[lang]["page"]
+    return "\n".join(f"""        <li>
+          <time datetime="{i["date"]}">{human_date(i["date"], lang)}</time>
+          <a href="{href}#{i["id"]}">{esc(i["title"])}</a>
+        </li>""" for i in rows)
+
+
 def latest(lang, base, n=3):
     """Три свежие новости для главной; нет новостей — нет и блока."""
     items, _ = load(lang)
