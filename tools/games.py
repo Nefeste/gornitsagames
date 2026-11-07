@@ -15,7 +15,7 @@ src/en/index.html) и картинки в site/assets/games/. Из какого 
 
 Нужны PyYAML и Pillow (в workflow — точные версии из .github/workflows/games.yml).
 """
-import argparse, hashlib, io, json, pathlib, re, subprocess, sys
+import argparse, hashlib, io, json, pathlib, re, shutil, subprocess, sys
 
 import yaml
 from PIL import Image, ImageOps
@@ -44,9 +44,12 @@ LIMITS = {"name": 40, "title": 60, "description": 220, "kind": 40, "lead": 160, 
           **{f"facts.{k}": 40 for k in FACTS}}
 
 # Ролик игры (поле videos): страница ролика в VK Видео — там же группа студии (решение владельца
-# 07.11.2026). Сайт показывает обложку и ссылку, сам плеер ВКонтакте не встраивает: страница не
-# обращается к чужим сервисам, пока человек сам не нажмёт.
-VIDEO_URL = re.compile(r"https://(?:vkvideo\.ru|vk\.com|vk\.ru)/(?:video|clip)-?\d+_\d+(?:\?[\w=&%-]*)?")
+# 07.11.2026). На странице — обложка; плеер ВКонтакте загружается прямо в неё только по нажатию
+# (site.js, решение владельца 07.11.2026): до нажатия страница к ВКонтакте не обращается.
+VIDEO_URL = re.compile(r"https://(?:vkvideo\.ru|vk\.com|vk\.ru)/(?:video|clip)(-?\d+)_(\d+)(?:\?[\w=&%-]*)?")
+# Петля для карточки на главной (поле loop): беззвучный MP4 со своего сервера, крутится, пока
+# карточка на экране (site.js); без скрипта и при «уменьшить движение» — баннер.
+LOOP_MAX = 1_572_864  # 1,5 МБ
 
 STATUS = {  # класс плашки, плашка ru/en, приписка к жанру ru/en
     "dev": ("dev", "В разработке", "In development", "в разработке", "in development"),
@@ -61,7 +64,7 @@ T = {
            "site_name": "Горница", "banner": "Баннер 1024 × 500", "icon": "Значок 192 × 192",
            "rustore": "Скачайте из RuStore",
            "page_shots": "Страница и снимки экрана",
-           "videos": "Видео", "watch": "Смотреть в VK Видео",
+           "videos": "Видео", "watch": "Открыть в VK Видео", "play": "Смотреть",
            "glance": "Коротко", "what": "Что это", "where": "Где скачать",
            "where_dev": "Пока нигде: игра в разработке, готовится к выходу в RuStore",
            "where_test": "Пока только у участников закрытого теста",
@@ -72,7 +75,7 @@ T = {
            "shots": "Screenshots", "privacy": "Privacy policy", "delete": "Delete your profile",
            "other": "По-русски", "about": "About the game", "site_name": "Gornitsa",
            "banner": "Banner 1024 × 500", "icon": "Icon 192 × 192", "page_shots": "Page and screenshots",
-           "videos": "Videos", "watch": "Watch on VK Video",
+           "videos": "Videos", "watch": "Open on VK Video", "play": "Watch",
            "rustore": "Download from RuStore",
            "glance": "At a glance", "what": "What it is", "where": "Where to get it",
            "where_dev": "Not yet: the game is in development for RuStore",
@@ -236,6 +239,18 @@ def validate(meta, body, store):
                 image(f"ролик {i}, poster", v["poster"],
                       lambda w, h: None if near(w / h, 16 / 9) and w >= 1280 else "нужно 16 : 9 от 1280 × 720")
 
+    if meta.get("loop"):
+        rel = meta["loop"]
+        lp = (store / str(rel)).resolve()
+        if store.resolve() not in lp.parents or not lp.is_file():
+            errs.append(f"loop: нет файла store/{rel}")
+        elif lp.suffix.lower() != ".mp4":
+            errs.append(f"loop: store/{rel} — нужен MP4 (H.264, без звука)")
+        elif lp.stat().st_size > LOOP_MAX:
+            errs.append(f"loop: store/{rel} — {lp.stat().st_size / 1048576:.1f} МБ, можно до 1,5 МБ")
+        elif shutil.which("ffprobe"):
+            errs += [f"loop: store/{rel} — {e}" for e in loop_errors(lp)]
+
     card = meta.get("card")
     if not isinstance(card, dict):
         errs.append("нет поля card")
@@ -252,6 +267,30 @@ def validate(meta, body, store):
     errs += body_errors(body, meta.get("_line", 1))
     if not body.strip():
         errs.append("нет текста страницы")
+    return errs
+
+
+def loop_errors(path):
+    """Петля: H.264, без звука, 16 : 9 от 960 × 540, от 4 до 15 секунд (если на машине есть ffprobe)."""
+    try:
+        out = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "stream=codec_type,codec_name,width,height:format=duration",
+                              "-of", "json", str(path)], capture_output=True, text=True, check=True).stdout
+        info = json.loads(out)
+    except (subprocess.CalledProcessError, ValueError):
+        return ["ffprobe не прочитал файл"]
+    errs, streams = [], info.get("streams", [])
+    video = [x for x in streams if x.get("codec_type") == "video"]
+    if any(x.get("codec_type") == "audio" for x in streams):
+        errs.append("в петле есть звук — нужна без звуковой дорожки")
+    if not video or video[0].get("codec_name") != "h264":
+        errs.append("нужно видео H.264")
+    else:
+        w, h = video[0].get("width", 0), video[0].get("height", 0)
+        if not (near(w / max(h, 1), 16 / 9) and w >= 960):
+            errs.append(f"{w} × {h} — нужно 16 : 9 от 960 × 540")
+    d = float(info.get("format", {}).get("duration") or 0)
+    if not 4 <= d <= 15:
+        errs.append(f"{d:.1f} с — нужно от 4 до 15 секунд")
     return errs
 
 
@@ -387,11 +426,13 @@ def render_page(slug, lang, meta, body, img, extra_meta, has_delete, privacy_anc
                    f'<figcaption>{esc(s["caption"])}</figcaption></figure>')
     gallery = (f'    <section class="{cls}" aria-label="{t["shots"]}">\n' + "\n".join(fig) + "\n    </section>\n")
     if img.get("videos"):
-        # Ролики — обложкой со ссылкой на VK Видео; плеер ВКонтакте на страницу не встраивается
+        # Ролики — обложкой; по нажатию site.js ставит в неё плеер ВКонтакте (до нажатия запросов к VK нет),
+        # без скрипта ссылка открывает ролик в VK Видео
         vids = []
         for v in img["videos"]:
             link = f'href="{attr(v["url"])}" target="_blank" rel="noopener"'
-            vids.append(f'      <figure class="video"><a class="video-link" {link} aria-label="{attr(t["watch"] + ": " + v["title"])}">'
+            vids.append(f'      <figure class="video"><a class="video-link" {link} data-vk-oid="{v["oid"]}" data-vk-id="{v["id"]}" '
+                        f'aria-label="{attr(t["play"] + ": " + v["title"])}">'
                         f'<img src="/assets/games/{v["poster"]}" width="{v["w"]}" height="{v["h"]}" alt="" loading="lazy">'
                         f'<span class="video-play" aria-hidden="true"></span></a>'
                         f'<figcaption>{esc(v["title"])} · <a {link}>{t["watch"]} ↗</a></figcaption></figure>')
@@ -504,11 +545,13 @@ def render_card(slug, lang, meta, img, extra, lazy):
     page = f"{slug}/" if lang == "ru" else f"/en/{slug}/"
     assets = "assets/games/" if lang == "ru" else "/assets/games/"
     card = meta["card"]
+    # петля вместо баннера — её ставит site.js, когда карточка на экране; баннер остаётся обложкой
+    loop = f' data-loop="{assets}{img["loop"]}"' if img.get("loop") else ""
     pts = "\n".join(f"            <li>{esc(p)}</li>" for p in card["points"])
     links = [f'            <a href="{page}">{t["about"]}</a>']
     links += [f'            <a href="{attr(local(l["url"]))}">{esc(l["text"])}</a>' for l in (card.get("links") or []) + extra]
     return f"""        <article class="game">
-          <a class="game-shot" href="{page}" tabindex="-1" aria-hidden="true"><img src="{assets}{img["feature"]}" width="1024" height="500" alt=""{' loading="lazy"' if lazy else ""}></a>
+          <a class="game-shot" href="{page}" tabindex="-1" aria-hidden="true"{loop}><img src="{assets}{img["feature"]}" width="1024" height="500" alt=""{' loading="lazy"' if lazy else ""}></a>
           <div class="game-top"><span class="game-kind">{esc(meta["kind"])}</span><span class="status status-{st[0]}">{st[1] if lang == "ru" else st[2]}</span></div>
           <h3><a href="{page}">{esc(meta["name"])}</a></h3>
           <p>{esc(card["text"])}</p>
@@ -586,6 +629,20 @@ class Game:
         self.images[name] = key
         return name
 
+    def copy(self, rel, base, lang_tag, taken):
+        """Файл как есть (петля MP4): <игра>-<base>.mp4; у другого файла с тем же именем — -en."""
+        src = (self.store / rel).resolve()
+        name = f"{self.slug}-{base}{src.suffix.lower()}"
+        if taken.get(name, src) != src:
+            name = f"{self.slug}-{base}-{lang_tag}{src.suffix.lower()}"
+        taken[name] = src
+        data = src.read_bytes()
+        key = "sha" + hashlib.sha256(data).hexdigest()[:16]
+        if self.lock.get("images", {}).get(name) != key or not (ASSETS / name).is_file():
+            self.files[ASSETS / name] = data
+        self.images[name] = key
+        return name
+
 
 def git_head(path):
     try:
@@ -647,7 +704,10 @@ def sync(cfg, src, lock, index):
                 poster, pw, ph = img["shots"][0]["name"], img["shots"][0]["w"], img["shots"][0]["h"]
             else:
                 poster, pw, ph = img["feature"], 1024, 500
-            img["videos"].append({"url": v["url"], "title": v["title"], "poster": poster, "w": pw, "h": ph})
+            oid, vid = VIDEO_URL.fullmatch(v["url"]).groups()
+            img["videos"].append({"url": v["url"], "title": v["title"], "poster": poster, "w": pw, "h": ph, "oid": oid, "id": vid})
+        if meta.get("loop"):
+            img["loop"] = g.copy(meta["loop"], "loop", lang, taken)
         source = f"store/site/page.{lang}.md репозитория {repo}"  # коммит — в games.lock.json
         out = ROOT / "src" / ("" if lang == "ru" else "en") / slug / "index.html"
         g.files[out] = render_page(slug, lang, meta, body, img, cfg.get("meta", {}).get(lang, []),
