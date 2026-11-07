@@ -1,5 +1,6 @@
 /* Горница — узор-раскраска на главной, орнаментальная полоса, копирование почты, снимки крупно,
-   шапка при прокрутке и появление карточек. Сайт целиком работает и без этого скрипта. */
+   шапка при прокрутке, появление карточек, петли игр в карточках и плеер роликов по нажатию.
+   Сайт целиком работает и без этого скрипта. */
 (function () {
   "use strict";
 
@@ -436,12 +437,72 @@
     });
   }
 
+  // Петля игры в карточке на главной (data-loop у .game-shot, tools/games.py): беззвучное видео со своего
+  // сервера поверх баннера. Грузится и крутится, только пока карточка на экране; при «уменьшить движение»,
+  // экономии трафика и без IntersectionObserver остаётся баннер.
+  function loops() {
+    var shots = document.querySelectorAll(".game-shot[data-loop]");
+    if (!shots.length || !("IntersectionObserver" in window) || !window.matchMedia ||
+        !window.matchMedia("(prefers-reduced-motion: no-preference)").matches) return;
+    var conn = navigator.connection;
+    if (conn && conn.saveData) return;
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        var a = e.target, v = a.querySelector("video");
+        if (e.isIntersecting) {
+          if (!v) {
+            var img = a.querySelector("img");
+            v = document.createElement("video");
+            v.className = "game-loop";
+            v.muted = true; v.loop = true; v.playsInline = true;
+            v.setAttribute("muted", ""); v.setAttribute("playsinline", ""); v.setAttribute("aria-hidden", "true");
+            v.preload = "auto";
+            if (img) v.poster = img.currentSrc || img.src;
+            v.src = a.getAttribute("data-loop");
+            v.addEventListener("playing", function () { a.classList.add("is-playing"); });
+            v.addEventListener("error", function () { a.classList.remove("is-playing"); v.remove(); io.unobserve(a); });
+            a.appendChild(v);
+          }
+          var p = v.play();
+          if (p && p.catch) p.catch(function () {});
+        } else if (v) {
+          v.pause();
+        }
+      });
+    }, { threshold: 0.4 });
+    shots.forEach(function (a) { io.observe(a); });
+  }
+
+  // Ролик на странице игры (.video-link с data-vk-id, tools/games.py): по нажатию на обложку на её месте
+  // появляется плеер ВКонтакте. До нажатия страница к ВКонтакте не обращается; без скрипта ссылка
+  // открывает ролик в VK Видео в новой вкладке.
+  function vkPlayers() {
+    document.querySelectorAll(".video-link[data-vk-id]").forEach(function (a) {
+      a.addEventListener("click", function (e) {
+        if (e.ctrlKey || e.metaKey || e.shiftKey || e.button === 1) return;  // в новой вкладке — как ссылка
+        e.preventDefault();
+        var f = document.createElement("iframe");
+        f.className = "video-frame";
+        f.src = "https://vk.com/video_ext.php?oid=" + encodeURIComponent(a.getAttribute("data-vk-oid")) +
+                "&id=" + encodeURIComponent(a.getAttribute("data-vk-id")) + "&hd=2&autoplay=1";
+        f.title = a.getAttribute("aria-label") || "";
+        f.allow = "autoplay; encrypted-media; fullscreen; picture-in-picture; screen-wake-lock";
+        f.setAttribute("allowfullscreen", "");
+        f.referrerPolicy = "strict-origin-when-cross-origin";
+        a.replaceWith(f);
+        f.focus();
+      });
+    });
+  }
+
   function init() {
     var header = document.querySelector(".site-header");
     if (header) watchHeader(header);
     reveal();
     document.querySelectorAll("details.veil").forEach(buildVeil);
     document.querySelectorAll(".shots").forEach(buildZoom);
+    loops();
+    vkPlayers();
     var hoop = document.getElementById("hoop");
     if (hoop) foldHoop(hoop);
     document.querySelectorAll("[data-hoop]").forEach(buildCanvas);
