@@ -446,6 +446,21 @@ p { margin: 0; }
 .press-game .game-facts { background: transparent; box-shadow: none; }
 .press-files { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: var(--step--1); font-weight: 500; }
 
+/* Ролики игры (tools/games.py, поле videos): обложка со ссылкой на VK Видео и кнопка-кружок */
+.videos { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 26rem), 1fr)); gap: 16px; }
+.video { margin: 0; display: grid; gap: 8px; }
+.video-link { position: relative; display: block; border-radius: var(--radius-card); overflow: hidden; border: 1px solid var(--line); box-shadow: var(--shadow-rest); background: var(--paper); aspect-ratio: 16 / 9; }
+.video-link img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.video-play { position: absolute; left: 50%; top: 50%; width: 72px; height: 72px; margin: -36px 0 0 -36px; border-radius: 50%; background: var(--kumach); box-shadow: 0 6px 18px rgb(0 0 0 / .25); }
+.video-play::after { content: ""; position: absolute; left: 29px; top: 23px; border-style: solid; border-width: 13px 0 13px 21px; border-color: transparent transparent transparent var(--kumach-ink); }
+.video figcaption { font-size: var(--step--1); color: var(--ink-soft); }
+.video figcaption a { font-weight: 500; }
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .video-link img, .video-play { transition: transform var(--t) var(--ease); }
+  .video-link:hover img { transform: scale(1.03); }
+  .video-link:hover .video-play { transform: scale(1.08); }
+}
+
 /* Обои: карточка — превью для телефона и компьютера рядом, подпись и ссылки на файлы */
 .wallpapers { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 30rem), 1fr)); gap: 16px; }
 .wallpaper { display: grid; gap: 16px; align-content: start; padding: clamp(16px, 3vw, 24px); background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius-card); }
