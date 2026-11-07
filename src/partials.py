@@ -15,7 +15,7 @@ T = {
         "docs": "Документы", "studio": "Студия «Горница»", "brandbook": "Брендбук", "other": "English", "other_lang": "en", "fonts": "cyrillic",
         "tagline": "Спокойные, честные и понятные игры для RuStore.", "studio_col": "Студия", "help": "Помощь",
         "mail": "Почта", "mail_hello": "общая", "mail_support": "поддержка", "mail_press": "для прессы",
-        "news": "Новости", "press": "Для прессы", "feed": "Новости «Горницы»", "vk": "ВКонтакте",
+        "news": "Новости", "press": "Для прессы", "feed": "Новости «Горницы»", "vk": "ВКонтакте", "wallpapers": "Обои", "creators": "Блогерам",
         "og_alt": "Знак «Горницы» — ромб из вышитых крестиков — и надпись «Светлая комната для хороших игр»",
         "seller": "Продавец", "seller_inn": "ИНН", "seller_ogrnip": "ОГРНИП",
         "seller_address": "Адрес для претензий", "seller_email": "Почта для претензий",
@@ -26,7 +26,7 @@ T = {
         "docs": "Documents", "studio": "Gornitsa Studio", "brandbook": "Brand book", "other": "Русский", "other_lang": "ru", "fonts": "latin",
         "tagline": "Calm, honest and clear games for RuStore.", "studio_col": "Studio", "help": "Help",
         "mail": "Email", "mail_hello": "general", "mail_support": "support", "mail_press": "press",
-        "news": "News", "press": "Press", "feed": "Gornitsa news", "vk": "VK",
+        "news": "News", "press": "Press", "feed": "Gornitsa news", "vk": "VK", "wallpapers": "Wallpapers", "creators": "Creators",
         "og_alt": "The Gornitsa mark, a diamond of cross-stitches, and the words “A bright room for good games”",
         "seller": "Seller", "seller_inn": "INN (taxpayer number)", "seller_ogrnip": "OGRNIP (state registration)",
         "seller_address": "Address for claims", "seller_email": "Email for claims",
@@ -169,7 +169,9 @@ def footer(b, lang="ru", games=(), other=None):
         <li><a href="{TELEGRAM}" rel="me">Telegram</a></li>
         <li><a href="{VK}" rel="me">{t['vk']}</a></li>
         <li><a href="{p}press.html">{t['press']}</a></li>
+        <li><a href="{p}creators.html">{t['creators']}</a></li>
         <li><a href="{p}brand.html">{t['brandbook']}</a></li>
+        <li><a href="{p}wallpapers.html">{t['wallpapers']}</a></li>
       </ul>
     </nav>
     <nav class="footer-col" aria-labelledby="footer-help">

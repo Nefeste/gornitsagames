@@ -14,6 +14,9 @@ src/                  шаблоны страниц (редактировать 
   news.html           «Новости»: список собирает build.py из папки news/ (см. «Новости»)
   press.html          «Для прессы»: студия коротко, карточки игр (между метками press:<игра> их
                       собирает tools/games.py), знак и почта для прессы
+  creators.html       «Блогерам и стримерам»: что можно с нашими играми в роликах, о чём просим,
+                      короткие ссылки /go/<игра> (список собирает build.py) и почта
+  wallpapers.html     «Обои»: карточки обоев для телефона и компьютера (картинки — tools/wallpapers.mjs)
   support.html
   privacy.html        единая политика конфиденциальности (у каждой вышедшей игры — свой раздел)
   404.html
@@ -38,6 +41,8 @@ site/                 сайт, который выкладывается на �
   assets/stores/rustore.svg   официальная кнопка «Скачайте из RuStore» (см. [`docs/game-pages.md`](docs/game-pages.md))
   assets/og-studio.png, og-studio-en.png   картинка 1200 × 630 для ссылок на страницы без своей
                       (у страниц игр — своя); build.py ставит её и поля og: сам
+  assets/wallpapers/   обои: <обои>-phone.png 1440 × 3200, <обои>-desktop.png 3840 × 2160 и превью
+                      для страницы; рисует tools/wallpapers.mjs
   assets/icons/, apple-touch-icon.png, favicon.ico, manifest.webmanifest   значки для телефонов,
                       вкладок и поисковиков; картинки студии перерисовывает tools/brand-assets.mjs
   .well-known/security.txt   куда писать об уязвимостях; срок — до Expires, check.py напомнит
@@ -61,6 +66,8 @@ tools/
                       для поисковиков (ld+json), срок security.txt, title и описания (длины,
                       повторы), sitemap.xml, ссылки llms.txt, реквизиты продавца
   brand-assets.mjs    рисует картинку для ссылок и значки из знака и шрифтов сайта (Playwright)
+  wallpapers.mjs      рисует обои из знака, полосы-рушника и узора главной кодом по сетке (Playwright):
+                      node tools/wallpapers.mjs site/assets/wallpapers
 games.lock.json       из какого коммита игры и из каких файлов собраны её страница и картинки
 .github/workflows/games.yml   «Страницы игр»: каждую ночь — PR «Сайт: обновления игр»
 .github/workflows/site.yml    «Проверка сайта»: на каждый PR — build.py, check.py, shellcheck (см. «Проверка PR»)
