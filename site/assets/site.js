@@ -1,6 +1,11 @@
-/* Горница — узор-раскраска на главной, орнаментальная полоса и копирование почты */
+/* Горница — узор-раскраска на главной, орнаментальная полоса, копирование почты, снимки крупно,
+   шапка при прокрутке и появление карточек. Сайт целиком работает и без этого скрипта. */
 (function () {
   "use strict";
+
+  // Стили, которые есть только со скриптом (появление карточек при прокрутке), ждут этот класс:
+  // без скрипта страница целиком видна сразу.
+  document.documentElement.classList.add("js");
 
   var N = 17, C = 8;
 
@@ -77,7 +82,9 @@
             cell.setAttribute("aria-label", T.cell(r + 1, c + 1, v));
             remaining++;
           } else {
-            cell.className += " st c" + v;
+            // готовые стежки прорастают от середины узора к краям (site.css, .grow)
+            cell.className += " st grow c" + v;
+            cell.style.setProperty("--i", String(Math.abs(r - C) + Math.abs(c - C)));
             cell.setAttribute("aria-hidden", "true");
           }
         } else {
@@ -386,7 +393,53 @@
     });
   }
 
+  // Шапка: пока страница наверху, она сливается с фоном; сдвинулась — линия и тень (site.css, .is-scrolled).
+  function watchHeader(header) {
+    var on = false;
+    function update() {
+      var scrolled = window.scrollY > 4;
+      if (scrolled !== on) { on = scrolled; header.classList.toggle("is-scrolled", scrolled); }
+    }
+    window.addEventListener("scroll", update, { passive: true });
+    update();
+  }
+
+  // Появление при прокрутке: карточки ниже первого экрана поднимаются, когда доезжают до него,
+  // соседи — с небольшим сдвигом по очереди. То, что видно при загрузке, не трогается, чтобы ничего
+  // не мигало; при «уменьшить движение» и без IntersectionObserver всё видно сразу.
+  function reveal() {
+    if (!("IntersectionObserver" in window) || !window.matchMedia ||
+        !window.matchMedia("(prefers-reduced-motion: no-preference)").matches) return;
+    var sel = ".section-head, .game, .principle, .news-list li, .promises li, .press-game, .brand-tile, " +
+              ".swatch-card, .specimen, .news-item, .contact, .shots figure, .glance, .doc-body > h2";
+    var vh = window.innerHeight, counts = [], parents = [];
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        e.target.classList.add("is-in");
+        io.unobserve(e.target);
+      });
+    }, { rootMargin: "0px 0px -6% 0px" });
+    document.querySelectorAll(sel).forEach(function (el) {
+      if (el.getBoundingClientRect().top < vh * 0.92) return;  // уже на экране
+      var p = el.parentNode, k = parents.indexOf(p);
+      if (k < 0) { k = parents.push(p) - 1; counts.push(0); }
+      el.classList.add("reveal");
+      el.style.setProperty("--d", Math.min(counts[k]++ * 70, 280) + "ms");
+      el.addEventListener("transitionend", function done(ev) {
+        if (ev.target !== el || !el.classList.contains("is-in")) return;
+        el.classList.remove("reveal", "is-in");
+        el.style.removeProperty("--d");
+        el.removeEventListener("transitionend", done);
+      });
+      io.observe(el);
+    });
+  }
+
   function init() {
+    var header = document.querySelector(".site-header");
+    if (header) watchHeader(header);
+    reveal();
     document.querySelectorAll("details.veil").forEach(buildVeil);
     document.querySelectorAll(".shots").forEach(buildZoom);
     var hoop = document.getElementById("hoop");
