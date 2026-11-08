@@ -137,5 +137,26 @@
       "uzory-og-en.png": "px57a9f3d9efcccfe8:og:0",
       "uzory-og.png": "px69597e72354ac893:og:0"
     }
+  },
+  "durak": {
+    "repo": "Nefeste/durak",
+    "commit": "f9a1fc5a23b3424b3b8f622900b0852f08ebf128",
+    "images": {
+      "durak-01-game-full.webp": "px52edad1af2da25fa:shot-portrait-full:0",
+      "durak-01-game.webp": "px52edad1af2da25fa:shot-portrait:0",
+      "durak-02-why-full.webp": "px52edad1af2da25fa:shot-portrait-full:0",
+      "durak-02-why.webp": "px52edad1af2da25fa:shot-portrait:0",
+      "durak-03-result-full.webp": "px0de2d98f4b2af719:shot-portrait-full:0",
+      "durak-03-result.webp": "px0de2d98f4b2af719:shot-portrait:0",
+      "durak-04-perevodnoy-full.webp": "pxaf9a9a4c157eaebc:shot-portrait-full:0",
+      "durak-04-perevodnoy.webp": "pxaf9a9a4c157eaebc:shot-portrait:0",
+      "durak-05-seen-full.webp": "pxfa773064b8e6f362:shot-portrait-full:0",
+      "durak-05-seen.webp": "pxfa773064b8e6f362:shot-portrait:0",
+      "durak-06-menu-full.webp": "pxe079bcd21241fcfb:shot-portrait-full:0",
+      "durak-06-menu.webp": "pxe079bcd21241fcfb:shot-portrait:0",
+      "durak-feature.webp": "pxf355245377a2634b:feature:0",
+      "durak-icon.webp": "px0e631906bbcd7a74:icon:0",
+      "durak-og.png": "pxe0ce910278f3af75:og:1"
+    }
   }
 }
