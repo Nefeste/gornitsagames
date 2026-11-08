@@ -87,8 +87,9 @@
 
   /* движение: короткое, без пружин */
   --ease: cubic-bezier(.2, .7, .2, 1);
-  --t: 200ms;
-  --t-slow: 520ms;
+  --t: 200ms;        /* цвет и прозрачность */
+  --t-move: 300ms;   /* сдвиг и масштаб */
+  --t-slow: 500ms;   /* подъём карточки, шапка */
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -130,7 +131,7 @@ a {
   color: var(--kumach);
   text-underline-offset: 0.18em; text-decoration-thickness: 1px;
   text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
-  transition: color var(--t), text-decoration-color var(--t);
+  transition: color var(--t) var(--ease), text-decoration-color var(--t) var(--ease);
 }
 a:hover { text-decoration-color: currentColor; text-decoration-thickness: 1.5px; }
 :focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; border-radius: 2px; }
@@ -138,6 +139,8 @@ h1, h2, h3 { font-family: var(--display); font-weight: 400; line-height: 1.12; t
 p { margin: 0; }
 .wrap { max-width: var(--wrap); margin-inline: auto; padding-inline: var(--gutter); }
 .skip { position: absolute; left: -999px; }
+/* метка над шапкой (site.js, watchHeader): ушла с экрана — страница сдвинута */
+.scroll-mark { position: absolute; top: 0; left: 0; width: 1px; height: 4px; pointer-events: none; }
 .skip:focus { left: var(--gutter); top: 8px; background: var(--paper); padding: 8px 12px; z-index: 40; border-radius: var(--radius); box-shadow: var(--shadow-lift); }
 
 .eyebrow {
@@ -160,7 +163,7 @@ p { margin: 0; }
   position: relative; z-index: 20;
   border-bottom: 1px solid transparent;
   background: var(--linen);
-  transition: background var(--t-slow), border-color var(--t-slow), box-shadow var(--t-slow);
+  transition: background var(--t-slow) var(--ease), border-color var(--t-slow) var(--ease), box-shadow var(--t-slow) var(--ease);
 }
 @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
   .site-header { background: var(--header-bg); -webkit-backdrop-filter: blur(14px) saturate(1.3); backdrop-filter: blur(14px) saturate(1.3); }
@@ -174,11 +177,11 @@ p { margin: 0; }
 .nav a {
   position: relative; display: inline-flex; align-items: center; min-height: 40px; padding: 0 12px;
   color: var(--ink); text-decoration: none; font-weight: 500; font-size: var(--step--1);
-  border-radius: var(--radius); transition: color var(--t), background var(--t);
+  border-radius: var(--radius); transition: color var(--t) var(--ease), background var(--t) var(--ease);
 }
 .nav a::after {
   content: ""; position: absolute; left: 12px; right: 12px; bottom: 8px; height: 2px; border-radius: 1px;
-  background: var(--kumach); transform: scaleX(0); transform-origin: left; transition: transform var(--t) var(--ease);
+  background: var(--kumach); transform: scaleX(0); transform-origin: left; transition: transform var(--t-move) var(--ease);
 }
 .nav a:hover { color: var(--kumach); }
 .nav a:active { background: color-mix(in srgb, var(--kumach) 8%, transparent); }
@@ -216,7 +219,7 @@ p { margin: 0; }
   font: 600 var(--step-0)/1 var(--body);
   text-decoration: none; cursor: pointer;
   border: 1px solid var(--kumach);
-  transition: transform var(--t) var(--ease), box-shadow var(--t), background var(--t), border-color var(--t), color var(--t), filter var(--t);
+  transition: transform var(--t-move) var(--ease), box-shadow var(--t) var(--ease), background var(--t) var(--ease), border-color var(--t) var(--ease), color var(--t) var(--ease), filter var(--t) var(--ease);
 }
 .btn-primary { background: var(--kumach); color: var(--kumach-ink); box-shadow: inset 0 1px 0 rgb(255 255 255 / .18), var(--kumach-glow); }
 .btn-primary:hover { filter: brightness(1.06); transform: translateY(-1px); box-shadow: inset 0 1px 0 rgb(255 255 255 / .18), 0 14px 28px -12px color-mix(in srgb, var(--kumach) 65%, transparent); }
@@ -227,7 +230,7 @@ p { margin: 0; }
 .btn-ghost:active { transform: translateY(1px); box-shadow: none; }
 .btn:focus-visible { outline-offset: 3px; }
 /* Официальная кнопка «Скачайте из RuStore» (site/assets/stores/rustore.svg) — вровень с кнопками */
-.store-badge { display: inline-flex; border-radius: var(--radius); transition: transform var(--t) var(--ease), box-shadow var(--t); }
+.store-badge { display: inline-flex; border-radius: var(--radius); transition: transform var(--t-move) var(--ease), box-shadow var(--t) var(--ease); }
 .store-badge:hover { transform: translateY(-1px); box-shadow: var(--shadow-rest); }
 .store-badge:active { transform: translateY(1px); box-shadow: none; }
 .store-badge img { display: block; width: auto; height: 48px; }
@@ -250,6 +253,7 @@ p { margin: 0; }
 
 /* ---------- Канва: раскраска по номерам ---------- */
 .hoop {
+  margin: 0;  /* у <figure> в браузере свои поля 1em 40px — пяльцы были уже своей колонки */
   display: grid; gap: 16px;
   background: var(--paper);
   border: 1px solid var(--line);
@@ -274,7 +278,7 @@ p { margin: 0; }
   color: var(--ink-soft);
   cursor: default;
 }
-.cell[data-num] { cursor: pointer; background: var(--cell); border-radius: 2px; transition: background var(--t), color var(--t), transform var(--t) var(--ease); }
+.cell[data-num] { cursor: pointer; background: var(--cell); border-radius: 2px; transition: background var(--t) var(--ease), color var(--t) var(--ease), transform var(--t-move) var(--ease); }
 .cell[data-num]:hover { color: var(--ink); background: color-mix(in srgb, var(--cell) 70%, var(--ink-soft)); transform: scale(1.12); z-index: 1; }
 .cell[data-num]:active { transform: scale(1); }
 .cell[data-num]:focus-visible { outline-offset: 1px; z-index: 1; }
@@ -285,17 +289,18 @@ p { margin: 0; }
   background: var(--thread);
   border-radius: 2px;
   transform-origin: center;
+  transform: translate(-50%, -50%) rotate(var(--rot));
 }
-.cell.st::before { transform: translate(-50%, -50%) rotate(45deg); }
-.cell.st::after { transform: translate(-50%, -50%) rotate(-45deg); filter: brightness(1.12); }
+.cell.st::before { --rot: 45deg; }
+.cell.st::after { --rot: -45deg; filter: brightness(1.12); }
 .cell.c1 { --thread: var(--kumach); }
 .cell.c2 { --thread: var(--spruce); }
 .cell.c3 { --thread: var(--flax); }
 /* стежки узора прорастают от середины к краям, когда канва собрана (--i — расстояние до центра, site.js) */
-.cell.st.grow::before, .cell.st.grow::after { animation: stitch 300ms ease-out both; animation-delay: calc(240ms + var(--i, 0) * 28ms); }
-.cell.pop::before, .cell.pop::after { animation: stitch 260ms ease-out; }
-@keyframes stitch { from { width: 0; } }
-.cell.miss { animation: miss 300ms; }
+.cell.st.grow::before, .cell.st.grow::after { animation: stitch var(--t-move) var(--ease) both; animation-delay: calc(240ms + var(--i, 0) * 28ms); }
+.cell.pop::before, .cell.pop::after { animation: stitch var(--t-move) var(--ease); }
+@keyframes stitch { from { transform: translate(-50%, -50%) rotate(var(--rot)) scaleX(0); } }
+.cell.miss { animation: miss var(--t-move) var(--ease); }
 @keyframes miss { 25% { transform: translateX(-2px); } 75% { transform: translateX(2px); } }
 
 .threads { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
@@ -305,7 +310,7 @@ p { margin: 0; }
   background: transparent; color: var(--ink);
   border: 1px solid var(--line); border-radius: var(--radius-pill);
   font: 500 var(--step--1)/1 var(--body); cursor: pointer;
-  transition: border-color var(--t), background var(--t), box-shadow var(--t), transform var(--t) var(--ease);
+  transition: border-color var(--t) var(--ease), background var(--t) var(--ease), box-shadow var(--t) var(--ease), transform var(--t-move) var(--ease);
 }
 .thread:hover { border-color: var(--ink-soft); background: var(--linen); }
 .thread:active { transform: scale(.97); }
@@ -359,7 +364,7 @@ h2.eyebrow { font-family: var(--body); }
   background: var(--linen);
   overflow: hidden;
 }
-.game-shot img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform 900ms var(--ease); }
+.game-shot img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform var(--t-slow) var(--ease); }
 .game-shot-soon {
   background-color: var(--linen);
   background-image: radial-gradient(circle at 50% 50%, var(--cell) 0 18%, transparent 22%);
@@ -405,7 +410,13 @@ h2.eyebrow { font-family: var(--body); }
 .news-list time, .news-date { font-size: var(--step--1); color: var(--ink-soft); font-variant-numeric: tabular-nums; }
 
 .about { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: clamp(24px, 5vw, 64px); align-items: start; }
-.about blockquote { margin: 0; padding-top: 16px; border-top: 2px solid var(--kumach); font-family: var(--display); font-size: var(--step-2); line-height: 1.3; }
+/* Пословица на главной и «О студии» — раздел-слоган: крупно, и слова проявляются по очереди, когда строка
+   доезжает до нижней трети экрана (site.js, words). Без скрипта и при «уменьшить движение» — сразу чернилами. */
+.about blockquote { margin: 0; padding-top: 16px; border-top: 2px solid var(--kumach); font-family: var(--display); font-size: var(--step-3); line-height: 1.2; text-wrap: balance; }
+.about blockquote .w { transition: color var(--t-move) var(--ease); }
+@media (prefers-reduced-motion: no-preference) {
+  html.js .about blockquote .w:not(.on) { color: color-mix(in srgb, var(--ink) 30%, transparent); }
+}
 .about blockquote cite { display: block; margin-top: 12px; font: 400 var(--step--1)/1.4 var(--body); color: var(--ink-soft); font-style: normal; }
 .about .prose { display: grid; gap: 16px; color: var(--ink-soft); max-width: 36rem; }
 
@@ -423,7 +434,7 @@ h2.eyebrow { font-family: var(--body); }
 .copy {
   min-height: 40px; padding: 0 16px; border-radius: var(--radius); border: 1px solid var(--line); background: transparent; color: var(--ink);
   font: 500 var(--step--1)/1 var(--body); cursor: pointer;
-  transition: border-color var(--t), background var(--t), transform var(--t) var(--ease), box-shadow var(--t);
+  transition: border-color var(--t) var(--ease), background var(--t) var(--ease), transform var(--t-move) var(--ease), box-shadow var(--t) var(--ease);
 }
 .copy:hover { border-color: var(--ink-soft); background: var(--linen); }
 .copy:active { transform: scale(.97); }
@@ -470,12 +481,12 @@ h2.eyebrow { font-family: var(--body); }
 .video-frame { display: block; width: 100%; aspect-ratio: 16 / 9; border: 0; border-radius: var(--radius-card); background: var(--ink); box-shadow: var(--shadow-rest); }
 /* Петля игры поверх баннера в карточке на главной (site.js, loops): проявляется, когда видео пошло */
 .game-shot { position: relative; }
-.game-loop { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 400ms var(--ease); pointer-events: none; }
+.game-loop { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity var(--t-move) var(--ease); pointer-events: none; }
 .game-shot.is-playing .game-loop { opacity: 1; }
 .video figcaption a { font-weight: 500; }
 .video-link:active .video-play { transform: scale(.96); }
 @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
-  .video-link img, .video-play { transition: transform var(--t) var(--ease); }
+  .video-link img, .video-play { transition: transform var(--t-move) var(--ease); }
   .video-link:hover img { transform: scale(1.03); }
   .video-link:hover .video-play { transform: scale(1.08); }
   .video-link:active .video-play { transform: scale(1); }
@@ -492,7 +503,7 @@ h2.eyebrow { font-family: var(--body); }
 .wallpaper-text h2 { font-size: var(--step-2); }
 .wallpaper-text > p:not([class]) { color: var(--ink-soft); }
 @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
-  .wallpaper-shots img { transition: transform var(--t) var(--ease), box-shadow var(--t); }
+  .wallpaper-shots img { transition: transform var(--t-move) var(--ease), box-shadow var(--t) var(--ease); }
   .wallpaper:hover .wallpaper-shots img { transform: translateY(-3px); box-shadow: var(--shadow-lift); }
 }
 /* Главная: «Ещё в „Горнице“» — плитки-ссылки на обои, тесты, блогерам и каналы */
@@ -501,11 +512,11 @@ h2.eyebrow { font-family: var(--body); }
 .more-tile h3 { font-family: var(--body); font-weight: 600; font-size: var(--step-1); line-height: 1.3; }
 .more-tile p { color: var(--ink-soft); }
 .more-tile .press-files { position: absolute; left: var(--pad); bottom: 16px; }
-.more-go { position: absolute; left: var(--pad); bottom: 16px; color: var(--kumach); font-weight: 600; transition: transform var(--t) var(--ease); }
+.more-go { position: absolute; left: var(--pad); bottom: 16px; color: var(--kumach); font-weight: 600; transition: transform var(--t-move) var(--ease); }
 a.more-tile:hover h3 { color: var(--kumach); }
 a.more-tile:active { transform: scale(.99); }
 @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
-  a.more-tile { transition: transform var(--t) var(--ease), box-shadow var(--t), border-color var(--t); }
+  a.more-tile { transition: transform var(--t-move) var(--ease), box-shadow var(--t) var(--ease), border-color var(--t) var(--ease); }
   a.more-tile:hover, a.more-tile:focus-visible { transform: translateY(-3px); box-shadow: var(--shadow-lift), var(--sheen); }
   a.more-tile:active { transform: translateY(-1px); box-shadow: var(--shadow-rest), var(--sheen); }
   a.more-tile:hover .more-go { transform: translateX(4px); }
@@ -601,7 +612,7 @@ details.veil[open] > summary { display: none; }
 .shots a.shot:hover::before { background: var(--kumach); }
 /* с мышью лупа видна при наведении — курсор и так показывает, что снимок открывается */
 @media (hover: hover) and (pointer: fine) {
-  .shots a.shot::before, .shots a.shot::after { opacity: 0; transition: opacity .15s, transform var(--t-slow) var(--ease); transform: translateY(-4px); }
+  .shots a.shot::before, .shots a.shot::after { opacity: 0; transition: opacity var(--t) var(--ease), transform var(--t-slow) var(--ease); transform: translateY(-4px); }
   .shots a.shot:hover::after, .shots a.shot:focus-visible::after { opacity: .94; }
   .shots a.shot:hover::before, .shots a.shot:focus-visible::before { opacity: 1; }
 }
@@ -647,7 +658,7 @@ dialog.zoom::backdrop { background: #111816; }
   width: 48px; height: 48px; flex: none; display: grid; place-items: center; padding: 0;
   border: 0; border-radius: var(--radius-pill); background: rgba(24, 33, 30, .82); color: #e9e8e0;
   box-shadow: inset 0 0 0 1px rgba(233, 232, 224, .16); cursor: pointer;
-  transition: background var(--t), transform var(--t) var(--ease);
+  transition: background var(--t) var(--ease), transform var(--t-move) var(--ease);
 }
 .zoom-btn:hover { background: #2c3833; }
 .zoom-btn:active { transform: scale(.95); }
@@ -671,7 +682,7 @@ dialog.zoom::backdrop { background: #111816; }
 table { border-collapse: collapse; width: 100%; min-width: 520px; font-size: var(--step--1); }
 th, td { text-align: left; vertical-align: top; padding: 12px; border-bottom: 1px solid var(--line); }
 th { background: var(--linen); font-weight: 600; }
-tbody td { transition: background var(--t); }
+tbody td { transition: background var(--t) var(--ease); }
 tbody tr:hover td { background: color-mix(in srgb, var(--linen) 55%, var(--paper)); }
 table.compact { min-width: 0; }
 table.compact th, table.compact td { padding: 8px; }
@@ -682,7 +693,7 @@ details.faq:last-of-type { border-bottom: 1px solid var(--line); }
 details.faq summary {
   cursor: pointer; font-weight: 600; font-size: var(--step-1); list-style: none;
   display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding-block: 16px;
-  transition: color var(--t);
+  transition: color var(--t) var(--ease);
 }
 details.faq summary::-webkit-details-marker { display: none; }
 details.faq summary:hover { color: var(--kumach); }
@@ -765,7 +776,7 @@ details.faq .answer { display: grid; gap: 12px; padding-bottom: 16px; color: var
 /* Только со скриптом и только когда движение не отключено: карточки ниже первого экрана
    поднимаются, когда доезжают до него. Без скрипта всё видно сразу. */
 @media (prefers-reduced-motion: no-preference) {
-  html.js .reveal { transition: opacity 600ms ease, transform 700ms var(--ease); transition-delay: var(--d, 0ms); }
+  html.js .reveal { transition: opacity 600ms var(--ease), transform 700ms var(--ease); transition-delay: var(--d, 0ms); }
   html.js .reveal:not(.is-in) { opacity: 0; transform: translateY(16px); }
 }
 
