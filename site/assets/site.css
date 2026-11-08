@@ -434,7 +434,7 @@ h2.eyebrow { font-family: var(--body); }
 .mail { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
 .mail-address { font-weight: 600; font-size: var(--step-1); user-select: all; word-break: break-all; }
 /* почта внутри абзаца (tools/md.py, политика): тем же весом, размером текста */
-.mail-inline { font-size: inherit; }
+.mail-inline { font-size: inherit; word-break: normal; overflow-wrap: anywhere; }  /* рвётся только когда не влезает целиком */
 .copy {
   min-height: 40px; padding: 0 16px; border-radius: var(--radius); border: 1px solid var(--line); background: transparent; color: var(--ink);
   font: 500 var(--step--1)/1 var(--body); cursor: pointer;
