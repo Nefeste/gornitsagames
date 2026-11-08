@@ -10,7 +10,7 @@
 votchina /var/lib/votchina/votchina.db
 nardy    /var/lib/nardy/nardy.db
 skazy    /var/lib/skazy/skazy.db
-site-config /etc/votchina /etc/nardy /etc/skazy /etc/uzory /etc/gornitsa /etc/gornitsa-monitor /etc/gornitsa-backup /etc/letsencrypt /etc/nginx/sites-available /etc/nginx/snippets /etc/ssh/ssh_host_* /etc/ssh/sshd_config.d /etc/sudoers.d/90-gornitsa-admin /etc/fail2ban/jail.d/gornitsa.local /etc/fail2ban/fail2ban.d/gornitsa.local /home/gornitsa/.ssh /home/deploy/.ssh /root/.ssh /var/lib/gornitsa-monitor/daily
+site-config /etc/votchina /etc/nardy /etc/skazy /etc/uzory /etc/bukvitsa /etc/gornitsa /etc/gornitsa-monitor /etc/gornitsa-backup /etc/letsencrypt /etc/nginx/sites-available /etc/nginx/snippets /etc/ssh/ssh_host_* /etc/ssh/sshd_config.d /etc/sudoers.d/90-gornitsa-admin /etc/fail2ban/jail.d/gornitsa.local /etc/fail2ban/fail2ban.d/gornitsa.local /home/gornitsa/.ssh /home/deploy/.ssh /root/.ssh /var/lib/gornitsa-monitor/daily
 
 # Машина «Сеней» (seni.gornitsa.games) — там вместо строк выше эти две:
 # seni     /var/lib/seni/seni.db

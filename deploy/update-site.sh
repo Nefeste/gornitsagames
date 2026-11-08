@@ -2,10 +2,10 @@
 # Автообновление сайта: забирает свежий main из GitHub и выкладывает site/ в папку nginx.
 # Запускается systemd-таймером gornitsa-update.timer (см. deploy/bootstrap.sh).
 # Если HTTPS ещё не включён, а DNS уже указывает на сервер, выпускает сертификат Let's Encrypt.
-# Когда в репозитории меняется deploy/votchina/, deploy/nardy/, deploy/skazy/ или deploy/uzory/,
-# доводит настройку сервера игры «Вотчина» (deploy/votchina/setup.sh), «Длинные нарды»
+# Когда в репозитории меняется deploy/votchina/, deploy/nardy/, deploy/skazy/, deploy/uzory/ или
+# deploy/bukvitsa/, доводит настройку сервера игры «Вотчина» (deploy/votchina/setup.sh), «Длинные нарды»
 # (deploy/nardy/setup.sh), заставы «Сказов» (deploy/skazy/setup.sh) или закрытой веб-версии
-# «Узоров» (deploy/uzory/setup.sh). Мониторинг ресурсов машины (deploy/monitor/setup.sh) — так же:
+# «Узоров» (deploy/uzory/setup.sh) и «Буквицы» (deploy/bukvitsa/setup.sh). Мониторинг ресурсов машины (deploy/monitor/setup.sh) — так же:
 # ставится при первом запуске этой версии и доводится при каждом изменении deploy/monitor/;
 # копии баз на компьютер владельца (deploy/backup/setup.sh) — при каждом изменении deploy/backup/.
 # Поиск — файлы подтверждения, IndexNow и переадресации /go/<игра> (deploy/seo/apply.sh) — в каждом проходе.
@@ -24,6 +24,7 @@ VOTCHINA_STAMP="/var/lib/gornitsa-votchina-setup"
 NARDY_STAMP="/var/lib/gornitsa-nardy-setup"
 SKAZY_STAMP="/var/lib/gornitsa-skazy-setup"
 UZORY_STAMP="/var/lib/gornitsa-uzory-setup"
+BUKVITSA_STAMP="/var/lib/gornitsa-bukvitsa-setup"
 MONITOR_STAMP="/var/lib/gornitsa-monitor-setup"
 BACKUP_STAMP="/var/lib/gornitsa-backup-setup"
 NGINX_STAMP="/var/lib/gornitsa-nginx-site"
@@ -101,6 +102,16 @@ if [[ -n "${UZORY_TREE}" && "${UZORY_TREE}" != "$(cat "${UZORY_STAMP}" 2>/dev/nu
     echo "${UZORY_TREE}" > "${UZORY_STAMP}"
   else
     echo "Настройка веб-версии «Узоров» не удалась — повторю через 5 минут" >&2
+  fi
+fi
+
+# Закрытая веб-версия «Буквицы» — так же, при каждом изменении deploy/bukvitsa/.
+BUKVITSA_TREE="$(git -C "${DIR}" rev-parse -q --verify "HEAD:deploy/bukvitsa" 2>/dev/null || true)"
+if [[ -n "${BUKVITSA_TREE}" && "${BUKVITSA_TREE}" != "$(cat "${BUKVITSA_STAMP}" 2>/dev/null || true)" ]]; then
+  if bash "${DIR}/deploy/bukvitsa/setup.sh"; then
+    echo "${BUKVITSA_TREE}" > "${BUKVITSA_STAMP}"
+  else
+    echo "Настройка веб-версии «Буквицы» не удалась — повторю через 5 минут" >&2
   fi
 fi
 
