@@ -20,6 +20,7 @@
         "ru": [{"text": "Закрасить узор-пример ↑", "url": "#hoop"}],
         "en": [{"text": "Fill in the sample pattern ↑", "url": "#hoop"}]
       }
-    }
+    },
+    {"slug": "durak", "repo": "Nefeste/durak", "private": true}
   ]
 }
