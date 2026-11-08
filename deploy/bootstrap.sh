@@ -82,6 +82,11 @@ if bash "${DIR}/deploy/nardy/setup.sh"; then
   git -C "${DIR}" rev-parse "HEAD:deploy/nardy" > /var/lib/gornitsa-nardy-setup
 fi
 
+echo "==> Сервер игры «Козырь» (durak.gornitsa.games)"
+if bash "${DIR}/deploy/durak/setup.sh"; then
+  git -C "${DIR}" rev-parse "HEAD:deploy/durak" > /var/lib/gornitsa-durak-setup
+fi
+
 echo "==> Сервер заставы «Сказов» (skazy.gornitsa.games)"
 if bash "${DIR}/deploy/skazy/setup.sh"; then
   git -C "${DIR}" rev-parse "HEAD:deploy/skazy" > /var/lib/gornitsa-skazy-setup

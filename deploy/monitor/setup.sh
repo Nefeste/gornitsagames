@@ -9,7 +9,7 @@
 # Что настраивает:
 #   - пользователь gornitsa-monitor (читает журнал ядра — группа systemd-journal), без входа;
 #   - gornitsa-monitor.timer раз в минуту: CPU и load average, RAM, swap, диск, MemoryCurrent и
-#     CPUUsageNSec служб votchina, nardy, skazy, nginx, события OOM из журнала ядра — в SQLite
+#     CPUUsageNSec служб votchina, nardy, durak, skazy, nginx, события OOM из журнала ядра — в SQLite
 #     /var/lib/gornitsa-monitor/monitor.db, 30 дней (deploy/monitor/monitor.py);
 #   - gornitsa-monitor-daily.timer в 00:05: сводка за сутки в /var/lib/gornitsa-monitor/daily/
 #     ГГГГ-ММ-ДД.json и latest.json — год;
