@@ -1,5 +1,5 @@
 /* Горница — узор-раскраска на главной, орнаментальная полоса, копирование почты, снимки крупно,
-   шапка при прокрутке, появление карточек, петли игр в карточках и плеер роликов по нажатию.
+   шапка при прокрутке, появление карточек, слова пословицы, петли игр в карточках и плеер роликов по нажатию.
    Сайт целиком работает и без этого скрипта. */
 (function () {
   "use strict";
@@ -395,14 +395,50 @@
   }
 
   // Шапка: пока страница наверху, она сливается с фоном; сдвинулась — линия и тень (site.css, .is-scrolled).
+  // Следим не за прокруткой, а за меткой в 4 px над шапкой: ушла с экрана — страница сдвинута.
   function watchHeader(header) {
-    var on = false;
-    function update() {
-      var scrolled = window.scrollY > 4;
-      if (scrolled !== on) { on = scrolled; header.classList.toggle("is-scrolled", scrolled); }
-    }
-    window.addEventListener("scroll", update, { passive: true });
-    update();
+    if (!("IntersectionObserver" in window)) return;
+    var mark = document.createElement("div");
+    mark.className = "scroll-mark";
+    mark.setAttribute("aria-hidden", "true");
+    header.parentNode.insertBefore(mark, header);
+    new IntersectionObserver(function (entries) {
+      header.classList.toggle("is-scrolled", !entries[entries.length - 1].isIntersecting);
+    }).observe(mark);
+  }
+
+  // Пословица на главной и «О студии»: слова проявляются по очереди, когда строка доезжает до нижней
+  // трети экрана (site.css, .about blockquote .w). Без IntersectionObserver и при «уменьшить движение»
+  // текст с самого начала полным цветом; подпись (cite) не трогаем.
+  function words(quote) {
+    if (!("IntersectionObserver" in window) || !window.matchMedia ||
+        !window.matchMedia("(prefers-reduced-motion: no-preference)").matches) return;
+    var spans = [];
+    [].slice.call(quote.childNodes).forEach(function (node) {
+      if (node.nodeType !== 3 || !node.textContent.trim()) return;
+      var frag = document.createDocumentFragment();
+      node.textContent.split(/([ \t\n\r]+)/).forEach(function (part) {  // неразрывный пробел не рвём
+        if (!part) return;
+        if (/^[ \t\n\r]+$/.test(part)) { frag.appendChild(document.createTextNode(" ")); return; }
+        var s = document.createElement("span");
+        s.className = "w";
+        s.textContent = part;
+        spans.push(s);
+        frag.appendChild(s);
+      });
+      quote.replaceChild(frag, node);
+    });
+    var io = new IntersectionObserver(function (entries) {
+      // слова одной строки пересекают черту разом — включаем их по порядку чтения, по 60 мс
+      var hit = entries.filter(function (e) { return e.isIntersecting; }).map(function (e) { return e.target; });
+      hit.sort(function (a, b) { return spans.indexOf(a) - spans.indexOf(b); });
+      hit.forEach(function (s, k) {
+        s.style.transitionDelay = Math.min(k * 60, 300) + "ms";
+        s.classList.add("on");
+        io.unobserve(s);
+      });
+    }, { rootMargin: "0px 0px -30% 0px" });
+    spans.forEach(function (s) { io.observe(s); });
   }
 
   // Появление при прокрутке: карточки ниже первого экрана поднимаются, когда доезжают до него,
@@ -499,6 +535,7 @@
     var header = document.querySelector(".site-header");
     if (header) watchHeader(header);
     reveal();
+    document.querySelectorAll(".about > blockquote").forEach(words);
     document.querySelectorAll("details.veil").forEach(buildVeil);
     document.querySelectorAll(".shots").forEach(buildZoom);
     loops();

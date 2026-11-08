@@ -29,6 +29,14 @@ the charter, replace it with a link or report the contradiction to the owner.
   Never merge, never label `ревью: ок`, never enable auto-merge.
 - News with `review: draft` is not shown on the site; only a human sets `review: checked`.
 
+## Design work
+
+Before visual or copy work on the site, use the skills in `.claude/skills/`:
+`redesign-existing-projects` (audit an existing page, then fix in small PRs) and
+`landing-page-design` (structure, states and ship checklist for a new page). Both come from
+`elayadesign` (MIT) and are adapted to the studio brand book: their «Design values» section
+names the brand files that win, and their preface lists which original rules don't apply.
+
 ## Commands
 
 ```bash
