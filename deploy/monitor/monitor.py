@@ -25,7 +25,7 @@ import time
 BASE = os.environ.get("MONITOR_DIR", "/var/lib/gornitsa-monitor")
 DB = os.path.join(BASE, "monitor.db")
 DAILY = os.path.join(BASE, "daily")
-SERVICES = ("votchina", "nardy", "skazy", "nginx")
+SERVICES = ("votchina", "nardy", "durak", "skazy", "nginx")
 KEEP_SAMPLES = 30 * 86400
 KEEP_DAILY_DAYS = 365
 DISK = "/"

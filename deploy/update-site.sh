@@ -2,9 +2,9 @@
 # Автообновление сайта: забирает свежий main из GitHub и выкладывает site/ в папку nginx.
 # Запускается systemd-таймером gornitsa-update.timer (см. deploy/bootstrap.sh).
 # Если HTTPS ещё не включён, а DNS уже указывает на сервер, выпускает сертификат Let's Encrypt.
-# Когда в репозитории меняется deploy/votchina/, deploy/nardy/, deploy/skazy/, deploy/uzory/ или
+# Когда в репозитории меняется deploy/votchina/, deploy/nardy/, deploy/durak/, deploy/skazy/, deploy/uzory/ или
 # deploy/bukvitsa/, доводит настройку сервера игры «Вотчина» (deploy/votchina/setup.sh), «Длинные нарды»
-# (deploy/nardy/setup.sh), заставы «Сказов» (deploy/skazy/setup.sh) или закрытой веб-версии
+# (deploy/nardy/setup.sh), «Козырь» (deploy/durak/setup.sh), заставы «Сказов» (deploy/skazy/setup.sh) или закрытой веб-версии
 # «Узоров» (deploy/uzory/setup.sh) и «Буквицы» (deploy/bukvitsa/setup.sh). Мониторинг ресурсов машины (deploy/monitor/setup.sh) — так же:
 # ставится при первом запуске этой версии и доводится при каждом изменении deploy/monitor/;
 # копии баз на компьютер владельца (deploy/backup/setup.sh) — при каждом изменении deploy/backup/.
@@ -22,6 +22,7 @@ WEBROOT="/var/www/${DOMAIN}"
 STAMP="/var/lib/gornitsa-deployed-commit"
 VOTCHINA_STAMP="/var/lib/gornitsa-votchina-setup"
 NARDY_STAMP="/var/lib/gornitsa-nardy-setup"
+DURAK_STAMP="/var/lib/gornitsa-durak-setup"
 SKAZY_STAMP="/var/lib/gornitsa-skazy-setup"
 UZORY_STAMP="/var/lib/gornitsa-uzory-setup"
 BUKVITSA_STAMP="/var/lib/gornitsa-bukvitsa-setup"
@@ -82,6 +83,16 @@ if [[ -n "${NARDY_TREE}" && "${NARDY_TREE}" != "$(cat "${NARDY_STAMP}" 2>/dev/nu
     echo "${NARDY_TREE}" > "${NARDY_STAMP}"
   else
     echo "Настройка сервера нард не удалась — повторю через 5 минут" >&2
+  fi
+fi
+
+# Сервер «Козыря» — так же, при каждом изменении deploy/durak/.
+DURAK_TREE="$(git -C "${DIR}" rev-parse -q --verify "HEAD:deploy/durak" 2>/dev/null || true)"
+if [[ -n "${DURAK_TREE}" && "${DURAK_TREE}" != "$(cat "${DURAK_STAMP}" 2>/dev/null || true)" ]]; then
+  if bash "${DIR}/deploy/durak/setup.sh"; then
+    echo "${DURAK_TREE}" > "${DURAK_STAMP}"
+  else
+    echo "Настройка сервера «Козыря» не удалась — повторю через 5 минут" >&2
   fi
 fi
 
