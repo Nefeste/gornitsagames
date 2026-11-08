@@ -7,6 +7,16 @@ CONFIG = json.loads((pathlib.Path(__file__).resolve().parent.parent / "tools" / 
 # Каналы студии (устав, docs/10-channels.md): подвал, страница поддержки, разметка для поисковиков
 TELEGRAM = "https://t.me/gornitsa_games"
 VK = "https://vk.com/gornitsa_games"
+# Значки каналов в подвале (решение владельца 08.11.2026) — знаки Telegram и ВКонтакте из simple-icons 13.21.0
+# (лицензия CC0; знаки — товарные знаки их владельцев, здесь — только как ссылка на наш канал там)
+ICONS = {
+    "telegram": "M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z",
+    "vk": "m9.489.004.729-.003h3.564l.73.003.914.01.433.007.418.011.403.014.388.016.374.021.36.025.345.03.333.033c1.74.196 2.933.616 3.833 1.516.9.9 1.32 2.092 1.516 3.833l.034.333.029.346.025.36.02.373.025.588.012.41.013.644.009.915.004.98-.001 3.313-.003.73-.01.914-.007.433-.011.418-.014.403-.016.388-.021.374-.025.36-.03.345-.033.333c-.196 1.74-.616 2.933-1.516 3.833-.9.9-2.092 1.32-3.833 1.516l-.333.034-.346.029-.36.025-.373.02-.588.025-.41.012-.644.013-.915.009-.98.004-3.313-.001-.73-.003-.914-.01-.433-.007-.418-.011-.403-.014-.388-.016-.374-.021-.36-.025-.345-.03-.333-.033c-1.74-.196-2.933-.616-3.833-1.516-.9-.9-1.32-2.092-1.516-3.833l-.034-.333-.029-.346-.025-.36-.02-.373-.025-.588-.012-.41-.013-.644-.009-.915-.004-.98.001-3.313.003-.73.01-.914.007-.433.011-.418.014-.403.016-.388.021-.374.025-.36.03-.345.033-.333c.196-1.74.616-2.933 1.516-3.833.9-.9 2.092-1.32 3.833-1.516l.333-.034.346-.029.36-.025.373-.02.588-.025.41-.012.644-.013.915-.009ZM6.79 7.3H4.05c.13 6.24 3.25 9.99 8.72 9.99h.31v-3.57c2.01.2 3.53 1.67 4.14 3.57h2.84c-.78-2.84-2.83-4.41-4.11-5.01 1.28-.74 3.08-2.54 3.51-4.98h-2.58c-.56 1.98-2.22 3.78-3.8 3.95V7.3H10.5v6.92c-1.6-.4-3.62-2.34-3.71-6.92Z",
+}
+
+
+def icon(name):
+    return f'<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path fill="currentColor" d="{ICONS[name]}"/></svg>'
 
 T = {
     "ru": {
@@ -15,7 +25,7 @@ T = {
         "docs": "Документы", "studio": "Студия «Горница»", "brandbook": "Брендбук", "other": "English", "other_lang": "en", "fonts": "cyrillic",
         "tagline": "Спокойные, честные и понятные игры для RuStore.", "studio_col": "Студия", "help": "Помощь",
         "mail": "Почта", "mail_hello": "общая", "mail_support": "поддержка", "mail_press": "для прессы", "mail_qa": "тестирование", "testers": "Тестерам",
-        "news": "Новости", "press": "Для прессы", "feed": "Новости «Горницы»", "vk": "ВКонтакте", "wallpapers": "Обои", "creators": "Блогерам",
+        "news": "Новости", "press": "Для прессы", "feed": "Новости «Горницы»", "vk": "ВКонтакте", "tg_label": "Telegram-канал «Горницы»", "vk_label": "«Горница» ВКонтакте", "channels": "Каналы студии", "wallpapers": "Обои", "creators": "Блогерам",
         "og_alt": "Знак «Горницы» — ромб из вышитых крестиков — и надпись «Светлая комната для хороших игр»",
         "seller": "Продавец", "seller_inn": "ИНН", "seller_ogrnip": "ОГРНИП",
         "seller_address": "Адрес для претензий", "seller_email": "Почта для претензий",
@@ -26,7 +36,7 @@ T = {
         "docs": "Documents", "studio": "Gornitsa Studio", "brandbook": "Brand book", "other": "Русский", "other_lang": "ru", "fonts": "latin",
         "tagline": "Calm, honest and clear games for RuStore.", "studio_col": "Studio", "help": "Help",
         "mail": "Email", "mail_hello": "general", "mail_support": "support", "mail_press": "press", "mail_qa": "testing", "testers": "Testers",
-        "news": "News", "press": "Press", "feed": "Gornitsa news", "vk": "VK", "wallpapers": "Wallpapers", "creators": "Creators",
+        "news": "News", "press": "Press", "feed": "Gornitsa news", "vk": "VK", "tg_label": "Gornitsa on Telegram", "vk_label": "Gornitsa on VK", "channels": "Studio channels", "wallpapers": "Wallpapers", "creators": "Creators",
         "og_alt": "The Gornitsa mark, a diamond of cross-stitches, and the words “A bright room for good games”",
         "seller": "Seller", "seller_inn": "INN (taxpayer number)", "seller_ogrnip": "OGRNIP (state registration)",
         "seller_address": "Address for claims", "seller_email": "Email for claims",
@@ -141,7 +151,7 @@ def header(active, b, lang="ru", other=None):
 
 
 def footer(b, lang="ru", games=(), other=None):
-    """Подвал: знак и строка о студии, игры, студия, помощь, почта; язык и год — внизу.
+    """Подвал: знак, строка о студии и значки каналов; игры, студия, помощь с почтой; язык и год — внизу.
     games — [(адрес, название)] из tools/games.json (build.py): новая игра появится сама."""
     t = T[lang]
     p = prefix(b, lang)
@@ -154,6 +164,10 @@ def footer(b, lang="ru", games=(), other=None):
     <div class="footer-about">
       <a class="brand" href="{home}" aria-label="{t['home']}">{BRAND}<span class="brand-name">{t['brand']}</span></a>
       <p>{t['tagline']}</p>
+      <ul class="footer-social" aria-label="{t['channels']}">
+        <li><a href="{TELEGRAM}" rel="me" aria-label="{t['tg_label']}" title="{t['tg_label']}">{icon("telegram")}</a></li>
+        <li><a href="{VK}" rel="me" aria-label="{t['vk_label']}" title="{t['vk_label']}">{icon("vk")}</a></li>
+      </ul>
     </div>
     <nav class="footer-col" aria-labelledby="footer-games">
       <h2 id="footer-games">{t['games']}</h2>
@@ -166,8 +180,6 @@ def footer(b, lang="ru", games=(), other=None):
       <ul>
         <li><a href="{p}about.html">{t['about']}</a></li>
         <li><a href="{p}news.html">{t['news']}</a></li>
-        <li><a href="{TELEGRAM}" rel="me">Telegram</a></li>
-        <li><a href="{VK}" rel="me">{t['vk']}</a></li>
         <li><a href="{p}press.html">{t['press']}</a></li>
         <li><a href="{p}creators.html">{t['creators']}</a></li>
         <li><a href="{p}testers.html">{t['testers']}</a></li>
@@ -181,16 +193,13 @@ def footer(b, lang="ru", games=(), other=None):
         <li><a href="{p}support.html">{t['support']}</a></li>
         <li><a href="{p}privacy.html">{t['privacy']}</a></li>
       </ul>
-    </nav>
-    <div class="footer-col">
-      <h2>{t['mail']}</h2>
-      <ul class="footer-mail">
+      <ul class="footer-mail" aria-label="{t['mail']}">
         <li>hello@gornitsa.games<span>{t['mail_hello']}</span></li>
         <li>support@gornitsa.games<span>{t['mail_support']}</span></li>
         <li>press@gornitsa.games<span>{t['mail_press']}</span></li>
         <li>qa@gornitsa.games<span>{t['mail_qa']}</span></li>
       </ul>
-    </div>
+    </nav>
   </div>
   <div class="wrap footer-bottom">
     <span>© <span data-year>2026</span> {t['studio']}</span>{switch}

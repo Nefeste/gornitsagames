@@ -13,6 +13,7 @@
 4. [`backup.md`](backup.md) и [`restore.md`](restore.md) — копии баз и восстановление с нуля.
 5. [`devlog.md`](devlog.md) — «Дневник разработки».
 6. [`journal/`](journal/) — журнал по месяцам, `ГГГГ-ММ.md`.
+7. [`adr/`](adr/) — решения сайта и его отступления от устава (с решением владельца).
 
 Правила студии — только в уставе
 [`Nefeste/gornitsa`](https://github.com/Nefeste/gornitsa); здесь не пересказываются.
