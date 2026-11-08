@@ -41,7 +41,7 @@ Linux. В Windows то же самое выполняется в PowerShell: п�
    вход root закрылся бы раньше, чем установщик заведёт пользователя `gornitsa`, — и войти можно
    было бы только через консоль панели. Их заново пишет установщик, а root закрывается в шаге 7.
 
-   В архиве — `/etc/votchina`, `/etc/nardy`, `/etc/skazy`, `/etc/uzory`, `/etc/gornitsa*`,
+   В архиве — `/etc/votchina`, `/etc/nardy`, `/etc/skazy`, `/etc/uzory`, `/etc/bukvitsa`, `/etc/gornitsa*`,
    `/etc/letsencrypt`, ключи SSH машины, настройки nginx, sshd и fail2ban, `~/.ssh` пользователей,
    сводки мониторинга.
 4. **Установка** — на новой машине, от root:
