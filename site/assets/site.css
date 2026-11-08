@@ -759,7 +759,7 @@ details.faq .answer { display: grid; gap: 12px; padding-bottom: 16px; color: var
 .site-footer { margin-top: 0; font-size: var(--step--1); color: var(--ink-soft); background: var(--paper); }
 .site-footer .band-wrap { border-top: 1px solid var(--line); }
 .footer-main {
-  display: grid; grid-template-columns: minmax(0, 1.4fr) repeat(4, minmax(0, 1fr));
+  display: grid; grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(0, 1fr));
   gap: 32px clamp(24px, 3vw, 40px); padding-block: clamp(32px, 5vw, 48px) 32px;
 }
 .footer-about { display: grid; gap: 12px; align-content: start; max-width: 18rem; }
@@ -767,7 +767,13 @@ details.faq .answer { display: grid; gap: 12px; padding-bottom: 16px; color: var
 .footer-about .brand-mark { width: 24px; height: 24px; }
 .footer-col h2 { font: 600 var(--step--1)/1.4 var(--body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 12px; }
 .footer-col ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
-.footer-col .footer-mail { gap: 12px; }
+.footer-col .footer-mail { gap: 12px; margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--line); }
+/* значки каналов под строкой о студии */
+.footer-social { list-style: none; margin: 4px 0 0; padding: 0; display: flex; gap: 8px; }
+.footer-social a { display: grid; place-items: center; width: 40px; height: 40px; border-radius: var(--radius); border: 1px solid var(--line); color: var(--ink); background: var(--linen); transition: color var(--t) var(--ease), border-color var(--t) var(--ease), transform var(--t) var(--ease); }
+.footer-social a:hover { color: var(--kumach); border-color: currentColor; transform: translateY(-1px); }
+.footer-social a:active { transform: translateY(1px); }
+@media (pointer: coarse) { .footer-social a { width: 48px; height: 48px; } }
 .footer-col a { color: var(--ink); text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 0.2em; }
 .footer-col a:hover { color: var(--kumach); text-decoration-color: currentColor; }
 

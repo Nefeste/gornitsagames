@@ -16,6 +16,8 @@ description: "Audits and upgrades existing websites and apps to premium quality.
 > - **Цвета и поверхности.** Только токены `site/assets/brand.css` (светлая и тёмная тема). Палитра тёмных
 >   фонов навыка и градиент на заголовке первого экрана не применяются: в брендбуке нет градиентов.
 >   Один акцент — кумач, одна-две вещи на экране. Тени — едва заметные (`--shadow-*` в `site.css`).
+>   Исключение сайта — решение владельца, `docs/adr/0001-light-and-sheen.md`: мягкий «свет из окна» за
+>   первым экраном, блики `--sheen` и `--kumach-glow`, надзаголовки капслоком — можно; знак — без исключений.
 > - **Картинки.** Никаких стоков, picsum, фото «команды» и изображений из генераторов (ADR 0012):
 >   только рисунок кодом по брендбуку и настоящие снимки игр. «Шум» и «зерно» — нет; глубина — бумагой,
 >   линией и орнаментом по краю.
@@ -229,7 +231,9 @@ stack (dates, sizes). Files are self hosted (`deploy/fetch-fonts.sh`).
 
 **Colors:** only the tokens of `site/assets/brand.css` (`--linen`, `--paper`, `--ink`, `--ink-soft`,
 `--line`, `--cell`, `--kumach`, `--spruce`, `--flax`, light and dark). No other hex values in
-`site.css` except shadow tints. One accent: kumach. No gradients of any kind, also not on hero text.
+`site.css` except shadow tints. One accent: kumach. No gradients, also not on hero text — except the
+site's owner-approved ones (`docs/adr/0001-light-and-sheen.md`): the soft «light from the window» behind
+the home hero, the `--sheen` edge and the `--kumach-glow`. All-caps eyebrows are an approved device.
 
 **Surfaces and depth:** paper on linen plus a 1px `--line`; site tokens `--shadow-rest`, `--shadow-lift`,
 `--sheen` in `site.css` (barely visible, one light from above). No noise, grain, stock or generated images.
