@@ -9,7 +9,7 @@
 # Как только DNS домена начнёт указывать на сервер, автообновление само выпустит сертификат HTTPS.
 # Заодно настраивает серверы игр «Вотчина» (deploy/votchina/setup.sh), «Длинные нарды»
 # (deploy/nardy/setup.sh), заставы «Сказов» (deploy/skazy/setup.sh) и закрытую веб-версию
-# «Узоров» (deploy/uzory/setup.sh), мониторинг ресурсов машины (deploy/monitor/setup.sh) и копии баз на компьютер владельца
+# «Узоров» (deploy/uzory/setup.sh) и «Буквицы» (deploy/bukvitsa/setup.sh), мониторинг ресурсов машины (deploy/monitor/setup.sh) и копии баз на компьютер владельца
 # (deploy/backup/setup.sh).
 
 set -euo pipefail
@@ -90,6 +90,11 @@ fi
 echo "==> Закрытая веб-версия «Узоров» (gornitsa.games/uzory/test/)"
 if bash "${DIR}/deploy/uzory/setup.sh"; then
   git -C "${DIR}" rev-parse "HEAD:deploy/uzory" > /var/lib/gornitsa-uzory-setup
+fi
+
+echo "==> Закрытая веб-версия «Буквицы» (gornitsa.games/bukvitsa/test/)"
+if bash "${DIR}/deploy/bukvitsa/setup.sh"; then
+  git -C "${DIR}" rev-parse "HEAD:deploy/bukvitsa" > /var/lib/gornitsa-bukvitsa-setup
 fi
 
 echo "==> Мониторинг ресурсов машины"

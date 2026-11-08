@@ -47,7 +47,7 @@ BOT = re.compile(r"bot|crawl|spider|slurp|yandex(?!.*yabrowser)|bingpreview|curl
                  r"httpclient|monitor|uptime|headless|preview|facebookexternalhit|vkshare|whatsapp|"
                  r"lighthouse|pagespeed|scanner|zgrab|masscan|nmap", re.I)
 GO = re.compile(r"^/go/([a-z]+)/?$")
-SKIP = ("/assets/", "/.well-known/", "/go/", "/uzory/test/")
+SKIP = ("/assets/", "/.well-known/", "/go/", "/uzory/test/", "/bukvitsa/test/")
 
 
 def page_file(path):
