@@ -407,6 +407,47 @@
     }).observe(mark);
   }
 
+  // Меню на телефоне (шапка-плашка, site.css): кнопка в плашке открывает разделы на весь экран, пункты
+  // приходят по очереди. Esc и выбор пункта закрывают меню, Tab не уходит за его пределы. Без скрипта
+  // на телефоне остаётся строка разделов.
+  function buildMenu(header) {
+    var wrap = header.querySelector(".wrap"), nav = header.querySelector(".nav");
+    if (!wrap || !nav || !window.matchMedia) return;
+    var label = EN ? { open: "Menu", close: "Close menu" } : { open: "Меню", close: "Закрыть меню" };
+    nav.id = nav.id || "site-nav";
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "menu-toggle";
+    btn.setAttribute("aria-controls", nav.id);
+    btn.setAttribute("aria-expanded", "false");
+    btn.setAttribute("aria-label", label.open);
+    btn.innerHTML = "<span></span><span></span>";
+    wrap.insertBefore(btn, nav);
+    var links = [].slice.call(nav.querySelectorAll("a"));
+    links.forEach(function (a, k) { a.style.setProperty("--k", String(k)); });
+    header.classList.add("has-menu");
+    var phone = window.matchMedia("(max-width: 640px)");
+    function set(open) {
+      header.classList.toggle("is-open", open);
+      document.documentElement.classList.toggle("menu-open", open);
+      btn.setAttribute("aria-expanded", String(open));
+      btn.setAttribute("aria-label", open ? label.close : label.open);
+      if (open && links[0]) links[0].focus({ preventScroll: true });
+    }
+    btn.addEventListener("click", function () { set(!header.classList.contains("is-open")); });
+    nav.addEventListener("click", function (e) { if (e.target.closest("a")) set(false); });
+    document.addEventListener("keydown", function (e) {
+      if (!header.classList.contains("is-open")) return;
+      if (e.key === "Escape") { set(false); btn.focus(); return; }
+      if (e.key !== "Tab") return;
+      var items = [btn].concat(links), i = items.indexOf(document.activeElement);
+      if (e.shiftKey && i <= 0) { e.preventDefault(); items[items.length - 1].focus(); }
+      else if (!e.shiftKey && i === items.length - 1) { e.preventDefault(); items[0].focus(); }
+    });
+    var off = function () { if (!phone.matches) set(false); };
+    if (phone.addEventListener) phone.addEventListener("change", off); else if (phone.addListener) phone.addListener(off);
+  }
+
   // Пословица на главной и «О студии»: слова проявляются по очереди, когда строка доезжает до нижней
   // трети экрана (site.css, .about blockquote .w). Без IntersectionObserver и при «уменьшить движение»
   // текст с самого начала полным цветом; подпись (cite) не трогаем.
@@ -533,7 +574,7 @@
 
   function init() {
     var header = document.querySelector(".site-header");
-    if (header) watchHeader(header);
+    if (header) { watchHeader(header); buildMenu(header); }
     reveal();
     document.querySelectorAll(".about > blockquote").forEach(words);
     document.querySelectorAll("details.veil").forEach(buildVeil);
