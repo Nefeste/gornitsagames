@@ -181,6 +181,7 @@ p { margin: 0; }
   background: var(--kumach); transform: scaleX(0); transform-origin: left; transition: transform var(--t) var(--ease);
 }
 .nav a:hover { color: var(--kumach); }
+.nav a:active { background: color-mix(in srgb, var(--kumach) 8%, transparent); }
 .nav a:hover::after, .nav a[aria-current="page"]::after { transform: scaleX(1); }
 .nav a[aria-current="page"] { color: var(--kumach); }
 .nav .lang { color: var(--ink-soft); margin-left: clamp(6px, 1.5vw, 14px); border-left: 1px solid var(--line); border-radius: 0; padding-left: clamp(14px, 2vw, 22px); }
@@ -210,24 +211,26 @@ p { margin: 0; }
 .actions { display: flex; gap: 12px; flex-wrap: wrap; }
 .btn {
   display: inline-flex; align-items: center; justify-content: center;
-  min-height: 46px; padding: 0 20px;
+  min-height: 48px; padding: 0 24px;  /* цель касания по брендбуку — от 48 px */
   border-radius: var(--radius);
-  font: 600 var(--step--1)/1 var(--body);
+  font: 600 var(--step-0)/1 var(--body);
   text-decoration: none; cursor: pointer;
   border: 1px solid var(--kumach);
   transition: transform var(--t) var(--ease), box-shadow var(--t), background var(--t), border-color var(--t), color var(--t), filter var(--t);
 }
 .btn-primary { background: var(--kumach); color: var(--kumach-ink); box-shadow: inset 0 1px 0 rgb(255 255 255 / .18), var(--kumach-glow); }
 .btn-primary:hover { filter: brightness(1.06); transform: translateY(-1px); box-shadow: inset 0 1px 0 rgb(255 255 255 / .18), 0 14px 28px -12px color-mix(in srgb, var(--kumach) 65%, transparent); }
-.btn-primary:active { transform: translateY(0); filter: brightness(.97); box-shadow: inset 0 1px 2px rgb(0 0 0 / .18); }
+/* нажатие — кнопка чуть вдавливается: на 1 px вниз, тень гаснет */
+.btn-primary:active { transform: translateY(1px); filter: brightness(.97); box-shadow: inset 0 1px 2px rgb(0 0 0 / .18); }
 .btn-ghost { background: transparent; color: var(--ink); border-color: var(--line); }
 .btn-ghost:hover { border-color: var(--ink-soft); background: var(--paper); transform: translateY(-1px); box-shadow: var(--shadow-rest); }
-.btn-ghost:active { transform: translateY(0); box-shadow: none; }
+.btn-ghost:active { transform: translateY(1px); box-shadow: none; }
 .btn:focus-visible { outline-offset: 3px; }
 /* Официальная кнопка «Скачайте из RuStore» (site/assets/stores/rustore.svg) — вровень с кнопками */
-.store-badge { display: inline-flex; border-radius: 4px; transition: transform var(--t) var(--ease), box-shadow var(--t); }
+.store-badge { display: inline-flex; border-radius: var(--radius); transition: transform var(--t) var(--ease), box-shadow var(--t); }
 .store-badge:hover { transform: translateY(-1px); box-shadow: var(--shadow-rest); }
-.store-badge img { display: block; width: auto; height: 46px; }
+.store-badge:active { transform: translateY(1px); box-shadow: none; }
+.store-badge img { display: block; width: auto; height: 48px; }
 .store-badge:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
 
 /* Появление первого экрана: строки поднимаются одна за другой, пяльцы — следом.
@@ -273,6 +276,7 @@ p { margin: 0; }
 }
 .cell[data-num] { cursor: pointer; background: var(--cell); border-radius: 2px; transition: background var(--t), color var(--t), transform var(--t) var(--ease); }
 .cell[data-num]:hover { color: var(--ink); background: color-mix(in srgb, var(--cell) 70%, var(--ink-soft)); transform: scale(1.12); z-index: 1; }
+.cell[data-num]:active { transform: scale(1); }
 .cell[data-num]:focus-visible { outline-offset: 1px; z-index: 1; }
 .cell.st { color: transparent; }
 .cell.st::before, .cell.st::after {
@@ -297,7 +301,7 @@ p { margin: 0; }
 .threads { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .thread {
   display: inline-flex; align-items: center; gap: 8px;
-  min-height: 38px; padding: 0 11px 0 7px;
+  min-height: 40px; padding: 0 12px 0 8px;
   background: transparent; color: var(--ink);
   border: 1px solid var(--line); border-radius: var(--radius-pill);
   font: 500 var(--step--1)/1 var(--body); cursor: pointer;
@@ -409,7 +413,7 @@ p { margin: 0; }
 .mail { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
 .mail-address { font-weight: 600; font-size: var(--step-1); user-select: all; word-break: break-all; }
 .copy {
-  min-height: 38px; padding: 0 14px; border-radius: var(--radius); border: 1px solid var(--line); background: transparent; color: var(--ink);
+  min-height: 40px; padding: 0 16px; border-radius: var(--radius); border: 1px solid var(--line); background: transparent; color: var(--ink);
   font: 500 var(--step--1)/1 var(--body); cursor: pointer;
   transition: border-color var(--t), background var(--t), transform var(--t) var(--ease), box-shadow var(--t);
 }
@@ -455,16 +459,18 @@ p { margin: 0; }
 .video-play { position: absolute; left: 50%; top: 50%; width: 72px; height: 72px; margin: -36px 0 0 -36px; border-radius: 50%; background: var(--kumach); box-shadow: 0 6px 18px rgb(0 0 0 / .25); }
 .video-play::after { content: ""; position: absolute; left: 29px; top: 23px; border-style: solid; border-width: 13px 0 13px 21px; border-color: transparent transparent transparent var(--kumach-ink); }
 .video figcaption { font-size: var(--step--1); color: var(--ink-soft); }
-.video-frame { display: block; width: 100%; aspect-ratio: 16 / 9; border: 0; border-radius: var(--radius-card); background: #000; box-shadow: var(--shadow-rest); }
+.video-frame { display: block; width: 100%; aspect-ratio: 16 / 9; border: 0; border-radius: var(--radius-card); background: var(--ink); box-shadow: var(--shadow-rest); }
 /* Петля игры поверх баннера в карточке на главной (site.js, loops): проявляется, когда видео пошло */
 .game-shot { position: relative; }
 .game-loop { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 400ms var(--ease); pointer-events: none; }
 .game-shot.is-playing .game-loop { opacity: 1; }
 .video figcaption a { font-weight: 500; }
+.video-link:active .video-play { transform: scale(.96); }
 @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
   .video-link img, .video-play { transition: transform var(--t) var(--ease); }
   .video-link:hover img { transform: scale(1.03); }
   .video-link:hover .video-play { transform: scale(1.08); }
+  .video-link:active .video-play { transform: scale(1); }
 }
 
 /* Обои: карточка — превью для телефона и компьютера рядом, подпись и ссылки на файлы */
@@ -489,9 +495,11 @@ p { margin: 0; }
 .more-tile .press-files { position: absolute; left: clamp(18px, 3vw, 24px); bottom: 16px; }
 .more-go { position: absolute; left: clamp(18px, 3vw, 24px); bottom: 14px; color: var(--kumach); font-weight: 600; transition: transform var(--t) var(--ease); }
 a.more-tile:hover h3 { color: var(--kumach); }
+a.more-tile:active { transform: scale(.99); }
 @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
   a.more-tile { transition: transform var(--t) var(--ease), box-shadow var(--t), border-color var(--t); }
   a.more-tile:hover, a.more-tile:focus-visible { transform: translateY(-3px); box-shadow: var(--shadow-lift), var(--sheen); }
+  a.more-tile:active { transform: translateY(-1px); box-shadow: var(--shadow-rest), var(--sheen); }
   a.more-tile:hover .more-go { transform: translateX(4px); }
 }
 @media (max-width: 900px) { .more-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
@@ -569,6 +577,7 @@ details.veil[open] > summary { display: none; }
 .shots a.shot:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
 @media (hover: hover) and (pointer: fine) {
   .shots a.shot:hover img, .shots a.shot:focus-visible img { transform: translateY(-4px); box-shadow: var(--shadow-lift); }
+  .shots a.shot:active img { transform: translateY(-2px); box-shadow: var(--shadow-rest); }
 }
 /* лупа в углу снимка: на телефоне курсора нет — так видно, что снимок открывается крупно */
 .shots a.shot::before, .shots a.shot::after { content: ""; position: absolute; pointer-events: none; }
@@ -578,8 +587,8 @@ details.veil[open] > summary { display: none; }
 }
 .shots a.shot::before {
   right: 15px; bottom: 15px; width: 18px; height: 18px; z-index: 1; background: var(--ink-soft);
-  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='M15.3 15.3L20 20M7.5 10.5h6M10.5 7.5v6'/%3E%3C/svg%3E") center / contain no-repeat;
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='M15.3 15.3L20 20M7.5 10.5h6M10.5 7.5v6'/%3E%3C/svg%3E") center / contain no-repeat;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='M15.3 15.3L20 20M7.5 10.5h6M10.5 7.5v6'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='M15.3 15.3L20 20M7.5 10.5h6M10.5 7.5v6'/%3E%3C/svg%3E") center / contain no-repeat;
 }
 .shots a.shot:hover::before { background: var(--kumach); }
 /* с мышью лупа видна при наведении — курсор и так показывает, что снимок открывается */
@@ -627,7 +636,7 @@ dialog.zoom::backdrop { background: #111816; }
 }
 .zoom-count:empty { visibility: hidden; }
 .zoom-btn {
-  width: 44px; height: 44px; flex: none; display: grid; place-items: center; padding: 0;
+  width: 48px; height: 48px; flex: none; display: grid; place-items: center; padding: 0;
   border: 0; border-radius: var(--radius-pill); background: rgba(24, 33, 30, .82); color: #e9e8e0;
   box-shadow: inset 0 0 0 1px rgba(233, 232, 224, .16); cursor: pointer;
   transition: background var(--t), transform var(--t) var(--ease);
@@ -669,6 +678,7 @@ details.faq summary {
 }
 details.faq summary::-webkit-details-marker { display: none; }
 details.faq summary:hover { color: var(--kumach); }
+details.faq summary:active { opacity: .75; }
 details.faq summary::after {
   content: "+"; flex: none; width: 1em; text-align: center; color: var(--kumach); font-weight: 400; font-size: 1.4em; line-height: 1;
   transition: transform var(--t-slow) var(--ease);
@@ -793,6 +803,10 @@ details.faq .answer { display: grid; gap: 10px; padding-bottom: 18px; color: var
   .hoop.is-folded { display: none; }
   .brand-tiles { grid-template-columns: minmax(0, 1fr); }
   .canvas { gap: 1px; }
+}
+/* На экране без курсора мелкие кнопки и ссылки тоже не меньше 48 px — цель касания по брендбуку */
+@media (pointer: coarse) {
+  .nav a, .copy, .thread, .crumbs a { min-height: 48px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .cell.pop::before, .cell.pop::after, .cell.miss, .cell.st.grow::before, .cell.st.grow::after { animation: none; }
