@@ -36,7 +36,7 @@
   },
   "nardy": {
     "repo": "Nefeste/nardy",
-    "commit": "13359fce7adc03040279b7664f427a59213b6cd1",
+    "commit": "1d2bdffac14de2505cc838c6d97a524232187596",
     "images": {
       "nardy-01-game-full.webp": "pxd4e90fb74e0340ef:shot-landscape-full:0",
       "nardy-01-game.webp": "pxd4e90fb74e0340ef:shot-landscape:0",
@@ -56,6 +56,7 @@
       "nardy-08-skins.webp": "px717af91e94a59a76:shot-landscape:0",
       "nardy-feature.webp": "pxcc5dedc3bcb36b44:feature:0",
       "nardy-icon.webp": "pxf03dbc286690bcd1:icon:0",
+      "nardy-loop.mp4": "shaa35266f7f7703bb5",
       "nardy-og.png": "px284abbe4b03c5fdf:og:1"
     }
   },
@@ -88,25 +89,26 @@
   },
   "skazy": {
     "repo": "Nefeste/skazy",
-    "commit": "282d017af51f53d045877cfceda910497449cc2b",
+    "commit": "197a02349cc8ae3b6383baefc6e5c53cf36316e2",
     "images": {
-      "skazy-01-path-full.webp": "px2fa1f6f9cf868d11:shot-portrait-full:0",
-      "skazy-01-path.webp": "px2fa1f6f9cf868d11:shot-portrait:0",
-      "skazy-02-battle-full.webp": "px055acf2c212d96a0:shot-portrait-full:0",
-      "skazy-02-battle.webp": "px055acf2c212d96a0:shot-portrait:0",
-      "skazy-03-raven-full.webp": "px27e530f151d83e9b:shot-portrait-full:0",
-      "skazy-03-raven.webp": "px27e530f151d83e9b:shot-portrait:0",
-      "skazy-04-hero-full.webp": "px2fe49cfdb92f2f2b:shot-portrait-full:0",
-      "skazy-04-hero.webp": "px2fe49cfdb92f2f2b:shot-portrait:0",
-      "skazy-05-chronicle-full.webp": "pxaaff0bce7fe407a4:shot-portrait-full:0",
-      "skazy-05-chronicle.webp": "pxaaff0bce7fe407a4:shot-portrait:0",
-      "skazy-06-zastava-full.webp": "px5d1499d70d807a13:shot-portrait-full:0",
-      "skazy-06-zastava.webp": "px5d1499d70d807a13:shot-portrait:0",
+      "skazy-01-path-full.webp": "px35efbaef101f4912:shot-portrait-full:0",
+      "skazy-01-path.webp": "px35efbaef101f4912:shot-portrait:0",
+      "skazy-02-battle-full.webp": "px46faf12b7d9caa46:shot-portrait-full:0",
+      "skazy-02-battle.webp": "px46faf12b7d9caa46:shot-portrait:0",
+      "skazy-03-raven-full.webp": "px062b995bebb4d83f:shot-portrait-full:0",
+      "skazy-03-raven.webp": "px062b995bebb4d83f:shot-portrait:0",
+      "skazy-04-hero-full.webp": "px78c16ffefce82174:shot-portrait-full:0",
+      "skazy-04-hero.webp": "px78c16ffefce82174:shot-portrait:0",
+      "skazy-05-chronicle-full.webp": "px5710ee31442295d6:shot-portrait-full:0",
+      "skazy-05-chronicle.webp": "px5710ee31442295d6:shot-portrait:0",
+      "skazy-06-zastava-full.webp": "px0e8f63beb46a5751:shot-portrait-full:0",
+      "skazy-06-zastava.webp": "px0e8f63beb46a5751:shot-portrait:0",
       "skazy-cover-960.webp": "px54743fbc685fd77e:cover-small:0",
       "skazy-cover.webp": "px54743fbc685fd77e:cover:0",
       "skazy-feature-en.webp": "pxff1c775195927069:feature:0",
       "skazy-feature.webp": "pxfe082fd5c741eba2:feature:0",
-      "skazy-icon.webp": "pxe2168e1f5f227e02:icon:0",
+      "skazy-icon.webp": "pxd50e23259b5dc15b:icon:0",
+      "skazy-loop.mp4": "sha02039adf8f29af5b",
       "skazy-og-en.png": "pxff1c775195927069:og:0",
       "skazy-og.png": "pxfe082fd5c741eba2:og:0"
     }

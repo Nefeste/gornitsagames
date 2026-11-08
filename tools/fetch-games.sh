@@ -29,7 +29,17 @@ while read -r slug repo kind; do
     && git "${auth[@]}" -C "$dir" checkout -q; then
     echo "$slug: $(git -C "$dir" rev-parse --short HEAD), файлов в store/: $(git -C "$dir" ls-files store | wc -l)"
   else
-    echo "::warning::$slug: не удалось забрать $repo"
+    why=""
+    if [[ $kind == private ]]; then
+      # почему не пустили: 401 — токен не принят (истёк, отозван, другое значение), 404/403 — нет права на репозиторий
+      code=$(curl -s -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $GAMES_READ_TOKEN" "https://api.github.com/repos/$repo" || true)
+      case $code in
+        401) why=" — GitHub не принял GAMES_READ_TOKEN (истёк или отозван): новый токен — в секрет, docs/game-pages.md" ;;
+        403|404) why=" — у GAMES_READ_TOKEN нет права на $repo: Repository access токена, docs/game-pages.md" ;;
+        *) why=" (ответ GitHub API: $code)" ;;
+      esac
+    fi
+    echo "::warning::$slug: не удалось забрать $repo$why"
     rm -rf "$dir"
   fi
 done <<< "$list"
