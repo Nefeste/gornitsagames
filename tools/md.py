@@ -30,7 +30,7 @@ def inline(text):
 
     s = LINK.sub(link, text)
     s = emph(esc(s))
-    s = MAIL.sub(lambda m: f'<span class="mail-address" style="font-size: inherit">{m.group(0)}</span>', s)
+    s = MAIL.sub(lambda m: f'<span class="mail-address mail-inline">{m.group(0)}</span>', s)
     return re.sub(r"\x00(\d+)\x00", lambda m: keep[int(m.group(1))], s)
 
 

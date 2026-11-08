@@ -142,7 +142,7 @@ def latest(lang, base, n=3):
           <h3><a href="{href}#{i["id"]}">{esc(i["title"])}</a></h3>
           <p>{inline(i["lead"])}</p>
         </li>""" for i in items[:n])
-    return f"""  <section class="section" id="news" aria-labelledby="news-title" style="padding-top: 0">
+    return f"""  <section class="section section-tight" id="news" aria-labelledby="news-title">
     <div class="wrap">
       <div class="section-head">
         <p class="eyebrow">{t["eyebrow"]}</p>
