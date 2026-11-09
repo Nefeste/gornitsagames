@@ -21,6 +21,14 @@
         "en": [{"text": "Fill in the sample pattern ↑", "url": "#hoop"}]
       }
     },
-    {"slug": "durak", "repo": "Nefeste/durak", "private": true}
+    {"slug": "durak", "repo": "Nefeste/durak", "private": true},
+    {
+      "slug": "bukvitsa",
+      "repo": "Nefeste/bukvitsa",
+      "card": {
+        "ru": [{"text": "Почему эта игра", "url": "/news.html#2026-10-04-bukvitsa"}],
+        "en": [{"text": "Why this game", "url": "/en/news.html#2026-10-04-bukvitsa"}]
+      }
+    }
   ]
 }
