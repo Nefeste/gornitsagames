@@ -158,5 +158,30 @@
       "durak-icon.webp": "px0e631906bbcd7a74:icon:0",
       "durak-og.png": "pxe0ce910278f3af75:og:1"
     }
+  },
+  "bukvitsa": {
+    "repo": "Nefeste/bukvitsa",
+    "commit": "6f34c7198b7e4b1f07fc407530db4f6a2524ea1f",
+    "images": {
+      "bukvitsa-01-proverb-full.webp": "pxaf58d61606d27649:shot-portrait-full:0",
+      "bukvitsa-01-proverb.webp": "pxaf58d61606d27649:shot-portrait:0",
+      "bukvitsa-02-source-full.webp": "px4a643124c6375360:shot-portrait-full:0",
+      "bukvitsa-02-source.webp": "px4a643124c6375360:shot-portrait:0",
+      "bukvitsa-03-ending-full.webp": "pxc47697039f943aed:shot-portrait-full:0",
+      "bukvitsa-03-ending.webp": "pxc47697039f943aed:shot-portrait:0",
+      "bukvitsa-04-extra-letter-full.webp": "px84dcf0fa49d121bd:shot-portrait-full:0",
+      "bukvitsa-04-extra-letter.webp": "px84dcf0fa49d121bd:shot-portrait:0",
+      "bukvitsa-05-notebook-full.webp": "px7ab5273850aaf07b:shot-portrait-full:0",
+      "bukvitsa-05-notebook.webp": "px7ab5273850aaf07b:shot-portrait:0",
+      "bukvitsa-06-home-full.webp": "px4bb69df7e599f1a2:shot-portrait-full:0",
+      "bukvitsa-06-home.webp": "px4bb69df7e599f1a2:shot-portrait:0",
+      "bukvitsa-07-parts-dark-full.webp": "px0a61d5c15acc8240:shot-portrait-full:0",
+      "bukvitsa-07-parts-dark.webp": "px0a61d5c15acc8240:shot-portrait:0",
+      "bukvitsa-08-cipher-full.webp": "px4dd897732f66ad25:shot-portrait-full:0",
+      "bukvitsa-08-cipher.webp": "px4dd897732f66ad25:shot-portrait:0",
+      "bukvitsa-feature.webp": "px334913acd03fb4c3:feature:0",
+      "bukvitsa-icon.webp": "pxe626c3bbad3b0f96:icon:0",
+      "bukvitsa-og.png": "px334913acd03fb4c3:og:0"
+    }
   }
 }
