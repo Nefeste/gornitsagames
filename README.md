@@ -86,7 +86,7 @@ deploy/
   bootstrap.sh        настройка сервера одной командой и автообновление из GitHub
   update-site.sh      автообновление (запускается таймером раз в 5 минут)
   seni-bootstrap.sh   установщик Сеней — шлюза студии — на отдельной машине (см. docs/machine.md)
-  nginx/              настройка nginx сайта (см. «Обновления сайта»)
+  nginx/              настройка nginx сайта (см. docs/machine.md, «Обновления сайта»)
     gornitsa.games.conf        до выпуска сертификата — первая установка
     gornitsa.games.https.conf  с HTTPS: HTTP/2, редирект с http и www — сама настройка на машине
     headers.conf, locations.conf   заголовки безопасности (в каждом месте сайта, с HSTS) и места
@@ -235,14 +235,6 @@ HTML и картинок.
 
 У каждой страницы есть пара на другом языке: русская `src/support.html` и английская `src/en/support.html`. Правьте обе, а новую страницу добавьте в список `pages` в `build.py` — тогда в шапке появится переключатель языка, а в `<head>` — ссылки `hreflang`. Надписи, которые рисует скрипт (подсказки на пяльцах, кнопка «Скопировать»), — в начале `site/assets/site.js`.
 
-## Обновления сайта
-
-Изменения попадают в `main` через PR, а сливает их владелец ([ADR студии 0018](https://github.com/Nefeste/gornitsa/blob/main/adr/0018-change-classes-automerge.md)): сервер проверяет GitHub каждые 5 минут и выкладывает новую версию сам. Журнал: `journalctl -u gornitsa-update -n 50`. Скрипт автообновления тоже берётся из репозитория (`deploy/update-site.sh`), а при изменении `deploy/votchina/`, `deploy/nardy/`, `deploy/skazy/` или `deploy/uzory/` он доводит настройку сервера этой игры, при изменении `deploy/monitor/` — мониторинга машины.
-
-Настройка nginx самого сайта тоже идёт из репозитория: при изменении `deploy/nginx/` (и когда сертификат уже выпущен) `update-site.sh` запускает `deploy/nginx/apply.sh`. Тот сохраняет нынешние файлы, ставит `gornitsa.games.https.conf` как `/etc/nginx/sites-available/gornitsa.games.conf`, заголовки и места — в `/etc/nginx/snippets/gornitsa-site-*.conf` (`server_tokens off` — в самом конфиге сайта: в `http{}` машины он уже задан, второй раз там nginx не пропускает), проверяет `nginx -t`, перезагружает nginx и убеждается, что `https://gornitsa.games/` отвечает 200, а `http://` — 301. Что-то не так — всё возвращается как было, а в `/var/lib/gornitsa-nginx-site` пишется `failed <версия>`: эту версию скрипт больше не пробует, пока `deploy/nginx/` не поменяется снова. Блоки сертификата в конфиге — в том виде, в каком их пишет certbot, поэтому продление работает по-прежнему. Заголовки безопасности — в `headers.conf` и подключаются в каждом `location`: nginx не складывает `add_header` сервера и места, и заголовки на уровне сервера молча пропадали бы.
-
-Если репозиторий когда-нибудь закроют (это новое решение владельца вместо [ADR студии 0017](https://github.com/Nefeste/gornitsa/blob/main/adr/0017-repo-visibility.md)), сайт можно выкладывать со своего компьютера: `./deploy/deploy.sh IP_СЕРВЕРА` (нужен SSH-доступ пользователем deploy, его создаёт `deploy/setup-server.sh`).
-
 ## Проверка PR
 
 Workflow «Проверка сайта» (`.github/workflows/site.yml`) на каждый PR и push в `main` на `ubuntu-24.04`
@@ -260,6 +252,7 @@ Workflow «Проверка сайта» (`.github/workflows/site.yml`) на к�
 |---|---|
 | Запуск с нуля (домен, VPS, DNS, GitHub, настройка одной командой) | [`docs/machine.md`](docs/machine.md#запуск-с-нуля) |
 | Вход на сервер | [`docs/machine.md`](docs/machine.md#вход-на-сервер) |
+| Обновления сайта (автообновление, nginx сайта, выкладка со своего компьютера) — перенесено 11.11.2026 | [`docs/machine.md`](docs/machine.md#обновления-сайта) |
 | Мониторинг машины | [`docs/machine.md`](docs/machine.md#мониторинг-машины) |
 | Копии баз | [`docs/machine.md`](docs/machine.md#копии-баз) |
 | Сени — шлюз студии | [`docs/machine.md`](docs/machine.md#сени--шлюз-студии-отдельная-машина) |

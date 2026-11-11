@@ -52,6 +52,14 @@ curl -fsSL https://raw.githubusercontent.com/Nefeste/gornitsagames/main/deploy/b
 
 Скрипт скачает репозиторий в `/opt/gornitsa`, поставит nginx, закроет лишние порты, выключит вход по паролю (заведёт пользователя `gornitsa` с вашим ключом и sudo — см. «Вход на сервер»), выложит сайт и включит автообновление. Как только DNS начнёт указывать на сервер, он сам выпустит бесплатный сертификат Let's Encrypt и включит HTTPS.
 
+## Обновления сайта
+
+Изменения попадают в `main` через PR, а сливает их владелец ([ADR студии 0018](https://github.com/Nefeste/gornitsa/blob/main/adr/0018-change-classes-automerge.md)): сервер проверяет GitHub каждые 5 минут и выкладывает новую версию сам. Журнал: `journalctl -u gornitsa-update -n 50`. Скрипт автообновления тоже берётся из репозитория (`deploy/update-site.sh`), а при изменении `deploy/votchina/`, `deploy/nardy/`, `deploy/skazy/` или `deploy/uzory/` он доводит настройку сервера этой игры, при изменении `deploy/monitor/` — мониторинга машины.
+
+Настройка nginx самого сайта тоже идёт из репозитория: при изменении `deploy/nginx/` (и когда сертификат уже выпущен) `update-site.sh` запускает `deploy/nginx/apply.sh`. Тот сохраняет нынешние файлы, ставит `gornitsa.games.https.conf` как `/etc/nginx/sites-available/gornitsa.games.conf`, заголовки и места — в `/etc/nginx/snippets/gornitsa-site-*.conf` (`server_tokens off` — в самом конфиге сайта: в `http{}` машины он уже задан, второй раз там nginx не пропускает), проверяет `nginx -t`, перезагружает nginx и убеждается, что `https://gornitsa.games/` отвечает 200, а `http://` — 301. Что-то не так — всё возвращается как было, а в `/var/lib/gornitsa-nginx-site` пишется `failed <версия>`: эту версию скрипт больше не пробует, пока `deploy/nginx/` не поменяется снова. Блоки сертификата в конфиге — в том виде, в каком их пишет certbot, поэтому продление работает по-прежнему. Заголовки безопасности — в `headers.conf` и подключаются в каждом `location`: nginx не складывает `add_header` сервера и места, и заголовки на уровне сервера молча пропадали бы.
+
+Если репозиторий когда-нибудь закроют (это новое решение владельца вместо [ADR студии 0017](https://github.com/Nefeste/gornitsa/blob/main/adr/0017-repo-visibility.md)), сайт можно выкладывать со своего компьютера: `./deploy/deploy.sh IP_СЕРВЕРА` (нужен SSH-доступ пользователем deploy, его создаёт `deploy/setup-server.sh`).
+
 ## Вход на сервер
 
 Аудит 03.10.2026, раздел 4. `deploy/setup-server.sh` (его запускает `bootstrap.sh`, а на уже
