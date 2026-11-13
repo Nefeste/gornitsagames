@@ -140,7 +140,7 @@
   },
   "durak": {
     "repo": "Nefeste/durak",
-    "commit": "124796211e6ad2cbab388509d2685bb09eb519fb",
+    "commit": "e5b66ae3fd5aa4e960a465d8eca2d30c1f21f863",
     "images": {
       "durak-01-game-full.webp": "px416f26cc8ba2aa71:shot-portrait-full:0",
       "durak-01-game.webp": "px416f26cc8ba2aa71:shot-portrait:0",
@@ -158,9 +158,9 @@
       "durak-09-puzzle.webp": "pxa5b8debf67a37978:shot-portrait:0",
       "durak-10-advice-full.webp": "px10fb8c422aae468b:shot-portrait-full:0",
       "durak-10-advice.webp": "px10fb8c422aae468b:shot-portrait:0",
-      "durak-feature.webp": "pxf355245377a2634b:feature:0",
-      "durak-icon.webp": "px0e631906bbcd7a74:icon:0",
-      "durak-og.png": "pxe0ce910278f3af75:og:1"
+      "durak-feature.webp": "pxcd47e4df8c503a58:feature:0",
+      "durak-icon.webp": "px1cb64ae5e7d0865a:icon:0",
+      "durak-og.png": "px127886ab28684b71:og:1"
     }
   },
   "bukvitsa": {
