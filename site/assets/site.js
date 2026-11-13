@@ -41,21 +41,27 @@
     cell: function (r, c, v) { return "Cell " + r + "-" + c + ", thread " + v + " (" + T.names[v] + ")"; },
     pick: "Pick a thread and fill in the numbered cells.",
     wrong: function (v) { return "This cell takes thread " + v + " (" + T.names[v] + "). Pick it below."; },
-    done: "Pattern complete. That’s how our color-by-number game Uzory will work.",
+    done: "Pattern complete. That’s how our color-by-number game Uzory works — it’s out on RuStore.",
     copy: "Copy", copied: "Copied", selected: "Selected — press Ctrl+C",
     zoom: "Screenshot", close: "Close", prev: "Previous screenshot", next: "Next screenshot",
     bigger: "Actual size", fit: "Fit to screen", of: " of ",
-    hoop: "Try the cross-stitch demo"
+    hoop: "Try the cross-stitch demo",
+    join: { subject: "Closed test", game: "Game", phone: "Phone", android: "Android", vkid: "VK ID",
+            fill: "Fill in the phone model, Android version and VK ID.", opened: "If your mail app didn’t open, copy the text and send it to qa@gornitsa.games.",
+            copied: "Copied. Paste it into an email to qa@gornitsa.games." }
   } : {
     names: { 1: "красная", 2: "еловая", 3: "льняная" },
     cell: function (r, c, v) { return "Клетка " + r + "-" + c + ", нить " + v + " (" + T.names[v] + ")"; },
     pick: "Выберите нить и закрасьте клетки с номерами.",
     wrong: function (v) { return "Эта клетка под нить " + v + " (" + T.names[v] + "). Выберите её ниже."; },
-    done: "Узор готов. Так будет устроена наша раскраска «Узоры».",
+    done: "Узор готов. Так устроена наша раскраска «Узоры» — она уже в RuStore.",
     copy: "Скопировать", copied: "Скопировано", selected: "Выделено, нажмите Ctrl+C",
     zoom: "Снимок экрана", close: "Закрыть", prev: "Предыдущий снимок", next: "Следующий снимок",
     bigger: "Исходный размер", fit: "Вписать в экран", of: " из ",
-    hoop: "Вышить узор-пример"
+    hoop: "Вышить узор-пример",
+    join: { subject: "Закрытый тест", game: "Игра", phone: "Телефон", android: "Android", vkid: "VK ID",
+            fill: "Заполните модель телефона, версию Android и VK ID.", opened: "Если почта не открылась, скопируйте текст и отправьте его на qa@gornitsa.games.",
+            copied: "Скопировано. Вставьте в письмо на qa@gornitsa.games." }
   };
 
   function buildCanvas(root) {
@@ -199,6 +205,42 @@
           navigator.clipboard.writeText(text).then(done, fallback);
         } else { fallback(); }
       } catch (e) { fallback(); }
+    });
+  }
+
+  // «Стать тестировщиком»: заявка в четыре строки. Сайт ничего не отправляет и не хранит: из полей
+  // собирается текст письма, «Открыть письмо» открывает его в почте человека (mailto:), «Скопировать
+  // текст» кладёт его в буфер. Без скрипта формы нет (hidden) — остаётся инструкция и адрес почты.
+  function buildJoin(form) {
+    var J = T.join, note = form.querySelector("[data-join-note]");
+    form.hidden = false;
+    function letter() {
+      var f = form.elements, ok = true;
+      ["phone", "android", "vkid"].forEach(function (n) { if (!f[n].value.trim()) ok = false; });
+      if (!ok) {
+        if (form.reportValidity) form.reportValidity();
+        note.textContent = J.fill;
+        return null;
+      }
+      return [J.game + ": " + f.game.value, J.phone + ": " + f.phone.value.trim(),
+              J.android + ": " + f.android.value.trim(), J.vkid + ": " + f.vkid.value.trim()].join("\n");
+    }
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var text = letter();
+      if (!text) return;
+      note.textContent = J.opened;
+      window.location.href = "mailto:" + form.dataset.join + "?subject=" + encodeURIComponent(J.subject) + "&body=" + encodeURIComponent(text);
+    });
+    form.querySelector("[data-join-copy]").addEventListener("click", function () {
+      var text = letter();
+      if (!text) return;
+      var done = function () { note.textContent = J.copied; };
+      var fail = function () { note.textContent = text; };
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fail);
+        else fail();
+      } catch (e) { fail(); }
     });
   }
 
@@ -586,6 +628,7 @@
     document.querySelectorAll("[data-hoop]").forEach(buildCanvas);
     document.querySelectorAll("svg.band").forEach(buildBand);
     document.querySelectorAll("[data-copy]").forEach(buildCopy);
+    document.querySelectorAll("form[data-join]").forEach(buildJoin);
     if (document.querySelector("[data-token]")) {
       fillTokens();
       if (window.matchMedia) {

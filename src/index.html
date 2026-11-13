@@ -51,9 +51,10 @@
       <div class="section-head">
         <p class="eyebrow">Игры</p>
         <h2 id="games-title">Наши игры</h2>
-        <p>«Вотчина» уже в RuStore и в браузере, «Длинные нарды» и «Узоры» — в RuStore, «Анамнез» и «Сказы» в разработке, а «Складно» — в планах. Названия новых игр пока рабочие.</p>
+        <p>Вышедшие игры ставятся на телефон с Android из RuStore — бесплатно и без регистрации. «Вотчину» можно попробовать и прямо в браузере.</p>
       </div>
-      <div class="games">
+      <p class="eyebrow games-sub">Уже в RuStore</p>
+      <div class="games games-live">
         <!-- game:votchina — карточку собирает tools/games.py из store/site/ игры -->
         <article class="game">
           <a class="game-shot" href="votchina/" tabindex="-1" aria-hidden="true"><img src="assets/games/votchina-feature.webp" width="1024" height="500" alt=""></a>
@@ -179,11 +180,8 @@
         <!-- /game:bukvitsa -->
       </div>
 
-      <!-- Игры в разработке без store/site/: карточки живут здесь. Когда у игры появятся store/site/ с картинками, её переносят в tools/games.json, а эту карточку убирают. -->
-      <p class="eyebrow games-sub">В планах</p>
-      <div class="games games-planned">
-      </div>
-
+      <!-- Игры в разработке переносит сюда build.py (tools/promo.py): карточки с «В разработке» — во вторую сетку -->
+{{GAMES_SOON}}
     </div>
   </section>
 

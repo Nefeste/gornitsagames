@@ -178,6 +178,11 @@ def main():
                 errors.append(f"site/.well-known/security.txt: срок Expires вышел — продлите на год")
             elif left < 60:
                 print(f"Напоминание: site/.well-known/security.txt действует ещё {left} дн. — продлите Expires на год")
+    # QR-код (tools/qr.py): образец прочитан сканером 13.11.2026 — код не должен измениться незаметно
+    import hashlib, qr
+    sample = "".join("".join(map(str, row)) for row in qr.matrix("https://gornitsa.games/go/nardy"))
+    if hashlib.sha256(sample.encode()).hexdigest()[:16] != "75bbabe2431718a9":
+        errors.append("tools/qr.py: код для /go/nardy не совпал с образцом — проверьте его сканером и обновите образец в tools/check.py")
     for e in errors:
         print(e)
     print(f"Проверено страниц: {len(pages)}; ошибок: {len(errors)}")

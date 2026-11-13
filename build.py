@@ -4,7 +4,7 @@ import hashlib, json, pathlib, re, sys
 root = pathlib.Path(__file__).parent
 sys.path.insert(0, str(root / "src"))
 sys.path.insert(0, str(root / "tools"))
-import news, partials, seo
+import news, partials, promo, seo
 
 SITE = "https://gornitsa.games"
 
@@ -22,6 +22,7 @@ pages = {
     "testers.html": ("testers", "", "ru", "en/testers.html"),
     "support.html": ("support", "", "ru", "en/support.html"),
     "privacy.html": ("privacy", "", "ru", "en/privacy.html"),
+    "terms.html": ("terms", "", "ru", "en/terms.html"),
     "404.html": ("404", "/", "ru", "en/index.html"),
     "votchina/index.html": ("games", "/", "ru", "en/votchina/index.html"),
     "votchina/tournaments.html": ("games", "/", "ru", "en/votchina/tournaments.html"),
@@ -46,6 +47,7 @@ pages = {
     "en/testers.html": ("testers", "/", "en", "testers.html"),
     "en/support.html": ("support", "/", "en", "support.html"),
     "en/privacy.html": ("privacy", "/", "en", "privacy.html"),
+    "en/terms.html": ("terms", "/", "en", "terms.html"),
     "en/votchina/index.html": ("games", "/", "en", "votchina/index.html"),
     "en/votchina/tournaments.html": ("games", "/", "en", "votchina/tournaments.html"),
     "en/votchina/delete.html": ("games", "/", "en", "votchina/delete.html"),
@@ -151,6 +153,7 @@ for name, (key, base, lang, pair) in pages.items():
                 .replace("{{SELLER}}", partials.seller(lang, "block"))
                 .replace("{{SELLER_PARA}}", partials.seller(lang, "para"))
                 .replace("{{GO_LIST}}", go_list(lang))
+                .replace("{{GAME_OPTIONS}}", "\n".join(f"          <option>{n}</option>" for _, n in GAMES[lang]))
                 .replace("{{MILESTONES}}", news.milestones(lang, base, partials.CONFIG["milestones"]["news"]))
                 .replace("{{NEWS}}", news.page(lang))
                 .replace("{{NEWS_LATEST}}\n", news.latest(lang, base)))
@@ -158,6 +161,11 @@ for name, (key, base, lang, pair) in pages.items():
         html = og_defaults(html, lang)
     if key == "home":
         html = html.replace("</head>", partials.studio_ld(lang) + "\n</head>", 1)
+    # путь к игре: кнопка RuStore и запись в тест в карточках, QR, «Скачать» и другие игры на страницах игр
+    if key == "home":
+        html = promo.cards(html, lang, GO, partials.TELEGRAM, partials.VK)
+    if key == "games" and name.endswith("/index.html"):
+        html = promo.game_page(html, name.split("/")[-2], lang, GO, GAMES[lang], partials.TELEGRAM, partials.VK)
     html = seo.enrich(name, key, lang, html, GAMES[lang], GO)
     write(name, html)
 

@@ -21,7 +21,7 @@ def icon(name):
 T = {
     "ru": {
         "skip": "К содержимому", "brand": "Горница", "home": "Горница, на главную", "sections": "Разделы",
-        "games": "Игры", "about": "О студии", "support": "Поддержка", "privacy": "Политика конфиденциальности",
+        "games": "Игры", "about": "О студии", "support": "Поддержка", "privacy": "Политика конфиденциальности", "terms": "Условия использования",
         "docs": "Документы", "studio": "Студия «Горница»", "brandbook": "Брендбук", "other": "English", "other_lang": "en", "fonts": "cyrillic",
         "tagline": "Спокойные, честные и понятные игры для RuStore.", "studio_col": "Студия", "help": "Помощь",
         "mail": "Почта", "mail_hello": "общая", "mail_support": "поддержка", "mail_press": "для прессы", "mail_qa": "тестирование", "testers": "Тестерам",
@@ -32,7 +32,7 @@ T = {
     },
     "en": {
         "skip": "Skip to content", "brand": "Gornitsa", "home": "Gornitsa, home page", "sections": "Sections",
-        "games": "Games", "about": "About", "support": "Support", "privacy": "Privacy policy",
+        "games": "Games", "about": "About", "support": "Support", "privacy": "Privacy policy", "terms": "Terms of use",
         "docs": "Documents", "studio": "Gornitsa Studio", "brandbook": "Brand book", "other": "Русский", "other_lang": "ru", "fonts": "latin",
         "tagline": "Calm, honest and clear games for RuStore.", "studio_col": "Studio", "help": "Help",
         "mail": "Email", "mail_hello": "general", "mail_support": "support", "mail_press": "press", "mail_qa": "testing", "testers": "Testers",
@@ -192,6 +192,7 @@ def footer(b, lang="ru", games=(), other=None):
       <ul>
         <li><a href="{p}support.html">{t['support']}</a></li>
         <li><a href="{p}privacy.html">{t['privacy']}</a></li>
+        <li><a href="{p}terms.html">{t['terms']}</a></li>
       </ul>
       <ul class="footer-mail" aria-label="{t['mail']}">
         <li>hello@gornitsa.games<span>{t['mail_hello']}</span></li>
