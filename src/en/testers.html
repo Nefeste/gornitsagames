@@ -15,34 +15,78 @@
   <div class="wrap">
     <header class="doc-head">
       <p class="eyebrow">Closed test</p>
-      <h1>Become a tester</h1>
-      <p>Before a game reaches RuStore, and before big updates, we give it to a small group of people. They play as usual and tell us what gets in the way. Join them.</p>
+      <h1>Play our games before anyone else</h1>
+      <p>Before a game reaches RuStore, and before big updates, we give it to a small group of people. They play as usual and tell us what gets in the way — and the game ships with their fixes in it. Join them.</p>
+      <div class="actions"><a class="btn btn-primary" href="#join-title">Join the test</a></div>
     </header>
 
-    <section class="doc-body" aria-labelledby="what-title">
+    <section class="doc-body" aria-labelledby="get-title">
+      <h2 id="get-title">What you get</h2>
+      <ul>
+        <li><strong>Games and updates before anyone else.</strong> The test version installs from RuStore like any other game and updates there too.</li>
+        <li><strong>A direct line to the people who make the game.</strong> Every email gets a real answer: what it was and when we’ll fix it.</li>
+        <li><strong>A game with your fix in it.</strong> What you find, we fix before release — other players won’t run into it. We write about what changed after a test in the <a href="/en/news.html">news</a> and the studio channels.</li>
+      </ul>
+
       <h2 id="what-title">What we need from you</h2>
       <ul>
-        <li>An Android phone. Affordable and older phones are especially welcome: our games are made for them too.</li>
-        <li>Play as you normally would, at your own pace. There are no special tasks.</li>
+        <li>An Android phone with the RuStore app. Affordable and older phones are especially welcome: our games are made for them too.</li>
+        <li>Play as you normally would, at your own pace — as much as you like.</li>
         <li>Tell us what broke or got in the way: with “Report a problem” in the game’s settings, or by email.</li>
       </ul>
 
-      <h2 id="get-title">What you get</h2>
-      <ul>
-        <li>New games and updates before anyone else.</li>
-        <li>A reply to every email, and fixes before release — what you found, other players won’t run into.</li>
-      </ul>
-      <p>There are no rewards or prizes for testing: the studio has none for anyone. The games in development are on the <a href="/en/#games">home page</a>.</p>
-
       <h2 id="join-title">How to join</h2>
-      <p>Write to qa@gornitsa.games: which game you’d like to play (or “any”), your phone model and Android version. No name or phone number needed. When a test starts, we’ll email you how to install the test version.</p>
-      <p>We use your email only to invite you to a test and to reply to you; the correspondence is kept for a year after the last email and deleted sooner if you ask. Details are in the <a href="/en/privacy.html">privacy policy</a>.</p>
+      <p>Write four lines to qa@gornitsa.games:</p>
+      <ol>
+        <li>which game you’d like to play — or “any”;</li>
+        <li>your phone model;</li>
+        <li>your Android version;</li>
+        <li>your VK ID.</li>
+      </ol>
+      <p>When a test starts, we’ll add you to the tester list on RuStore and email you a link to the test version.</p>
+
+      <h3 id="vkid">Why VK ID, and where to find it</h3>
+      <p>RuStore opens a closed test only to people the developer has added to a list, and the list is built from VK IDs — the account you sign in to RuStore with. Without it the store won’t show you the test version.</p>
+      <p>A VK ID is a number. You can find it in your account settings at id.vk.com; for a VK page it is in the address: vk.com/id followed by digits. Can’t find it? Send a link to your VK page and we’ll help. Make sure RuStore on your phone is signed in with the same account.</p>
+    </section>
+
+    <form class="join" data-join="qa@gornitsa.games" aria-labelledby="join-form-title" hidden>
+      <div class="join-head">
+        <h2 id="join-form-title">A four-line request</h2>
+        <p>Fill it in and we’ll put the email together. It opens in your mail app and you send it yourself: the site stores nothing and sends nothing anywhere.</p>
+      </div>
+      <label class="field"><span>Game</span>
+        <select name="game">
+          <option>Any</option>
+{{GAME_OPTIONS}}
+        </select>
+      </label>
+      <label class="field"><span>Phone model</span>
+        <input name="phone" type="text" autocomplete="off" required placeholder="For example, Redmi Note 12">
+      </label>
+      <label class="field"><span>Android version</span>
+        <input name="android" type="text" inputmode="decimal" autocomplete="off" required placeholder="For example, 13">
+      </label>
+      <label class="field"><span>VK ID</span>
+        <input name="vkid" type="text" autocomplete="off" required placeholder="A number or a link to your VK page" aria-describedby="vkid-hint">
+        <small id="vkid-hint">Needed so RuStore shows you the test version. <a href="#vkid">Where to find it</a></small>
+      </label>
+      <div class="join-actions">
+        <button class="btn btn-primary" type="submit">Open the email</button>
+        <button class="btn btn-ghost" type="button" data-join-copy>Copy the text</button>
+        <p class="join-note" role="status" aria-live="polite" data-join-note></p>
+      </div>
+    </form>
+
+    <section class="doc-body" aria-label="About your data">
+      <p>We use your email and VK ID only to invite you to a test and to reply to you: we enter the VK ID into the game’s tester list in the RuStore console and remove it when the test ends or when you ask. No name or phone number needed. The correspondence is kept for a year after the last email and deleted sooner if you ask. Details are in the <a href="/en/privacy.html">privacy policy</a>.</p>
+      <p>The games getting ready for release are on the <a href="/en/#soon">home page</a>.</p>
     </section>
 
     <div class="contact">
       <div>
         <h2>Email for testers</h2>
-        <p>The game, your phone model and Android version — that’s enough.</p>
+        <p>The game, your phone model, Android version and VK ID — that’s enough.</p>
       </div>
       <div class="mail">
         <span class="mail-address" id="mail">qa@gornitsa.games</span>
