@@ -17,7 +17,7 @@
       <p class="eyebrow">Document</p>
       <h1>Privacy policy</h1>
       <p>How Gornitsa’s games and website handle your data. We collect only what a game can’t work without, and we don’t sell data to third parties.</p>
-      <p class="meta">Version of November 13, 2026. The Russian version is the authoritative one.</p>
+      <p class="meta">Version of November 15, 2026. The Russian version is the authoritative one.</p>
     </header>
 
     <article class="doc-body">
@@ -41,7 +41,7 @@
             <tr><td>A copy of your game on the server</td><td>If you have a Skazy outpost profile</td><td>Moving the game to another phone and keeping it safe</td></tr>
             <tr><td>Purchase details: order number, item, status</td><td>When you buy something</td><td>Granting and restoring purchases</td></tr>
             <tr><td>Daily statistics: totals for the day without a nickname, profile, or phone or install number</td><td>In Skazy — once a day</td><td>Deciding what to fix in the game</td></tr>
-            <tr><td>Daily statistics: a random installation number not linked to your nickname or profile, and totals for the day</td><td>In Long Nardy — once a day</td><td>Seeing whether players come back, whether the game crashes and whether ads are shown too often</td></tr>
+            <tr><td>Daily statistics: a random installation number not linked to your nickname or profile, and totals for the day</td><td>In Long Nardy and Kozyr — once a day</td><td>Seeing whether players come back, whether the game crashes and whether ads are shown too often</td></tr>
             <tr><td>Anonymous counters in the request for new pictures: version, store, week of installation, ranges instead of exact numbers</td><td>In Uzory — once a day</td><td>Decisions about pictures, the free part and the subscription</td></tr>
             <tr><td>The phone’s advertising ID</td><td>In Long Nardy, Skladno and Kozyr — when an ad is shown</td><td>Showing ads; processed by Yandex under its own rules, we don’t receive it</td></tr>
             <tr><td>Problem report: game version, phone model, crash log</td><td>Only when you send it yourself</td><td>Finding and fixing bugs</td></tr>
@@ -273,47 +273,51 @@
       <p>12+. The puzzles themselves suit all ages, but the ads are chosen by the ad network, not by us.</p>
 
       <h2 id="durak">9. Kozyr</h2>
-      <p>Kozyr is durak, the Russian card game, in its podkidnoy and perevodnoy forms: a free game with ads between games; No Ads can be bought. Against bots it works offline; the network is needed for online play, ads and purchases. The game contains no analytics services and no statistics of its own. The game is being prepared for RuStore; this section already applies to closed test builds.</p>
+      <p>Kozyr is durak, the Russian card game, in its podkidnoy and perevodnoy forms: a free game with ads between games; No Ads, Pro and card backs can be bought. Against bots it works offline; the network is needed for online play, daily statistics, ads and purchases. The game contains no analytics services. The game is being prepared for RuStore; this section already applies to closed-test builds.</p>
 
       <h3>Playing on your phone</h3>
-      <p>An unfinished game against bots, settings, the purchase cache, ad counters and the crash log are kept only on your phone. In games against bots the deck is shuffled on the phone at the moment of the deal; these games are not sent anywhere.</p>
+      <p>Your phone keeps: an unfinished game against bots and up to 200 of the latest finished ones, with their reviews; the Road to the Master; puzzle-of-the-day marks; settings; the “Мне есть 14 лет” (“I am 14 or older”) confirmation; ad counters and what you opened by watching an ad (reviews, a card back tried on); when the game asked for a rating; the purchase cache; the crash log; the installation number and counters of the daily statistics (below). Together with your online profile — the key, nickname and tag (below) — all of this goes into your Android backup in your Google account if backup is turned on — that is done by Android and kept by Google, not by us, and we have no access to it — and comes back when you install the game again or move your data to a new phone with Android’s own tools. Only the game’s own storage goes into the backup: files of the ads SDK and of the RuStore SDK never do. On a different phone, before its first request to the server, the game erases from the backup the online profile, the purchase cache and the installation number of the daily statistics (below): the profile stays on the old phone, and RuStore confirms the purchases again. To tell the same phone from a different one, the game keeps in the same storage a fingerprint (a SHA-256 hash) of the Android ID; it is never sent to our server. In games against bots the deck is shuffled on the phone at the moment of the deal; these games are not sent anywhere.</p>
 
       <h3>Playing online: what the server keeps</h3>
       <p>Online play is optional and open from the age of 14 (see Age below). The game never asks for an email, phone number or password. The server keeps:</p>
       <ul>
-        <li>Your chosen <strong>nickname</strong> and a <strong>tag</strong>.</li>
-        <li><strong>A fingerprint of the device key.</strong> The server issues the key on first sign-in; the key itself stays on your phone, the server keeps only its fingerprint (a SHA-256 hash). It is neither your phone number nor a device identifier.</li>
-        <li><strong>Your online rating</strong> per game variant, for quick match.</li>
-        <li><strong>Tables and online games</strong>: who sits at the table (a player or a bot), the server's and the phones' parts the deck is made from (after the game your phone uses them to check the deck), the moves and the result. A table nobody joined is deleted after a day; finished tables and games after 30 days.</li>
+        <li>The <strong>nickname</strong> you chose and a six-character <strong>tag</strong>.</li>
+        <li>A <strong>fingerprint of your device key.</strong> The server issues the key the first time you go online; the key itself is kept only on your phone (and in its Android backup, if backup is turned on), and the server remembers only its fingerprint (a SHA-256 hash). It is not your phone number or a device identifier.</li>
+        <li><strong>When the profile was created and when you were last in contact</strong> — the server updates the latter no more than once an hour.</li>
+        <li>Your <strong>online rating</strong> per game variant — for quick matches, where the server finds you an opponent.</li>
+        <li><strong>Tables and online games</strong>: who sits at the table (a player or a bot), the server’s and the phones’ parts the deck is made from (after the game your phone uses them to check that the deck was fair), the moves and the result. A table nobody joined is deleted after a day; finished tables and games after 30 days.</li>
       </ul>
-      <p>There is no free chat: the server accepts no text from players other than the nickname. No IP addresses are stored in the database.</p>
+      <p>There is no free chat: the game sends the server no text other than your nickname. There are no IP addresses in the database.</p>
 
       <h3>Who can see it</h3>
-      <p>Your nickname is seen by the people at your table and by your opponent in a quick match. The server never sends anyone another player's cards: each phone gets only what its seat may see. The data is not shared with or sold to anyone else. The game server runs in Russia on the same machine as gornitsa.games; its request logs (including IP addresses) are kept for 3 days, database backups for no longer than 28 days (see section 13).</p>
+      <p>Your nickname is seen by the people at your table, by those who opened that table by its link or code, and by your opponent in a quick match. The game shows your tag only to you, but the server sends it along with your nickname to the phones of the people at your table — and, in a quick match, your rating as well. The server never sends anyone another player’s cards: each phone gets only what its seat may see. Data is not shared with or sold to anyone else. The game server runs in Russia, on the same machine as the gornitsa.games website; its request logs (including IP addresses) are kept for 3 days, and backups of its database for no longer than 28 days (see section 13).</p>
 
-      <h3>How long and how to delete</h3>
-      <p>Your profile is kept until you delete it. A «Delete profile» button will appear in the game before the RuStore release; until then, email <span class="mail-address mail-inline">support@gornitsa.games</span> with your nickname and tag and we will delete it. Deleting erases the nickname and the key; bots finish your seats in running games, and a quick match counts as a resignation. Your games against bots on the phone stay.</p>
+      <h3>How long it is kept and how to delete it</h3>
+      <p>Your profile is kept until you delete it. You can delete it in the game: С друзьями (With friends) or Быстрая игра (Quick match) → at the bottom of the screen, under the line “Вы — nickname · tag”, the button Удалить профиль (Delete profile); the game asks once and deletes at once. Your nickname, tag, key fingerprint and quick-match rating are erased at once; the phone forgets the key, nickname and tag. You leave the quick-match queue; your own table that is still gathering is closed, and your seat at someone else’s gathering table is freed. A game with friends in progress is finished by a bot in your seat — the others see “удалённый игрок” (“deleted player”) and “играет бот” (“a bot is playing”) there — and a quick match in progress counts as your defeat. A nameless row with a number and two dates stays on the server; finished online games are kept for their 30 days — for your opponents these are their games too — but your seat in them has no name. Games against bots, the Road to the Master, statistics, purchases and the “Мне есть 14 лет” (“I am 14 or older”) confirmation stay on your phone. If you no longer have the phone, email your nickname and tag to <span class="mail-address mail-inline">support@gornitsa.games</span> and we will delete the profile within a week; see <a href="/en/durak/delete.html">how to delete your profile</a>.</p>
+
+      <h3>Daily statistics</h3>
+      <p>Once a day (days are counted in UTC), at the first launch of the game or return to it, the game sends the studio’s server — without the device key: a random installation number (the game makes it on the phone; it is not linked to your nickname, your device key or the advertising ID), the install day, the game version and the store the build was made for, the number of finished games by mode — against bots, the Road to the Master, with friends, quick match — and of puzzles of the day solved since the last report, the number of ads shown, whether you have bought anything (nothing, No Ads, Pro or card backs only — no amounts and no list of items), the number of launches and crashes, and how many Road to the Master opponents you have beaten in podkidnoy and in perevodnoy. It contains no nickname, tag, device key, advertising ID, phone language or phone model. The server keeps a fingerprint (a SHA-256 hash) of the installation number with the install day and the last day a report came, and immediately adds everything else to the day’s totals — by install day, store, version and kind of purchase; the totals are kept with no time limit. IP addresses are not written to the database; the server’s request log keeps them for 3 days, as for any request. The installation number is deleted if no statistics arrive for 90 days. The statistics are sent even without the “Мне есть 14 лет” (“I am 14 or older”) confirmation — they create no profile — and there is no switch for them. These statistics can’t be used to find you by your nickname, and deleting your profile doesn’t affect them: they are not linked to the profile. We need them to see whether players come back and finish their games, whether the game crashes and whether ads are shown too often.</p>
 
       <h3>Ads</h3>
-      <p>Between games the game shows full-screen ads from Yandex Advertising Network — never in your first games and never during a game; closed test builds show Yandex test ads. To show them, the Yandex ads SDK processes your phone's advertising ID under Yandex's rules (<a href="https://yandex.ru/legal/confidential/">yandex.ru/legal/confidential</a>); we do not receive the advertising ID. The «Personal ads» switch in the game's settings (on until you turn it off) stops ads being chosen by your data; there are no fewer ads. After buying No Ads there are no full-screen ads.</p>
+      <p>Between games the game shows full-screen ads from the Yandex Advertising Network — never in your first games and never during a game — and rewarded ads only when you press the button yourself: to open the full review of an older game or to try a paid card back on for one game. To show ads, the Yandex ads SDK processes your phone’s advertising ID under Yandex’s rules (<a href="https://yandex.ru/legal/confidential/">yandex.ru/legal/confidential</a>); we don’t receive the advertising ID. The Персональная реклама (Personalized ads) switch in the game’s settings — on until you turn it off — stops ads being chosen based on your data; you don’t get fewer ads. After you buy No Ads or Pro there are no full-screen ads, and rewarded ads are there if you want them.</p>
 
       <h3>Purchases</h3>
-      <p>No Ads is bought once through RuStore Pay. We neither see nor keep card or payment details, and purchases are not sent to our server: the game only learns from RuStore what has been bought. RuStore Pay itself sends RuStore what the payment needs and technical data about how it works, under RuStore's rules; we do not receive them.</p>
+      <p>No Ads (once, forever), Pro (a subscription for a month or a year: full review of every game, detailed statistics, no ads) and card backs (each once and forever, or all at once) are bought through RuStore Pay. We never see or store card or payment details, and purchases never reach our server: the game receives from RuStore only what has been bought and until what date a subscription is active. The daily statistics (above) carry only a mark of whether there is a purchase and of what kind. RuStore Pay itself sends RuStore the details needed for payment and technical details of how payment works, under RuStore’s rules; we don’t receive them.</p>
 
       <h3>Rating in RuStore</h3>
-      <p>Occasionally, after you beat the bots, the game opens the RuStore rating form. RuStore receives the rating and review; we see them in the RuStore console like all store reviews.</p>
+      <p>Occasionally, after you beat the bots, the game opens the RuStore rating form. The rating and review are received by RuStore; we see them in the RuStore console, like all reviews in the store.</p>
 
-      <h3>Bug reports</h3>
-      <p>«Report a problem» builds a report: what you wrote, the game version, phone model and Android version, the screen, the record of the open game and the latest crash log entries. You see the whole text before sending; it leaves only when you send it yourself through «Share».</p>
+      <h3>Problem reports</h3>
+      <p>Сообщить об ошибке (Report a problem) puts together a report: what you wrote, the game version, your Android version, the screen, a record of the open game and the latest entries of the crash log. You see the whole text before sending; the report leaves only when you send it yourself through the Share menu.</p>
 
       <h3>Permissions</h3>
-      <p>Internet and network state (online play, ads, purchases), vibration, audio settings, the advertising ID (Yandex ads), and service permissions of libraries: keeping the phone awake and starting after a reboot (deferred SDK tasks). The game asks for no other permissions.</p>
+      <p>Internet and network state (online play, ads, purchases, statistics), vibration, audio settings, the advertising ID (Yandex ads), and service permissions of libraries: keeping the phone awake and starting after the phone restarts (deferred SDK tasks). The game asks for no other permissions.</p>
 
       <h3>What the game does not collect</h3>
-      <p>Email, phone number, contacts, location, photos and files, microphone audio, camera, information about other apps.</p>
+      <p>Email, phone number, contacts, location, photos or files, microphone audio, camera, or information about other apps.</p>
 
       <h3>Age</h3>
-      <p><strong>Online from 14.</strong> A server profile is created only after the «I am 14 or older» check in the game. The check stays on the phone and is not sent to us; we do not ask for your age or date of birth. Without it the whole game against bots is open. The game's age rating is 12+: there are no stakes and no money in the game, but the ad network, not us, chooses the ads.</p>
+      <p><strong>Online play is from the age of 14.</strong> A profile on the server is created only after you confirm “Мне есть 14 лет” (“I am 14 or older”) in the game. The confirmation stays on your phone (and in its Android backup, if backup is turned on) and is not sent to us; we don’t ask for your age or date of birth. Without it, the whole game against bots is open. The game’s age rating is 12+: there are no stakes and no money in the game, but the ads are chosen by the ad network, not by us.</p>
 
       <h2 id="upcoming">10. New games</h2>
       <p>Before each new game comes out, we will add a section here describing what data it collects.</p>
@@ -337,7 +341,7 @@
         <li>A Skazy outpost profile — for as long as it exists; a profile that hasn’t been used for 18 months is deleted together with its copies (see section 4).</li>
         <li>A Long Nardy online profile — for as long as it exists; moves and dice of an online game — 30 days after it ends; complaints about a nickname — 180 days; friends — for as long as you are friends; friends’ phrases — the last 50 per pair, no longer than 30 days; friend requests — 30 days; the installation number in the daily statistics is deleted if no statistics arrive for 90 days (see section 6).</li>
         <li>Uzory counters — log lines without IP addresses for no longer than 7 days, after that only totals (see section 7).</li>
-        <li>A Kozyr online profile — for as long as it exists; a table nobody joined — one day; finished tables and games — 30 days (see section 9).</li>
+        <li>A Kozyr online profile — for as long as it exists; a table nobody joined — one day; finished tables and games — 30 days; the installation number in the daily statistics is deleted if no statistics arrive for 90 days (see section 9).</li>
         <li>Game progress is stored on your phone and purchases in RuStore; new games will get their own section before release.</li>
         <li>Support correspondence — 1 year after the last email.</li>
         <li>Emails asking to join a closed test (qa@gornitsa.games) — 1 year after the last email; the address is used only to invite you to a test and to reply. We remove your VK ID from the tester list on RuStore when the test ends or when you ask.</li>
@@ -359,7 +363,7 @@
         <li>withdraw your consent to data processing;</li>
         <li>complain to Roskomnadzor if you believe we are violating your rights.</li>
       </ul>
-      <p>To exercise these rights, write to privacy@gornitsa.games from the address or account you use in the game; for Votchina, include your tag; for Skazy and Long Nardy, your nickname and tag. We reply within 10 business days and delete data within 30 days of the request.</p>
+      <p>To exercise these rights, write to privacy@gornitsa.games from the address or account you use in the game; for Votchina, include your tag; for Skazy, Long Nardy and Kozyr, your nickname and tag. We reply within 10 business days and delete data within 30 days of the request.</p>
 
       <h2>16. How we protect data</h2>
       <p>Data is transmitted over a secure connection (HTTPS), only the studio’s developers have access to the servers, and passwords and keys are stored separately from the code.</p>
