@@ -34,6 +34,7 @@ pages = {
     "anamnez/index.html": ("games", "/", "ru", "en/anamnez/index.html"),
     "uzory/index.html": ("games", "/", "ru", "en/uzory/index.html"),
     "durak/index.html": ("games", "/", "ru", "en/durak/index.html"),
+    "durak/delete.html": ("games", "/", "ru", "en/durak/delete.html"),
     "bukvitsa/index.html": ("games", "/", "ru", "en/bukvitsa/index.html"),
     # условия подписки «Узоры+» — только по-русски: подписка продаётся в RuStore, в России
     "uzory/terms.html": ("games", "/", "ru", "en/uzory/index.html"),
@@ -58,6 +59,7 @@ pages = {
     "en/anamnez/index.html": ("games", "/", "en", "anamnez/index.html"),
     "en/uzory/index.html": ("games", "/", "en", "uzory/index.html"),
     "en/durak/index.html": ("games", "/", "en", "durak/index.html"),
+    "en/durak/delete.html": ("games", "/", "en", "durak/delete.html"),
     "en/bukvitsa/index.html": ("games", "/", "en", "bukvitsa/index.html"),
 }
 

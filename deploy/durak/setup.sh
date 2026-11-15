@@ -10,7 +10,8 @@
 #
 # Что настраивает:
 #   - Bun — официальная сборка с GitHub, версия закреплена (та же, что в CI «Козыря»), SHA-256 сверяется;
-#   - пользователь durak, база /var/lib/durak/durak.db, настройки /etc/durak/env;
+#   - пользователь durak, база /var/lib/durak/durak.db, настройки /etc/durak/env (там же секрет
+#     ADMIN_TOKEN: удаление профиля по просьбе и сводка статистики — docs/machine.md);
 #   - служба durak (bun server.js на 127.0.0.1:8792) — стартует, когда появится сборка;
 #   - durak-pull каждые 2 минуты: сборка из ветки `vps` репозитория Nefeste/durak и сертификат
 #     HTTPS, как только DNS укажет на сервер (deploy/durak/pull.sh, nginx.sh);
@@ -103,11 +104,16 @@ ENV="$ETC/env"
 if [[ ! -f "$ENV" ]]; then
   (umask 027 && : > "$ENV")
 fi
-setvar() { grep -q "^$1=" "$ENV" || echo "$1=$2" >> "$ENV"; }
+ENV_NEW=0   # в настройках появилась новая строка — службу надо перезапустить: она читает их только при запуске
+setvar() { grep -q "^$1=" "$ENV" || { echo "$1=$2" >> "$ENV"; ENV_NEW=1; }; }
 setvar DURAK_DB /var/lib/durak/durak.db
 setvar HOST 127.0.0.1
 setvar PORT 8792
 setvar DURAK_TRUST_PROXY 1
+# Секрет для удаления профиля по просьбе (POST /v1/admin/delete) и сводки статистики (GET /v1/admin/stats):
+# посмотреть — grep ADMIN_TOKEN /etc/durak/env. Служба читает его при запуске, поэтому после первого появления
+# секрета этот скрипт сам перезапускает её (ниже, ENV_NEW); партии при перезапуске не теряются.
+setvar ADMIN_TOKEN "$(openssl rand -hex 32)"
 chown root:durak "$ENV"
 chmod 640 "$ENV"
 
@@ -235,7 +241,7 @@ systemctl daemon-reload
 systemctl enable durak.service >/dev/null 2>&1
 systemctl enable --now durak-pull.timer durak-backup.timer >/dev/null 2>&1
 if [[ -e /opt/durak/current/server.js ]]; then
-  if [[ " ${CHANGED[*]} " == *" durak.service "* ]]; then systemctl restart durak; else systemctl start durak; fi
+  if [[ " ${CHANGED[*]} " == *" durak.service "* || "$ENV_NEW" == 1 ]]; then systemctl restart durak; else systemctl start durak; fi
 fi
 
 echo
