@@ -476,7 +476,6 @@ h2.eyebrow { font-family: var(--body); }
 .game li::before { content: "×"; color: var(--kumach); font-weight: 600; }
 .game-icon { width: 40px; height: 40px; flex: none; border-radius: var(--radius-card); box-shadow: var(--shadow-rest); }
 .games-sub { margin: clamp(32px, 5vw, 48px) 0 16px; }
-.games-planned { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .game-links { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: auto; padding-top: 4px; font-size: var(--step--1); font-weight: 500; }
 .principles-more { margin-top: clamp(24px, 3vw, 32px); font-weight: 500; }
 
