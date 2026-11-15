@@ -104,14 +104,15 @@ ENV="$ETC/env"
 if [[ ! -f "$ENV" ]]; then
   (umask 027 && : > "$ENV")
 fi
-setvar() { grep -q "^$1=" "$ENV" || echo "$1=$2" >> "$ENV"; }
+ENV_NEW=0   # в настройках появилась новая строка — службу надо перезапустить: она читает их только при запуске
+setvar() { grep -q "^$1=" "$ENV" || { echo "$1=$2" >> "$ENV"; ENV_NEW=1; }; }
 setvar DURAK_DB /var/lib/durak/durak.db
 setvar HOST 127.0.0.1
 setvar PORT 8792
 setvar DURAK_TRUST_PROXY 1
 # Секрет для удаления профиля по просьбе (POST /v1/admin/delete) и сводки статистики (GET /v1/admin/stats):
-# посмотреть — grep ADMIN_TOKEN /etc/durak/env. Служба читает его при запуске: после первого появления
-# секрета — systemctl restart durak (или следующая сборка из ветки vps — она перезапускает службу сама).
+# посмотреть — grep ADMIN_TOKEN /etc/durak/env. Служба читает его при запуске, поэтому после первого появления
+# секрета этот скрипт сам перезапускает её (ниже, ENV_NEW); партии при перезапуске не теряются.
 setvar ADMIN_TOKEN "$(openssl rand -hex 32)"
 chown root:durak "$ENV"
 chmod 640 "$ENV"
@@ -240,7 +241,7 @@ systemctl daemon-reload
 systemctl enable durak.service >/dev/null 2>&1
 systemctl enable --now durak-pull.timer durak-backup.timer >/dev/null 2>&1
 if [[ -e /opt/durak/current/server.js ]]; then
-  if [[ " ${CHANGED[*]} " == *" durak.service "* ]]; then systemctl restart durak; else systemctl start durak; fi
+  if [[ " ${CHANGED[*]} " == *" durak.service "* || "$ENV_NEW" == 1 ]]; then systemctl restart durak; else systemctl start durak; fi
 fi
 
 echo
