@@ -127,12 +127,14 @@ python3 tools/games.py --check ../skazy    # только проверить sto
 
   Когда править раздел и что делать с черновиком в игре — устав,
   [`docs/07-privacy.md`](https://github.com/Nefeste/gornitsa/blob/main/docs/07-privacy.md#политика-конфиденциальности).
-- Страницы удаления профиля (`src/skazy/delete.html`, `src/votchina/delete.html`, `src/nardy/delete.html`
-  и английские): есть такая страница — на странице игры появляется ссылка «Удалить профиль». Что
-  удаляется и сколько хранятся журналы и копии, сверено с серверами игр («Сказы» — `server/src/profiles.ts`,
-  `retention.ts` и `docs/05-process.md`; нарды — `server/src/core.ts`, `deletePlayer`, и
-  `docs/04-data-model.md`, «Сроки хранения»); поменялось там — поправьте здесь. У нард такая же
-  страница есть и на их сервере (`nardy.gornitsa.games/delete`); адрес по уставу — `gornitsa.games/nardy/delete`.
+- Страницы удаления профиля (`src/skazy/delete.html`, `src/votchina/delete.html`, `src/nardy/delete.html`,
+  `src/durak/delete.html` и английские): есть такая страница — на странице игры появляется ссылка «Удалить
+  профиль». Что удаляется и сколько хранятся журналы и копии, сверено с серверами игр («Сказы» —
+  `server/src/profiles.ts`, `retention.ts` и `docs/05-process.md`; нарды — `server/src/core.ts`, `deletePlayer`, и
+  `docs/04-data-model.md`, «Сроки хранения»; «Козырь» — `server/src/core.ts`, `deletePlayer`, `docs/03-server-api.md`,
+  «Удаление профиля», и `docs/04-data-model.md`, «Сервер»); поменялось там — поправьте здесь. У нард такая же
+  страница есть и на их сервере (`nardy.gornitsa.games/delete`); адрес по уставу — `gornitsa.games/<игра>/delete`
+  (nginx отдаёт `delete.html` и без `.html`): `gornitsa.games/nardy/delete`, `gornitsa.games/durak/delete`.
 - У «Вотчины» — страница турниров `src/votchina/tournaments.html` и переадресация
   `src/votchina/privacy.html`. Онлайн-сервер, веб-версия (`/play/`) и ссылки на ход (`/g/`) с 27 сентября
   2026 года работают на https://votchina.gornitsa.games (раздел ниже); старый адрес на Cloudflare

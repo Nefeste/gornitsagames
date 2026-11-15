@@ -5,7 +5,7 @@
 
 | Что | Откуда | Как часто |
 |---|---|---|
-| базы игр (`votchina`, `nardy`, `skazy`) и «Сеней» | `GornitsaBackup/ГГГГ-ММ-ДД/*.db.gz.age` | раз в сутки, 14 дней |
+| базы игр (`votchina`, `nardy`, `durak`, `skazy`) и «Сеней» | `GornitsaBackup/ГГГГ-ММ-ДД/*.db.gz.age` | раз в сутки, 14 дней |
 | настройки машин с секретами служб | `site-config.tar.gz.age`, у «Сеней» — `seni-config.tar.gz.age` | раз в сутки, 14 дней |
 | все репозитории, Issues, PR, релизы | `GornitsaBackup/github/` | раз в неделю |
 | ключи подписи APK, пароли аккаунтов, ключ age | менеджер паролей (реестр — `uprava/owner/secrets.md`) | при каждом изменении |
@@ -27,7 +27,7 @@ Linux. В Windows то же самое выполняется в PowerShell: п�
 - сертификаты HTTPS на месте.
 
 1. **Новая VPS.** Ubuntu 24.04, Москва или Санкт-Петербург, ваш ключ SSH ([`machine.md`](machine.md#запуск-с-нуля), шаги 2–3).
-2. **DNS.** В Рег.ру записи `@`, `www`, `votchina`, `nardy`, `skazy` — на новый адрес.
+2. **DNS.** В Рег.ру записи `@`, `www`, `votchina`, `nardy`, `durak`, `skazy` — на новый адрес.
 3. **Настройки — до установки**, чтобы установщик нашёл прежние ключи и не сделал новых.
    Возьмите самую свежую папку копий:
 
@@ -41,7 +41,7 @@ Linux. В Windows то же самое выполняется в PowerShell: п�
    вход root закрылся бы раньше, чем установщик заведёт пользователя `gornitsa`, — и войти можно
    было бы только через консоль панели. Их заново пишет установщик, а root закрывается в шаге 7.
 
-   В архиве — `/etc/votchina`, `/etc/nardy`, `/etc/skazy`, `/etc/uzory`, `/etc/bukvitsa`, `/etc/gornitsa*`,
+   В архиве — `/etc/votchina`, `/etc/nardy`, `/etc/durak`, `/etc/skazy`, `/etc/uzory`, `/etc/bukvitsa`, `/etc/gornitsa*`,
    `/etc/letsencrypt`, ключи SSH машины, настройки nginx, sshd и fail2ban, `~/.ssh` пользователей,
    сводки мониторинга.
 4. **Установка** — на новой машине, от root:
@@ -57,7 +57,7 @@ Linux. В Windows то же самое выполняется в PowerShell: п�
    ssh root@НОВЫЙ_АДРЕС 'git clone /root/gornitsagames.bundle /opt/gornitsa && REPO=/root/gornitsagames.bundle bash /opt/gornitsa/deploy/bootstrap.sh'
    ```
 
-5. **Базы.** Для каждой игры (`votchina`, `nardy`, `skazy`):
+5. **Базы.** Для каждой игры (`votchina`, `nardy`, `durak`, `skazy`):
 
    ```bash
    ssh root@НОВЫЙ_АДРЕС 'systemctl stop votchina'
@@ -66,7 +66,7 @@ Linux. В Windows то же самое выполняется в PowerShell: п�
    ```
 
 6. **Проверка:**
-   - `curl https://votchina.gornitsa.games/v1/ping` (и `nardy`, `skazy`);
+   - `curl https://votchina.gornitsa.games/v1/ping` (и `nardy`, `durak`, `skazy`);
    - `https://gornitsa.games/.well-known/monitor/status.json`;
    - вход `ssh gornitsa@НОВЫЙ_АДРЕС`.
 

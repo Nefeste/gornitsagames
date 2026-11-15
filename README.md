@@ -27,7 +27,7 @@ src/                  шаблоны страниц (редактировать 
   404.html
   votchina/, nardy/,  страницы игр: index.html собирает tools/games.py из store/site/ игры —
   anamnez/, skazy/,   здесь не правится (см. [`docs/game-pages.md`](docs/game-pages.md)); рядом — страницы сайта: удаление
-  uzory/              профиля (delete.html у «Вотчины», «Сказов» и нард), турниры «Вотчины»,
+  uzory/, durak/      профиля (delete.html у «Вотчины», «Сказов», нард и «Козыря»), турниры «Вотчины»,
                       votchina/privacy.html — запасная переадресация на общую политику (на машине
                       адрес /votchina/privacy отдаёт nginx: 301, deploy/nginx/locations.conf)
   en/                 английская версия тех же страниц
@@ -107,6 +107,11 @@ deploy/
     setup.sh          настройка: Bun, служба, ключ, таймеры
     pull.sh           сборка из ветки vps (каждые 2 минуты)
     nginx.sh          nardy.gornitsa.games в nginx (с WebSocket) и его сертификат
+    backup.sh         копия базы раз в сутки
+  durak/              сервер игры «Козырь» на этой же машине (см. docs/machine.md) — копия nardy/
+    setup.sh          настройка: Bun, служба, ключ, секрет ADMIN_TOKEN, таймеры
+    pull.sh           сборка из ветки vps (каждые 2 минуты)
+    nginx.sh          durak.gornitsa.games в nginx (с WebSocket) и его сертификат
     backup.sh         копия базы раз в сутки
   skazy/              сервер заставы «Сказов» на этой же машине (см. docs/machine.md)
     setup.sh          настройка: Bun, служба, ключ, таймеры
