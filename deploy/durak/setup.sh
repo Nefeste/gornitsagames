@@ -10,7 +10,8 @@
 #
 # Что настраивает:
 #   - Bun — официальная сборка с GitHub, версия закреплена (та же, что в CI «Козыря»), SHA-256 сверяется;
-#   - пользователь durak, база /var/lib/durak/durak.db, настройки /etc/durak/env;
+#   - пользователь durak, база /var/lib/durak/durak.db, настройки /etc/durak/env (там же секрет
+#     ADMIN_TOKEN: удаление профиля по просьбе и сводка статистики — docs/machine.md);
 #   - служба durak (bun server.js на 127.0.0.1:8792) — стартует, когда появится сборка;
 #   - durak-pull каждые 2 минуты: сборка из ветки `vps` репозитория Nefeste/durak и сертификат
 #     HTTPS, как только DNS укажет на сервер (deploy/durak/pull.sh, nginx.sh);
@@ -108,6 +109,10 @@ setvar DURAK_DB /var/lib/durak/durak.db
 setvar HOST 127.0.0.1
 setvar PORT 8792
 setvar DURAK_TRUST_PROXY 1
+# Секрет для удаления профиля по просьбе (POST /v1/admin/delete) и сводки статистики (GET /v1/admin/stats):
+# посмотреть — grep ADMIN_TOKEN /etc/durak/env. Служба читает его при запуске: после первого появления
+# секрета — systemctl restart durak (или следующая сборка из ветки vps — она перезапускает службу сама).
+setvar ADMIN_TOKEN "$(openssl rand -hex 32)"
 chown root:durak "$ENV"
 chmod 640 "$ENV"
 
