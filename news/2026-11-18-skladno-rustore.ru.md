@@ -1,7 +1,7 @@
 ---
 date: 2026-11-18
 title: «Складно» вышла в RuStore
-review: draft
+review: checked
 ---
 «Складно» вышла в RuStore для Android: [скачать](https://www.rustore.ru/catalog/app/games.gornitsa.bukvitsa).
 Словесные головоломки из знакомых пословиц и загадок — из «Пословиц русского народа» Владимира Даля, буква в букву.
