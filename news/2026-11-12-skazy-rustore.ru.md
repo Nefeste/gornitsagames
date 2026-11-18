@@ -1,7 +1,7 @@
 ---
 date: 2026-11-12
 title: «Сказы» вышли в RuStore
-review: draft
+review: checked
 ---
 «Сказы» вышли в RuStore для Android: [скачать](https://www.rustore.ru/catalog/app/games.gornitsa.skazy).
 Неспешная ролевая игра по русским сказкам и былинам: собираете дружину из Ильи Муромца, Василисы
