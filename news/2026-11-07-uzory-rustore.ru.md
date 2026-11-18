@@ -1,7 +1,7 @@
 ---
 date: 2026-11-07
 title: «Узоры» вышли в RuStore
-review: draft
+review: checked
 ---
 «Узоры» вышли в RuStore для Android: [скачать](https://www.rustore.ru/catalog/app/games.gornitsa.uzory).
 Раскраска по номерам в виде вышивки крестиком: выбираете нить и вышиваете — касанием или проводя пальцем.
