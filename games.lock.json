@@ -62,12 +62,12 @@
   },
   "anamnez": {
     "repo": "Nefeste/anamnez",
-    "commit": "ee1adad31a78802154b016f53f724236ac17197a",
+    "commit": "7ddf9344df42c38e59c8796d5dc35435f2f5686d",
     "images": {
       "anamnez-01-emergency-full.webp": "pxdb94e3eb1ed1afb3:shot-portrait-full:0",
       "anamnez-01-emergency.webp": "pxdb94e3eb1ed1afb3:shot-portrait:0",
-      "anamnez-02-xray-full.webp": "px13c0b63f70557a1b:shot-portrait-full:0",
-      "anamnez-02-xray.webp": "px13c0b63f70557a1b:shot-portrait:0",
+      "anamnez-02-xray-full.webp": "pxf0b152952566cd2a:shot-portrait-full:0",
+      "anamnez-02-xray.webp": "pxf0b152952566cd2a:shot-portrait:0",
       "anamnez-03-ct-full.webp": "px9e882429684ce359:shot-portrait-full:0",
       "anamnez-03-ct.webp": "px9e882429684ce359:shot-portrait:0",
       "anamnez-04-ecg-full.webp": "px42e5b8c34bc28d0b:shot-portrait-full:0",
@@ -84,7 +84,7 @@
       "anamnez-cover.webp": "px43d79b8898e81eae:cover:0",
       "anamnez-feature.webp": "px4bd29b1d515a814d:feature:0",
       "anamnez-icon.webp": "pxed2eb96278155548:icon:0",
-      "anamnez-og.png": "px91d5173392269d39:og:1"
+      "anamnez-og.png": "px2b6e84934cebbde0:og:1"
     }
   },
   "skazy": {
