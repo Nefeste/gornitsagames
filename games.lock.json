@@ -144,24 +144,24 @@
   },
   "durak": {
     "repo": "Nefeste/durak",
-    "commit": "8a896a560ab77b7e19acbde2e5b913be59fccf5d",
+    "commit": "b12f1260d2dcf1086b22a7987974e343672bcb7d",
     "images": {
-      "durak-01-game-full.webp": "px0869760d086f8210:shot-portrait-full:0",
-      "durak-01-game.webp": "px0869760d086f8210:shot-portrait:0",
-      "durak-02-why-full.webp": "pxfe79275d66f6df21:shot-portrait-full:0",
-      "durak-02-why.webp": "pxfe79275d66f6df21:shot-portrait:0",
-      "durak-03-result-full.webp": "pxcda10ee3be27271e:shot-portrait-full:0",
-      "durak-03-result.webp": "pxcda10ee3be27271e:shot-portrait:0",
-      "durak-04-perevodnoy-full.webp": "pxd7b47904ed88b170:shot-portrait-full:0",
-      "durak-04-perevodnoy.webp": "pxd7b47904ed88b170:shot-portrait:0",
-      "durak-08-review-full.webp": "pxa66534421390e4d6:shot-portrait-full:0",
-      "durak-08-review.webp": "pxa66534421390e4d6:shot-portrait:0",
-      "durak-09-puzzle-full.webp": "px9aa7ba57279d26d1:shot-portrait-full:0",
-      "durak-09-puzzle.webp": "px9aa7ba57279d26d1:shot-portrait:0",
+      "durak-01-game-full.webp": "px89b7c72ed10bfae6:shot-portrait-full:0",
+      "durak-01-game.webp": "px89b7c72ed10bfae6:shot-portrait:0",
+      "durak-02-why-full.webp": "pxe1337e08fdbd5320:shot-portrait-full:0",
+      "durak-02-why.webp": "pxe1337e08fdbd5320:shot-portrait:0",
+      "durak-03-result-full.webp": "px6953b8d123c18ec3:shot-portrait-full:0",
+      "durak-03-result.webp": "px6953b8d123c18ec3:shot-portrait:0",
+      "durak-04-perevodnoy-full.webp": "px84545caac0c79db4:shot-portrait-full:0",
+      "durak-04-perevodnoy.webp": "px84545caac0c79db4:shot-portrait:0",
+      "durak-08-review-full.webp": "pxb6e96f16c9f78882:shot-portrait-full:0",
+      "durak-08-review.webp": "pxb6e96f16c9f78882:shot-portrait:0",
+      "durak-09-puzzle-full.webp": "px3f576342f9ef0e3c:shot-portrait-full:0",
+      "durak-09-puzzle.webp": "px3f576342f9ef0e3c:shot-portrait:0",
       "durak-11-path-full.webp": "px89d0cef59a88d934:shot-portrait-full:0",
       "durak-11-path.webp": "px89d0cef59a88d934:shot-portrait:0",
-      "durak-12-collection-full.webp": "px6b4e0029e073d562:shot-portrait-full:0",
-      "durak-12-collection.webp": "px6b4e0029e073d562:shot-portrait:0",
+      "durak-12-collection-full.webp": "pxef5001bda2003e99:shot-portrait-full:0",
+      "durak-12-collection.webp": "pxef5001bda2003e99:shot-portrait:0",
       "durak-feature.webp": "pxcd47e4df8c503a58:feature:0",
       "durak-icon.webp": "px1cb64ae5e7d0865a:icon:0",
       "durak-og.png": "px127886ab28684b71:og:1"
@@ -169,7 +169,7 @@
   },
   "bukvitsa": {
     "repo": "Nefeste/bukvitsa",
-    "commit": "71734afda774e5541f021620e8657f6691042335",
+    "commit": "cd64d2c774455a1e7ee86bf3e7921a1fb01c5167",
     "images": {
       "bukvitsa-01-proverb-full.webp": "pxf0ecab739f84a823:shot-portrait-full:0",
       "bukvitsa-01-proverb.webp": "pxf0ecab739f84a823:shot-portrait:0",
@@ -190,6 +190,31 @@
       "bukvitsa-feature.webp": "px334913acd03fb4c3:feature:0",
       "bukvitsa-icon.webp": "pxe626c3bbad3b0f96:icon:0",
       "bukvitsa-og.png": "px334913acd03fb4c3:og:0"
+    }
+  },
+  "dispatcher": {
+    "repo": "Nefeste/dispatcher",
+    "commit": "943837ee4666520bc6fa2d3e54b0513fac74f2c5",
+    "images": {
+      "dispatcher-01-call-full.webp": "px61d50ece91e610d5:shot-portrait-full:0",
+      "dispatcher-01-call.webp": "px61d50ece91e610d5:shot-portrait:0",
+      "dispatcher-02-crews-full.webp": "px029f4c0e3113b8ae:shot-portrait-full:0",
+      "dispatcher-02-crews.webp": "px029f4c0e3113b8ae:shot-portrait:0",
+      "dispatcher-03-map-full.webp": "px436b2f29887ba973:shot-portrait-full:0",
+      "dispatcher-03-map.webp": "px436b2f29887ba973:shot-portrait:0",
+      "dispatcher-04-report-full.webp": "px01985727e679e19f:shot-portrait-full:0",
+      "dispatcher-04-report.webp": "px01985727e679e19f:shot-portrait:0",
+      "dispatcher-05-call-review-full.webp": "px47eee527ef390293:shot-portrait-full:0",
+      "dispatcher-05-call-review.webp": "px47eee527ef390293:shot-portrait:0",
+      "dispatcher-06-station-full.webp": "px54409b8dd419c116:shot-portrait-full:0",
+      "dispatcher-06-station.webp": "px54409b8dd419c116:shot-portrait:0",
+      "dispatcher-07-week-full.webp": "pxb4a6c47e21142e5a:shot-portrait-full:0",
+      "dispatcher-07-week.webp": "pxb4a6c47e21142e5a:shot-portrait:0",
+      "dispatcher-08-desk-full.webp": "px6b9e7608ea49c043:shot-portrait-full:0",
+      "dispatcher-08-desk.webp": "px6b9e7608ea49c043:shot-portrait:0",
+      "dispatcher-feature.webp": "pxf4030bcc36845479:feature:0",
+      "dispatcher-icon.webp": "pxd6ca2af9905b80bd:icon:0",
+      "dispatcher-og.png": "px65e2a9cb2635fa10:og:1"
     }
   }
 }
