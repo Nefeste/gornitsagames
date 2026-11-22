@@ -36,6 +36,7 @@ pages = {
     "durak/index.html": ("games", "/", "ru", "en/durak/index.html"),
     "durak/delete.html": ("games", "/", "ru", "en/durak/delete.html"),
     "bukvitsa/index.html": ("games", "/", "ru", "en/bukvitsa/index.html"),
+    "dispatcher/index.html": ("games", "/", "ru", "en/dispatcher/index.html"),
     # условия подписки «Узоры+» — только по-русски: подписка продаётся в RuStore, в России
     "uzory/terms.html": ("games", "/", "ru", "en/uzory/index.html"),
     "en/index.html": ("home", "/", "en", "index.html"),
@@ -61,6 +62,7 @@ pages = {
     "en/durak/index.html": ("games", "/", "en", "durak/index.html"),
     "en/durak/delete.html": ("games", "/", "en", "durak/delete.html"),
     "en/bukvitsa/index.html": ("games", "/", "en", "bukvitsa/index.html"),
+    "en/dispatcher/index.html": ("games", "/", "en", "dispatcher/index.html"),
 }
 
 # Игры в подвале — в порядке tools/games.json, названия — из <h1> страниц игр:

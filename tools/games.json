@@ -25,10 +25,12 @@
     {
       "slug": "bukvitsa",
       "repo": "Nefeste/bukvitsa",
+      "private": true,
       "card": {
         "ru": [{"text": "Почему эта игра", "url": "/news.html#2026-10-04-bukvitsa"}],
         "en": [{"text": "Why this game", "url": "/en/news.html#2026-10-04-bukvitsa"}]
       }
-    }
+    },
+    {"slug": "dispatcher", "repo": "Nefeste/dispatcher"}
   ]
 }

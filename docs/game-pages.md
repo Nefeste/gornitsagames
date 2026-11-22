@@ -85,7 +85,7 @@
   а карточку «В планах» убирают.
 - Игра без `store/site/page.ru.md` не трогается; игра с ошибками в папке пропускается, причина —
   в описании PR. Без `page.en.md` английская страница не меняется.
-- Закрытые `nardy`, `votchina` и `skazy` (`"private": true` в `tools/games.json`) workflow читает
+- Закрытые `nardy`, `votchina`, `skazy`, `durak` и `bukvitsa` (`"private": true` в `tools/games.json`) workflow читает
   токеном из секрета `GAMES_READ_TOKEN`: fine-grained, только чтение содержимого (Contents: Read)
   этих репозиториев, действует до 28.09.2027. Права и срок меняет владелец: github.com → Settings →
   Developer settings → Fine-grained tokens → токен → Repository access — добавить репозиторий (так
